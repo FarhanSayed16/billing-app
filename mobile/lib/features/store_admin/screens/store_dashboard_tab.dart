@@ -5,7 +5,8 @@ import '../../../providers/api_provider.dart';
 import '../../../config/theme.dart';
 
 class StoreDashboardTab extends ConsumerStatefulWidget {
-  const StoreDashboardTab({Key? key}) : super(key: key);
+  final void Function(int)? onSwitchTab;
+  const StoreDashboardTab({Key? key, this.onSwitchTab}) : super(key: key);
 
   @override
   ConsumerState<StoreDashboardTab> createState() => _StoreDashboardTabState();
@@ -118,9 +119,7 @@ class _StoreDashboardTabState extends ConsumerState<StoreDashboardTab> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        // Switch to Employees Tab (Index 2)
-                        // Note: Using Riverpod to manage dashboard index is cleaner, 
-                        // but a simple workaround is push context.
+                        widget.onSwitchTab?.call(2); // Switch to Staff tab
                       },
                       icon: const Icon(Icons.people),
                       label: const Text('View Staff'),
@@ -130,7 +129,9 @@ class _StoreDashboardTabState extends ConsumerState<StoreDashboardTab> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        widget.onSwitchTab?.call(1); // Switch to Invoices tab
+                      },
                       icon: const Icon(Icons.receipt_long),
                       label: const Text('View Invoices'),
                       style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),

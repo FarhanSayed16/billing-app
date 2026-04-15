@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
-import '../../providers/api_provider.dart';
-import '../../providers/cart_provider.dart';
+import '../../../providers/api_provider.dart';
+import '../../../providers/cart_provider.dart';
 
 class CustomerEntryScreen extends ConsumerStatefulWidget {
   const CustomerEntryScreen({Key? key}) : super(key: key);

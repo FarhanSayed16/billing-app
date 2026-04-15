@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/api_provider.dart';
+import '../../../providers/cart_provider.dart';
+import '../../../providers/api_provider.dart';
 import '../../../core/utils/pdf_generator.dart';
 import 'package:dio/dio.dart';
 
@@ -64,12 +64,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         'customer_id': cart.customer?.id,
         'customer_phone': cart.customer?.phone,
         'customer_name': cart.customer?.name,
-        'items': cart.items.map((i) => {
+        'items': cart.items.map((i) => ({
           'name': i.name,
           'quantity': i.quantity,
           'unit_price': i.unitPrice,
           'tax_rate': i.taxRate,
-        }).toList(),
+        })).toList(),
         'discount_amount': cart.discountAmount,
         'loyalty_points_redeemed': _useLoyalty ? cart.customer?.loyaltyPoints : 0,
         'tax_amount': cart.taxAmount,
@@ -85,7 +85,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ...invoiceData,
         'customer_name': cart.customer?.name,
         'customer_phone': cart.customer?.phone,
-        'items': cart.items.map((i) => {'name': i.name, 'quantity': i.quantity, 'unit_price': i.unitPrice}).toList()
+        'items': cart.items.map((i) => ({'name': i.name, 'quantity': i.quantity, 'unit_price': i.unitPrice})).toList()
       };
 
       // 2. Output PDF Local

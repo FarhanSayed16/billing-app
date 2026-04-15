@@ -25,6 +25,7 @@ export default function Home() {
   };
 
   return (
+    <div className="page-center">
     <div className="w-full" style={{ maxWidth: '800px', margin: '0 auto' }}>
       <div className="text-center mb-8 pb-4">
         <h1 style={{ fontSize: '3rem', color: 'var(--primary)', letterSpacing: '-1px' }}>BillPush</h1>
@@ -73,6 +74,7 @@ export default function Home() {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 }

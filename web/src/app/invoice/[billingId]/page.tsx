@@ -1,25 +1,46 @@
+"use client";
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 
-async function fetchInvoice(billingId: string) {
-  const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/invoices/billing/${billingId}`;
-  const res = await fetch(url, { cache: 'no-store' });
-  
-  if (!res.ok) {
-    return null;
+export default function InvoiceDetail() {
+  const params = useParams();
+  const billingId = params.billingId as string;
+  const [invoice, setInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      try {
+        const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/invoices/billing/${billingId}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          setNotFound(true);
+          return;
+        }
+        const data = await res.json();
+        setInvoice(data);
+      } catch {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInvoice();
+  }, [billingId]);
+
+  if (loading) {
+    return <div className="page-center"><p className="text-muted">Loading invoice...</p></div>;
   }
-  
-  return res.json();
-}
 
-export default async function InvoiceDetail({ params }: { params: { billingId: string } }) {
-  const invoice = await fetchInvoice(params.billingId);
-
-  if (!invoice) {
+  if (notFound || !invoice) {
     return (
       <div className="page-center">
         <div className="glass-panel text-center">
           <h1 className="text-error mb-4">Invoice Not Found</h1>
-          <p className="text-muted mb-6">We couldn't locate an invoice with the ID <strong>{params.billingId}</strong>.</p>
+          <p className="text-muted mb-6">We couldn&apos;t locate an invoice with the ID <strong>{billingId}</strong>.</p>
           <Link href="/">
             <button className="btn-primary">Return Home</button>
           </Link>
@@ -28,16 +49,24 @@ export default async function InvoiceDetail({ params }: { params: { billingId: s
     );
   }
 
+  const customerName = invoice.customer?.name || 'Guest';
+  const customerPhone = invoice.customer?.phone || '';
+  const storeName = invoice.store?.name || 'Your Store';
+  const storeAddress = invoice.store?.address || '';
+  const storeCity = invoice.store?.city || '';
+  const storePhone = invoice.store?.phone || '';
+  const storeGst = invoice.store?.gst_number || '';
+
   return (
     <div className="w-full" style={{ maxWidth: '800px', margin: '0 auto' }}>
       
-      <div className="no-print mb-6 display-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="no-print mb-6" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link href="/" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
           &larr; Back to Home
         </Link>
         <button 
           className="btn-primary" 
-          onClick="window.print()" 
+          onClick={() => window.print()}
         >
           Download as PDF
         </button>
@@ -47,11 +76,11 @@ export default async function InvoiceDetail({ params }: { params: { billingId: s
         
         {/* Store Header Info */}
         <div className="text-center mb-8">
-          <h1 style={{ fontSize: '2rem', marginBottom: '4px' }}>{invoice.store_name || "Your Store"}</h1>
-          <p className="text-muted">{invoice.store?.address || invoice.store_address || ""}</p>
-          <p className="text-muted">{invoice.store?.city || ""}</p>
-          <p className="text-muted">Ph: {invoice.store?.phone || ""}</p>
-          {invoice.store?.gst_number && <p className="text-muted">GSTIN: {invoice.store.gst_number}</p>}
+          <h1 style={{ fontSize: '2rem', marginBottom: '4px' }}>{storeName}</h1>
+          <p className="text-muted">{storeAddress}</p>
+          <p className="text-muted">{storeCity}</p>
+          <p className="text-muted">Ph: {storePhone}</p>
+          {storeGst && <p className="text-muted">GSTIN: {storeGst}</p>}
         </div>
 
         <hr style={{ borderColor: '#e2e8f0', margin: '2rem 0' }} />
@@ -65,8 +94,8 @@ export default async function InvoiceDetail({ params }: { params: { billingId: s
           </div>
           <div style={{ textAlign: 'right' }}>
             <p><strong>Bill To:</strong></p>
-            <p>{invoice.customer_name || 'Guest'}</p>
-            <p>{invoice.customer_phone || ''}</p>
+            <p>{customerName}</p>
+            <p>{customerPhone}</p>
           </div>
         </div>
 
@@ -108,10 +137,10 @@ export default async function InvoiceDetail({ params }: { params: { billingId: s
                 <span>-₹{invoice.discount_amount}</span>
               </div>
             )}
-            {invoice.loyalty_points_redeemed > 0 && (
+            {invoice.loyalty_discount > 0 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--error)' }}>
                 <span>Loyalty Redeemed:</span>
-                <span>-₹{invoice.loyalty_points_redeemed}</span>
+                <span>-₹{invoice.loyalty_discount}</span>
               </div>
             )}
             
@@ -133,13 +162,6 @@ export default async function InvoiceDetail({ params }: { params: { billingId: s
         </div>
 
       </div>
-      
-      {/* Script injected to handle print because onClick doesn't map directly in pure Server Components unless wrapped in client component, so we export a simple client wrapper or use raw DOM injection */}
-      <script dangerouslySetInnerHTML={{ __html: `
-        document.querySelector('button.btn-primary').addEventListener('click', function() {
-          window.print();
-        });
-      `}} />
     </div>
   );
 }

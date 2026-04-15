@@ -1,24 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/auth_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/api_provider.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
-import '../../providers/cart_provider.dart';
+import '../../../providers/cart_provider.dart';
 
-class PosHomeScreen extends ConsumerWidget {
+class PosHomeScreen extends ConsumerStatefulWidget {
   const PosHomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // For MVP phase 1, auth state contains basic name and metadata inside token or fetch logic
-    // We'll mock name for now or derive from auth token via decoder later
-    final employeeName = 'Employee'; 
-    final storeName = 'Your Store';
+  ConsumerState<PosHomeScreen> createState() => _PosHomeScreenState();
+}
 
+class _PosHomeScreenState extends ConsumerState<PosHomeScreen> {
+  String _employeeName = 'Employee';
+  String _storeName = 'Your Store';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final res = await dio.get('/auth/me');
+      if (mounted) {
+        setState(() {
+          _employeeName = res.data['name'] ?? 'Employee';
+          _storeName = res.data['store']?['name'] ?? res.data['store_name'] ?? 'Your Store';
+        });
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: BillPushAppBar(
-        title: storeName,
+        title: _storeName,
         showBackButton: false,
         actions: [
           IconButton(
@@ -38,7 +61,7 @@ class PosHomeScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Welcome, $employeeName', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                Text('Welcome, $_employeeName', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(color: AppTheme.successColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),

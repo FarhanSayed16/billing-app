@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
-import '../../providers/cart_provider.dart';
+import '../../../providers/cart_provider.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({Key? key}) : super(key: key);

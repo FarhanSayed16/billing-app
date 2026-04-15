@@ -77,7 +77,7 @@ function HistoryContent() {
               <div>
                 <p style={{ fontWeight: 'bold' }}>{inv.store_name || 'BillPush Store'}</p>
                 <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-                  {new Date(inv.created_at).toLocaleDateString()} &middot; {new Date(inv.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {new Date(inv.invoice_date).toLocaleDateString()} &middot; {new Date(inv.invoice_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>

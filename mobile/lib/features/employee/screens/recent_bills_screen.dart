@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
-import '../../providers/api_provider.dart';
+import '../../../providers/api_provider.dart';
+import '../../../core/utils/pdf_generator.dart';
 
 class RecentBillsScreen extends ConsumerStatefulWidget {
   const RecentBillsScreen({Key? key}) : super(key: key);
@@ -87,10 +89,25 @@ class _RecentBillsScreenState extends ConsumerState<RecentBillsScreen> {
                             if (!isVoid)
                               IconButton(
                                 icon: const Icon(Icons.share, color: AppTheme.primaryColor),
-                                onPressed: () {
-                                  // Re-share logic (generates PDF and shares)
-                                  // In fully implemented app, this calls PDF generator again.
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Re-sharing...')));
+                                onPressed: () async {
+                                  try {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Generating PDF...')));
+                                    final dio = ref.read(dioProvider);
+                                    // Fetch full invoice details
+                                    final invRes = await dio.get('/invoices/${inv['id']}');
+                                    final invoiceData = invRes.data;
+                                    final storeData = invoiceData['store'] ?? {};
+                                    // Generate PDF
+                                    final pdfFile = await InvoicePdfGenerator.generateInvoicePdf(invoiceData, storeData);
+                                    final text = "Thank you for shopping at ${storeData['name'] ?? 'our store'}!\n"
+                                        "Your bill: \u20b9${inv['grand_total']}\n"
+                                        "View invoice: bills.billpush.com/v/${inv['billing_id'] ?? invoiceData['billing_id']}";
+                                    await Share.shareXFiles([XFile(pdfFile.path)], text: text);
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to re-share')));
+                                    }
+                                  }
                                 },
                               ),
                           ],
