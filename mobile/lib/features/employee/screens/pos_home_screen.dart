@@ -1,0 +1,89 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../providers/auth_provider.dart';
+import '../../../widgets/custom_widgets.dart';
+import '../../../config/theme.dart';
+import '../../providers/cart_provider.dart';
+
+class PosHomeScreen extends ConsumerWidget {
+  const PosHomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // For MVP phase 1, auth state contains basic name and metadata inside token or fetch logic
+    // We'll mock name for now or derive from auth token via decoder later
+    final employeeName = 'Employee'; 
+    final storeName = 'Your Store';
+
+    return Scaffold(
+      appBar: BillPushAppBar(
+        title: storeName,
+        showBackButton: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+          )
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Welcome, $employeeName', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(color: AppTheme.successColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.circle, color: AppTheme.successColor, size: 10),
+                      SizedBox(width: 6),
+                      Text('ONLINE', style: TextStyle(color: AppTheme.successColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            SizedBox(
+              height: 120,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.add_shopping_cart, size: 40, color: Colors.white),
+                label: const Text('NEW BILL', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+                onPressed: () {
+                  ref.read(cartProvider.notifier).clearCart();
+                  context.push('/employee/pos/customer');
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 80,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.receipt_long, size: 30),
+                label: const Text('Recent Bills', style: TextStyle(fontSize: 20)),
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                ),
+                onPressed: () => context.push('/employee/pos/recent'),
+              ),
+            ),
+            const Spacer(flex: 2),
+          ],
+        ),
+      ),
+    );
+  }
+}

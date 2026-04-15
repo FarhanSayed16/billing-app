@@ -973,18 +973,18 @@
 - [ ] "Re-share" button on each item
 
 ### 1J CHECKPOINT
-- [ ] Employee can enter customer phone and name
-- [ ] Customer auto-fill works for returning customers
-- [ ] Items can be added to cart (manual entry)
-- [ ] Tax calculation is correct
-- [ ] Discounts and loyalty points work
-- [ ] Invoice is created in the database
-- [ ] PDF is generated locally with store branding
-- [ ] Native share sheet opens with message + PDF
-- [ ] Success screen shows after sharing
-- [ ] Recent bills list works
-- [ ] Invoice re-sharing works
-- [ ] **Commit:** "feat: complete Employee POS flow with PDF generation and share"
+- [x] Employee can enter customer phone and name
+- [x] Customer auto-fill works for returning customers
+- [x] Items can be added to cart (manual entry)
+- [x] Tax calculation is correct
+- [x] Discounts and loyalty points work
+- [x] Invoice is created in the database
+- [x] PDF is generated locally with store branding
+- [x] Native share sheet opens with message + PDF
+- [x] Success screen shows after sharing
+- [x] Recent bills list works
+- [x] Invoice re-sharing works
+- [x] **Commit:** "feat: complete Employee POS flow with PDF generation and share"
 
 ---
 
