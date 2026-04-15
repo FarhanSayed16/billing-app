@@ -470,126 +470,126 @@
 
 ### 1C.1 — Store CRUD
 
-- [ ] Create NestJS module: `nest g module stores`
-- [ ] Create NestJS controller: `nest g controller stores`
-- [ ] Create NestJS service: `nest g service stores`
+- [x] Create NestJS module: `nest g module stores`
+- [x] Create NestJS controller: `nest g controller stores`
+- [x] Create NestJS service: `nest g service stores`
 
-- [ ] Create DTO: `CreateStoreDto` (name, address, city, state, gst_number, phone, logo_url, brand_color)
-- [ ] Endpoint: `POST /stores` (Store Admin only — creates their store after approval)
-  - [ ] Associates the store with the brand_id from the Store Admin's JWT
-  - [ ] Updates the Store Admin's user record: sets store_id to the new store's ID
-  - [ ] Returns created store
+- [x] Create DTO: `CreateStoreDto` (name, address, city, state, gst_number, phone, logo_url, brand_color)
+- [x] Endpoint: `POST /stores` (Store Admin only — creates their store after approval)
+  - [x] Associates the store with the brand_id from the Store Admin's JWT
+  - [x] Updates the Store Admin's user record: sets store_id to the new store's ID
+  - [x] Returns created store
 
-- [ ] Endpoint: `GET /stores` (Super Admin only)
-  - [ ] Returns all stores for the brand_id from JWT
-  - [ ] Includes: employee count, total invoices, today's revenue (aggregated)
+- [x] Endpoint: `GET /stores` (Super Admin only)
+  - [x] Returns all stores for the brand_id from JWT
+  - [x] Includes: employee count, total invoices, today's revenue (aggregated)
 
-- [ ] Endpoint: `GET /stores/:id` (Store Admin: own store only; Super Admin: any store)
-  - [ ] Returns full store details with stats
+- [x] Endpoint: `GET /stores/:id` (Store Admin: own store only; Super Admin: any store)
+  - [x] Returns full store details with stats
 
-- [ ] Endpoint: `PATCH /stores/:id` (Store Admin: own store; Super Admin: any store)
-  - [ ] Update: name, address, phone, logo_url, brand_color, gst_number
+- [x] Endpoint: `PATCH /stores/:id` (Store Admin: own store; Super Admin: any store)
+  - [x] Update: name, address, phone, logo_url, brand_color, gst_number
 
-- [ ] Endpoint: `PATCH /stores/:id/deactivate` (Super Admin only)
-  - [ ] Sets is_active=false. No new bills can be generated.
+- [x] Endpoint: `PATCH /stores/:id/deactivate` (Super Admin only)
+  - [x] Sets is_active=false. No new bills can be generated.
 
-- [ ] Endpoint: `PATCH /stores/:id/activate` (Super Admin only)
-  - [ ] Sets is_active=true. Store resumes operations.
+- [x] Endpoint: `PATCH /stores/:id/activate` (Super Admin only)
+  - [x] Sets is_active=true. Store resumes operations.
 
 ### 1C.2 — Store Logo Upload
 
-- [ ] Set up file upload infrastructure:
-  - [ ] Install `@nestjs/platform-express` and `multer`
-  - [ ] Install AWS SDK: `npm install @aws-sdk/client-s3`
-  - [ ] Create S3 upload service (`backend/src/common/s3.service.ts`)
-- [ ] Endpoint: `POST /stores/:id/logo` (multipart form-data)
-  - [ ] Accepts image file (PNG/JPG, max 2MB)
-  - [ ] Uploads to S3 bucket under `logos/{store_id}/logo.{ext}`
-  - [ ] Updates store's `logo_url` field with the S3 URL
-  - [ ] Returns the logo URL
+- [x] Set up file upload infrastructure:
+  - [x] Install `@nestjs/platform-express` and `multer`
+  - [x] Install AWS SDK: `npm install @aws-sdk/client-s3`
+  - [x] Create S3 upload service (`backend/src/common/s3.service.ts`)
+- [x] Endpoint: `POST /stores/:id/logo` (multipart form-data)
+  - [x] Accepts image file (PNG/JPG, max 2MB)
+  - [x] Uploads to S3 bucket under `logos/{store_id}/logo.{ext}`
+  - [x] Updates store's `logo_url` field with the S3 URL
+  - [x] Returns the logo URL
 
 ### 1C CHECKPOINT
-- [ ] Store Admin can create their store profile after approval
-- [ ] Store Admin can upload a store logo
-- [ ] Super Admin can view all stores
-- [ ] Super Admin can activate/deactivate stores
-- [ ] Store Admin can only see their own store
-- [ ] **Commit:** "feat: store management with logo upload"
+- [x] Store Admin can create their store profile after approval
+- [x] Store Admin can upload a store logo
+- [x] Super Admin can view all stores
+- [x] Super Admin can activate/deactivate stores
+- [x] Store Admin can only see their own store
+- [x] **Commit:** "feat: store management with logo upload"
 
 ---
 
 ## Sub-Phase 1D: Employee Management Module
 
-- [ ] Create NestJS module: `nest g module employees`
-- [ ] Create controller and service
+- [x] Create NestJS module: `nest g module employees`
+- [x] Create controller and service
 
-- [ ] Create DTO: `CreateEmployeeDto` (name, phone, pin — 4 digits)
-- [ ] Endpoint: `POST /employees` (Store Admin only)
-  - [ ] Creates user with role=EMPLOYEE, store_id from Store Admin's JWT
-  - [ ] Hashes the 4-digit PIN with bcrypt
-  - [ ] Sets approval_status=APPROVED (employees don't need Super Admin approval)
-  - [ ] Returns: employee id, name
+- [x] Create DTO: `CreateEmployeeDto` (name, phone, pin — 4 digits)
+- [x] Endpoint: `POST /employees` (Store Admin only)
+  - [x] Creates user with role=EMPLOYEE, store_id from Store Admin's JWT
+  - [x] Hashes the 4-digit PIN with bcrypt
+  - [x] Sets approval_status=APPROVED (employees don't need Super Admin approval)
+  - [x] Returns: employee id, name
 
-- [ ] Endpoint: `GET /employees` (Store Admin: own store; Super Admin: any store via query param)
-  - [ ] Returns list of employees for the store
-  - [ ] Includes: name, phone, is_active, last_login_at, bills_today_count
+- [x] Endpoint: `GET /employees` (Store Admin: own store; Super Admin: any store via query param)
+  - [x] Returns list of employees for the store
+  - [x] Includes: name, phone, is_active, last_login_at, bills_today_count
 
-- [ ] Endpoint: `PATCH /employees/:id` (Store Admin only)
-  - [ ] Update: name, phone, is_active
+- [x] Endpoint: `PATCH /employees/:id` (Store Admin only)
+  - [x] Update: name, phone, is_active
 
-- [ ] Endpoint: `PATCH /employees/:id/reset-pin` (Store Admin only)
-  - [ ] Accepts new 4-digit PIN, hashes it, updates the record
+- [x] Endpoint: `PATCH /employees/:id/reset-pin` (Store Admin only)
+  - [x] Accepts new 4-digit PIN, hashes it, updates the record
 
-- [ ] Endpoint: `DELETE /employees/:id` (Store Admin only)
-  - [ ] Soft delete: sets is_active=false
-  - [ ] The employee can no longer log in
+- [x] Endpoint: `DELETE /employees/:id` (Store Admin only)
+  - [x] Soft delete: sets is_active=false
+  - [x] The employee can no longer log in
 
-- [ ] Endpoint: `GET /employees/login-list/:storeId` (Public — needed for the employee login dropdown)
-  - [ ] Returns only: employee id and name (NO sensitive data)
-  - [ ] Only active employees
-  - [ ] This is used on the Flutter login screen to populate the name dropdown
+- [x] Endpoint: `GET /employees/login-list/:storeId` (Public — needed for the employee login dropdown)
+  - [x] Returns only: employee id and name (NO sensitive data)
+  - [x] Only active employees
+  - [x] This is used on the Flutter login screen to populate the name dropdown
 
 ### 1D CHECKPOINT
-- [ ] Store Admin can create employees with PINs
-- [ ] Store Admin can view, edit, deactivate employees
-- [ ] Employee login dropdown shows active employee names
-- [ ] Employee can log in with their name + PIN
-- [ ] **Commit:** "feat: employee management module"
+- [x] Store Admin can create employees with PINs
+- [x] Store Admin can view, edit, deactivate employees
+- [x] Employee login dropdown shows active employee names
+- [x] Employee can log in with their name + PIN
+- [x] **Commit:** "feat: employee management module"
 
 ---
 
 ## Sub-Phase 1E: Customer Management Module
 
-- [ ] Create NestJS module: `nest g module customers`
-- [ ] Create controller and service
+- [x] Create NestJS module: `nest g module customers`
+- [x] Create controller and service
 
-- [ ] Endpoint: `POST /customers` (Employee, Store Admin)
-  - [ ] Create DTO: `CreateCustomerDto` (phone, name)
-  - [ ] Creates customer record under the brand_id from JWT
-  - [ ] If phone already exists for this brand: return existing customer (deduplication)
-  - [ ] Returns: customer id, name, phone, total_visits, loyalty_points
+- [x] Endpoint: `POST /customers` (Employee, Store Admin)
+  - [x] Create DTO: `CreateCustomerDto` (phone, name)
+  - [x] Creates customer record under the brand_id from JWT
+  - [x] If phone already exists for this brand: return existing customer (deduplication)
+  - [x] Returns: customer id, name, phone, total_visits, loyalty_points
 
-- [ ] Endpoint: `GET /customers/lookup/:phone` (Employee, Store Admin)
-  - [ ] Looks up customer by phone within the brand
-  - [ ] If found: returns customer profile (name, total_visits, loyalty_points)
-  - [ ] If not found: returns 404 (triggers "New Customer" flow in the app)
+- [x] Endpoint: `GET /customers/lookup/:phone` (Employee, Store Admin)
+  - [x] Looks up customer by phone within the brand
+  - [x] If found: returns customer profile (name, total_visits, loyalty_points)
+  - [x] If not found: returns 404 (triggers "New Customer" flow in the app)
 
-- [ ] Endpoint: `GET /customers` (Store Admin: filtered by store visits; Super Admin: all)
-  - [ ] Query params: search (name or phone), sort_by, page, limit
-  - [ ] Returns paginated customer list with stats
+- [x] Endpoint: `GET /customers` (Store Admin: filtered by store visits; Super Admin: all)
+  - [x] Query params: search (name or phone), sort_by, page, limit
+  - [x] Returns paginated customer list with stats
 
-- [ ] Endpoint: `GET /customers/:id` (Store Admin, Super Admin)
-  - [ ] Returns full customer profile with visit history
+- [x] Endpoint: `GET /customers/:id` (Store Admin, Super Admin)
+  - [x] Returns full customer profile with visit history
 
-- [ ] Endpoint: `PATCH /customers/:id` (Store Admin, Super Admin)
-  - [ ] Update: name only (phone is immutable)
+- [x] Endpoint: `PATCH /customers/:id` (Store Admin, Super Admin)
+  - [x] Update: name only (phone is immutable)
 
 ### 1E CHECKPOINT
-- [ ] Customer can be created during checkout
-- [ ] Duplicate phone numbers return existing customer (same brand)
-- [ ] Customer lookup by phone works
-- [ ] Customer list is searchable and paginated
-- [ ] **Commit:** "feat: customer management with deduplication"
+- [x] Customer can be created during checkout
+- [x] Duplicate phone numbers return existing customer (same brand)
+- [x] Customer lookup by phone works
+- [x] Customer list is searchable and paginated
+- [x] **Commit:** "feat: customer management with deduplication"
 
 ---
 

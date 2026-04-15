@@ -1,0 +1,124 @@
+import { StoresService } from './stores.service';
+import { CreateStoreDto } from './dto/create-store.dto';
+import { UpdateStoreDto } from './dto/update-store.dto';
+export declare class StoresController {
+    private readonly storesService;
+    constructor(storesService: StoresService);
+    create(createStoreDto: CreateStoreDto, req: any): Promise<{
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+    findAll(req: any): Promise<{
+        employee_count: number;
+        total_invoices: number;
+        _count: {
+            users: number;
+            invoices: number;
+        };
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }[]>;
+    findOne(id: string, req: any): Promise<{
+        employee_count: number;
+        total_invoices: number;
+        _count: {
+            users: number;
+            invoices: number;
+        };
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+    update(id: string, updateStoreDto: UpdateStoreDto, req: any): Promise<{
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+    deactivate(id: string, req: any): Promise<{
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+    activate(id: string, req: any): Promise<{
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+    uploadLogo(id: string, req: any, file: Express.Multer.File): Promise<{
+        id: string;
+        name: string;
+        logo_url: string | null;
+        gst_number: string | null;
+        created_at: Date;
+        updated_at: Date;
+        phone: string;
+        is_active: boolean;
+        brand_id: string;
+        address: string;
+        city: string;
+        state: string;
+        brand_color: string | null;
+    }>;
+}
