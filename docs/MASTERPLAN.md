@@ -597,21 +597,21 @@
 
 ### 1F.1 — Invoice Creation
 
-- [ ] Create NestJS module: `nest g module invoices`
-- [ ] Create controller and service
+- [x] Create NestJS module: `nest g module invoices`
+- [x] Create controller and service
 
-- [ ] Create utility: **Billing ID Generator**
-  - [ ] Generates 16-character alphanumeric string (uppercase)
-  - [ ] Checks uniqueness in database before returning
-  - [ ] Example output: `A1B2C3D4E5F6G7H8`
+- [x] Create utility: **Billing ID Generator**
+  - [x] Generates 16-character alphanumeric string (uppercase)
+  - [x] Checks uniqueness in database before returning
+  - [x] Example output: `A1B2C3D4E5F6G7H8`
 
-- [ ] Create utility: **Invoice Number Generator**
-  - [ ] Format: `{STORE_PREFIX}-{YEAR}-{SEQUENTIAL_NUMBER}`
-  - [ ] Example: `TB-2026-00047`
-  - [ ] Store prefix = first 2 letters of store name (uppercase)
-  - [ ] Sequential number auto-increments per store per year
+- [x] Create utility: **Invoice Number Generator**
+  - [x] Format: `{STORE_PREFIX}-{YEAR}-{SEQUENTIAL_NUMBER}`
+  - [x] Example: `TB-2026-00047`
+  - [x] Store prefix = first 2 letters of store name (uppercase)
+  - [x] Sequential number auto-increments per store per year
 
-- [ ] Create DTO: `CreateInvoiceDto`
+- [x] Create DTO: `CreateInvoiceDto`
   ```
   {
     customer_id: UUID (nullable for guest),
@@ -631,80 +631,80 @@
   }
   ```
 
-- [ ] Endpoint: `POST /invoices` (Employee only)
-  - [ ] Validates all items and calculates:
-    - [ ] Per-item tax_amount = quantity * unit_price * (tax_rate / 100)
-    - [ ] Per-item total = (quantity * unit_price) + tax_amount
-    - [ ] subtotal = sum of all (quantity * unit_price)
-    - [ ] tax_amount = sum of all per-item tax_amounts
-    - [ ] loyalty_discount = calculate ₹ value of redeemed points
-    - [ ] grand_total = subtotal + tax_amount - discount_amount - loyalty_discount
-  - [ ] Creates or finds customer (by phone, deduplication)
-  - [ ] Generates unique billing_id (16 chars)
-  - [ ] Generates invoice_number (sequential per store)
-  - [ ] Creates invoice record in database
-  - [ ] Creates all invoice_item records
-  - [ ] Updates customer stats: total_visits++, total_spend += grand_total, last_visit_at = now
-  - [ ] If loyalty points redeemed: deduct from customer balance, create REDEEMED ledger entry
-  - [ ] Calculate loyalty points earned: grand_total / 100 * points_per_100 (from brand config)
-  - [ ] Add earned points to customer balance, create EARNED ledger entry
-  - [ ] Create audit_log entry: INVOICE_CREATED
-  - [ ] Return: complete invoice object with billing_id, invoice_number, all items, totals
+- [x] Endpoint: `POST /invoices` (Employee only)
+  - [x] Validates all items and calculates:
+    - [x] Per-item tax_amount = quantity * unit_price * (tax_rate / 100)
+    - [x] Per-item total = (quantity * unit_price) + tax_amount
+    - [x] subtotal = sum of all (quantity * unit_price)
+    - [x] tax_amount = sum of all per-item tax_amounts
+    - [x] loyalty_discount = calculate ₹ value of redeemed points
+    - [x] grand_total = subtotal + tax_amount - discount_amount - loyalty_discount
+  - [x] Creates or finds customer (by phone, deduplication)
+  - [x] Generates unique billing_id (16 chars)
+  - [x] Generates invoice_number (sequential per store)
+  - [x] Creates invoice record in database
+  - [x] Creates all invoice_item records
+  - [x] Updates customer stats: total_visits++, total_spend += grand_total, last_visit_at = now
+  - [x] If loyalty points redeemed: deduct from customer balance, create REDEEMED ledger entry
+  - [x] Calculate loyalty points earned: grand_total / 100 * points_per_100 (from brand config)
+  - [x] Add earned points to customer balance, create EARNED ledger entry
+  - [x] Create audit_log entry: INVOICE_CREATED
+  - [x] Return: complete invoice object with billing_id, invoice_number, all items, totals
 
 ### 1F.2 — Invoice Retrieval
 
-- [ ] Endpoint: `GET /invoices` (Employee: own bills today; Store Admin: all store bills; Super Admin: all bills)
-  - [ ] Query params: store_id, employee_id, customer_id, date_from, date_to, status, page, limit
-  - [ ] Returns paginated invoice list with: invoice_number, billing_id, customer_name, grand_total, created_at, status
+- [x] Endpoint: `GET /invoices` (Employee: own bills today; Store Admin: all store bills; Super Admin: all bills)
+  - [x] Query params: store_id, employee_id, customer_id, date_from, date_to, status, page, limit
+  - [x] Returns paginated invoice list with: invoice_number, billing_id, customer_name, grand_total, created_at, status
 
-- [ ] Endpoint: `GET /invoices/:id` (Employee: own; Store Admin: own store; Super Admin: any)
-  - [ ] Returns full invoice with all items, customer info, store info
+- [x] Endpoint: `GET /invoices/:id` (Employee: own; Store Admin: own store; Super Admin: any)
+  - [x] Returns full invoice with all items, customer info, store info
 
-- [ ] Endpoint: `GET /invoices/billing/:billingId` (PUBLIC — no auth required)
-  - [ ] This is used by the Customer Web Portal
-  - [ ] Returns: full invoice detail WITH store branding info (store name, logo_url, address, phone, gst_number)
-  - [ ] Does NOT return employee info or internal IDs
+- [x] Endpoint: `GET /invoices/billing/:billingId` (PUBLIC — no auth required)
+  - [x] This is used by the Customer Web Portal
+  - [x] Returns: full invoice detail WITH store branding info (store name, logo_url, address, phone, gst_number)
+  - [x] Does NOT return employee info or internal IDs
 
-- [ ] Endpoint: `GET /invoices/customer/:phone` (PUBLIC — no auth required)
-  - [ ] Returns summary list only: invoice date, store_name, grand_total, billing_id
-  - [ ] Does NOT return itemized details (privacy: requires billing_id for full detail)
+- [x] Endpoint: `GET /invoices/customer/:phone` (PUBLIC — no auth required)
+  - [x] Returns summary list only: invoice date, store_name, grand_total, billing_id
+  - [x] Does NOT return itemized details (privacy: requires billing_id for full detail)
 
 ### 1F.3 — Invoice Voiding (Returns)
 
-- [ ] Endpoint: `PATCH /invoices/:id/void` (Store Admin only)
-  - [ ] Sets status to FULLY_REFUNDED
-  - [ ] Adjusts customer total_spend
-  - [ ] Reverses loyalty points earned (create ADJUSTED ledger entry)
-  - [ ] Create audit_log entry: INVOICE_VOIDED
+- [x] Endpoint: `PATCH /invoices/:id/void` (Store Admin only)
+  - [x] Sets status to FULLY_REFUNDED
+  - [x] Adjusts customer total_spend
+  - [x] Reverses loyalty points earned (create ADJUSTED ledger entry)
+  - [x] Create audit_log entry: INVOICE_VOIDED
 
 ### 1F.4 — Invoice PDF Generation (Server-Side)
 
-- [ ] Install Puppeteer: `npm install puppeteer`
-- [ ] Create PDF generation service:
-  - [ ] Builds an HTML invoice template with:
-    - [ ] Store logo, name, address, phone, GST at the top (WHITE-LABEL branding)
-    - [ ] Invoice number, date, customer details
-    - [ ] Itemized table with quantities, prices, taxes
-    - [ ] Subtotal, tax breakdown, discounts, grand total
-    - [ ] QR code (encoding the billing_id)
-    - [ ] Footer: "Powered by BillPush" + web link
-  - [ ] Uses Puppeteer to render HTML to PDF
-  - [ ] Uploads PDF to S3
-  - [ ] Updates invoice record with invoice_pdf_url
-- [ ] Endpoint: `GET /invoices/:id/pdf` (generates on demand if not cached)
-  - [ ] Returns PDF file or redirect to S3 URL
+- [x] Install Puppeteer: `npm install puppeteer`
+- [x] Create PDF generation service:
+  - [x] Builds an HTML invoice template with:
+    - [x] Store logo, name, address, phone, GST at the top (WHITE-LABEL branding)
+    - [x] Invoice number, date, customer details
+    - [x] Itemized table with quantities, prices, taxes
+    - [x] Subtotal, tax breakdown, discounts, grand total
+    - [x] QR code (encoding the billing_id)
+    - [x] Footer: "Powered by BillPush" + web link
+  - [x] Uses Puppeteer to render HTML to PDF
+  - [x] Uploads PDF to S3
+  - [x] Updates invoice record with invoice_pdf_url
+- [x] Endpoint: `GET /invoices/:id/pdf` (generates on demand if not cached)
+  - [x] Returns PDF file or redirect to S3 URL
 
 ### 1F CHECKPOINT
-- [ ] Employee can create an invoice with items, taxes, discounts
-- [ ] Billing ID and invoice number are generated correctly
-- [ ] Customer stats update automatically on invoice creation
-- [ ] Loyalty points earned and redeemed correctly
-- [ ] Invoice PDF generates with store branding (NOT app branding)
-- [ ] Public endpoints work without auth (for web portal)
-- [ ] Phone number lookup returns summaries only
-- [ ] Billing ID lookup returns full detail
-- [ ] Invoice voiding works correctly
-- [ ] **Commit:** "feat: complete invoice generation with PDF and QR code"
+- [x] Employee can create an invoice with items, taxes, discounts
+- [x] Billing ID and invoice number are generated correctly
+- [x] Customer stats update automatically on invoice creation
+- [x] Loyalty points earned and redeemed correctly
+- [x] Invoice PDF generates with store branding (NOT app branding)
+- [x] Public endpoints work without auth (for web portal)
+- [x] Phone number lookup returns summaries only
+- [x] Billing ID lookup returns full detail
+- [x] Invoice voiding works correctly
+- [x] **Commit:** "feat: complete invoice generation with PDF and QR code"
 
 ---
 
@@ -712,91 +712,91 @@
 
 ### 1G.1 — App Theme and Design System
 
-- [ ] Define app theme in `config/theme.dart`:
-  - [ ] Primary colors, typography, button styles, input decoration
-  - [ ] Light mode (primary focus)
-  - [ ] Use Google Fonts: Inter or Poppins
-- [ ] Create reusable widgets:
-  - [ ] `BillPushTextField` (custom styled text input)
-  - [ ] `BillPushButton` (primary action button)
-  - [ ] `BillPushAppBar` (custom app bar)
-  - [ ] `LoadingOverlay` (full-screen loading indicator)
+- [x] Define app theme in `config/theme.dart`:
+  - [x] Primary colors, typography, button styles, input decoration
+  - [x] Light mode (primary focus)
+  - [x] Use Google Fonts: Inter or Poppins
+- [x] Create reusable widgets:
+  - [x] `BillPushTextField` (custom styled text input)
+  - [x] `BillPushButton` (primary action button)
+  - [x] `BillPushAppBar` (custom app bar)
+  - [x] `LoadingOverlay` (full-screen loading indicator)
 
 ### 1G.2 — API Client Setup
 
-- [ ] Configure Dio HTTP client in `core/network/api_client.dart`:
-  - [ ] Base URL from config
-  - [ ] Request interceptor: attach JWT from secure storage
-  - [ ] Response interceptor: handle 401 (token expired) → try refresh → retry
-  - [ ] Error interceptor: parse error responses into user-friendly messages
+- [x] Configure Dio HTTP client in `core/network/api_client.dart`:
+  - [x] Base URL from config
+  - [x] Request interceptor: attach JWT from secure storage
+  - [x] Response interceptor: handle 401 (token expired) → try refresh → retry
+  - [x] Error interceptor: parse error responses into user-friendly messages
 
 ### 1G.3 — Splash Screen
 
-- [ ] Build splash screen:
-  - [ ] BillPush logo animation (fade in + scale)
-  - [ ] Check if JWT exists in secure storage
-  - [ ] If yes and valid: navigate to role-based home screen
-  - [ ] If no: navigate to Login screen
+- [x] Build splash screen:
+  - [x] BillPush logo animation (fade in + scale)
+  - [x] Check if JWT exists in secure storage
+  - [x] If yes and valid: navigate to role-based home screen
+  - [x] If no: navigate to Login screen
 
 ### 1G.4 — Login Screen
 
-- [ ] Build login screen with two tabs/options:
-  - [ ] **Admin Login Tab:**
-    - [ ] Email input field
-    - [ ] Password input field (with show/hide toggle)
-    - [ ] "Login" button
-    - [ ] "Register as Store Manager" link (navigates to registration)
-    - [ ] Handle responses: success → navigate to home, pending → show message, rejected → show message
-  - [ ] **Employee Login Tab:**
-    - [ ] Store selector dropdown (fetched from API — publicly accessible list)
-    - [ ] Employee name dropdown (fetched when store is selected)
-    - [ ] 4-digit PIN input (large number buttons, optimized for speed)
-    - [ ] "Login" button
-    - [ ] Handle: success → navigate to POS Home
+- [x] Build login screen with two tabs/options:
+  - [x] **Admin Login Tab:**
+    - [x] Email input field
+    - [x] Password input field (with show/hide toggle)
+    - [x] "Login" button
+    - [x] "Register as Store Manager" link (navigates to registration)
+    - [x] Handle responses: success → navigate to home, pending → show message, rejected → show message
+  - [x] **Employee Login Tab:**
+    - [x] Store selector dropdown (fetched from API — publicly accessible list)
+    - [x] Employee name dropdown (fetched when store is selected)
+    - [x] 4-digit PIN input (large number buttons, optimized for speed)
+    - [x] "Login" button
+    - [x] Handle: success → navigate to POS Home
 
 ### 1G.5 — Store Admin Registration Screen
 
-- [ ] Build registration screen:
-  - [ ] Name, Email, Password, Confirm Password, Phone Number fields
-  - [ ] Client-side validation (email format, password match, phone 10 digits)
-  - [ ] "Register" button → POST /auth/register
-  - [ ] On success: show "Registration submitted! You'll be notified when approved." and navigate back to login
+- [x] Build registration screen:
+  - [x] Name, Email, Password, Confirm Password, Phone Number fields
+  - [x] Client-side validation (email format, password match, phone 10 digits)
+  - [x] "Register" button → POST /auth/register
+  - [x] On success: show "Registration submitted! You'll be notified when approved." and navigate back to login
 
 ### 1G.6 — Store Profile Setup Screen (First-Time for Store Admin)
 
-- [ ] Build store setup screen (shown after first login if store_id is null):
-  - [ ] Store Name input
-  - [ ] Store Address input
-  - [ ] City input
-  - [ ] State dropdown (Indian states list)
-  - [ ] GST Number input
-  - [ ] Phone Number input
-  - [ ] Logo upload button (image picker → upload to S3 via API)
-  - [ ] Brand Color picker (optional)
-  - [ ] "Save Store Profile" button → POST /stores
-  - [ ] On success: navigate to Store Admin home dashboard
+- [x] Build store setup screen (shown after first login if store_id is null):
+  - [x] Store Name input
+  - [x] Store Address input
+  - [x] City input
+  - [x] State dropdown (Indian states list)
+  - [x] GST Number input
+  - [x] Phone Number input
+  - [x] Logo upload button (image picker → upload to S3 via API)
+  - [x] Brand Color picker (optional)
+  - [x] "Save Store Profile" button → POST /stores
+  - [x] On success: navigate to Store Admin home dashboard
 
 ### 1G.7 — Role-Based Navigation
 
-- [ ] Implement `go_router` with route guards:
-  - [ ] Route: `/` → Splash
-  - [ ] Route: `/login` → Login screen
-  - [ ] Route: `/register` → Registration screen
-  - [ ] Route: `/setup-store` → Store profile setup
-  - [ ] Route: `/super-admin/...` → Super Admin screens (guard: role=SUPER_ADMIN)
-  - [ ] Route: `/store-admin/...` → Store Admin screens (guard: role=STORE_ADMIN)
-  - [ ] Route: `/pos/...` → Employee screens (guard: role=EMPLOYEE)
-- [ ] Redirect logic: if token expired or invalid, redirect to `/login`
+- [x] Implement `go_router` with route guards:
+  - [x] Route: `/` → Splash
+  - [x] Route: `/login` → Login screen
+  - [x] Route: `/register` → Registration screen
+  - [x] Route: `/setup-store` → Store profile setup
+  - [x] Route: `/super-admin/...` → Super Admin screens (guard: role=SUPER_ADMIN)
+  - [x] Route: `/store-admin/...` → Store Admin screens (guard: role=STORE_ADMIN)
+  - [x] Route: `/pos/...` → Employee screens (guard: role=EMPLOYEE)
+- [x] Redirect logic: if token expired or invalid, redirect to `/login`
 
 ### 1G CHECKPOINT
-- [ ] Super Admin can log in and reaches their dashboard shell
-- [ ] Store Admin can register and sees "pending" message
-- [ ] After Super Admin approves (via Postman for now), Store Admin can log in
-- [ ] Store Admin completes store profile setup with logo
-- [ ] Employee can log in with store + name + PIN
-- [ ] Role-based routing works correctly
-- [ ] Token storage and auto-refresh work
-- [ ] **Commit:** "feat: Flutter auth flow with registration, login, and store setup"
+- [x] Super Admin can log in and reaches their dashboard shell
+- [x] Store Admin can register and sees "pending" message
+- [x] After Super Admin approves (via Postman for now), Store Admin can log in
+- [x] Store Admin completes store profile setup with logo
+- [x] Employee can log in with store + name + PIN
+- [x] Role-based routing works correctly
+- [x] Token storage and auto-refresh work
+- [x] **Commit:** "feat: Flutter auth flow with registration, login, and store setup"
 
 ---
 
