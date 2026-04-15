@@ -4,6 +4,7 @@ export declare class InvoicesController {
     private readonly invoicesService;
     constructor(invoicesService: InvoicesService);
     findOnePublic(billingId: string): Promise<{
+        created_at: Date;
         store: {
             name: string;
             logo_url: string | null;
@@ -18,36 +19,21 @@ export declare class InvoicesController {
             phone: string;
         } | null;
         items: {
-            id: string;
             name: string;
             total: import("@prisma/client-runtime-utils").Decimal;
             tax_amount: import("@prisma/client-runtime-utils").Decimal;
-            product_id: string | null;
             quantity: number;
             unit_price: import("@prisma/client-runtime-utils").Decimal;
             tax_rate: import("@prisma/client-runtime-utils").Decimal;
-            invoice_id: string;
         }[];
-    } & {
-        id: string;
-        created_at: Date;
-        brand_id: string;
-        store_id: string;
-        employee_id: string;
         invoice_number: string;
         billing_id: string;
-        customer_id: string | null;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         tax_amount: import("@prisma/client-runtime-utils").Decimal;
         discount_amount: import("@prisma/client-runtime-utils").Decimal;
-        loyalty_points_redeemed: number;
         loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
         grand_total: import("@prisma/client-runtime-utils").Decimal;
-        loyalty_points_earned: number;
         status: import("@prisma/client").$Enums.InvoiceStatus;
-        share_triggered: boolean;
-        invoice_pdf_url: string | null;
-        qr_code_url: string | null;
     }>;
     findCustomerSummary(phone: string): Promise<{
         invoice_date: Date;

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/auth_provider.dart';
-import '../features/auth/screens/splash_screen.dart';
-import '../features/auth/screens/login_screen.dart';
-import '../features/auth/screens/register_screen.dart';
-import '../features/auth/screens/store_setup_screen.dart';
-import '../features/dashboard/super_admin_dashboard.dart';
-import '../features/dashboard/store_admin_dashboard.dart';
-import '../features/dashboard/employee_pos_dashboard.dart';
+import '../../providers/auth_provider.dart';
+import '../../features/auth/screens/splash_screen.dart';
+import '../../features/auth/screens/login_screen.dart';
+import '../../features/auth/screens/register_screen.dart';
+import '../../features/auth/screens/store_setup_screen.dart';
+import '../../features/dashboard/super_admin_dashboard.dart';
+import '../../features/dashboard/store_admin_dashboard.dart';
+import '../../features/dashboard/employee_pos_dashboard.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);

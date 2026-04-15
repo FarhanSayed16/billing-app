@@ -39,19 +39,19 @@ let InvoicesController = class InvoicesController {
         return this.invoicesService.findAll(req.user.brandId, query, req.user.role, req.user.storeId, req.user.userId);
     }
     findOne(id, req) {
-        return this.invoicesService.findOne(id, req.user.role, req.user.storeId);
+        return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId);
     }
     voidInvoice(id, req) {
         return this.invoicesService.voidInvoice(id, req.user.storeId, req.user.userId);
     }
     getGeneratePdf(id, req) {
-        return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId);
+        return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId);
     }
 };
 exports.InvoicesController = InvoicesController;
 __decorate([
     (0, common_1.Get)('billing/:billingId'),
-    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get full invoice detail by billing ID' }),
+    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get full invoice detail by billing ID (no auth)' }),
     __param(0, (0, common_1.Param)('billingId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -59,7 +59,7 @@ __decorate([
 ], InvoicesController.prototype, "findOnePublic", null);
 __decorate([
     (0, common_1.Get)('customer/:phone'),
-    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get summary list of invoices for a customer phone' }),
+    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get summary list of invoices by customer phone (no auth)' }),
     __param(0, (0, common_1.Param)('phone')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

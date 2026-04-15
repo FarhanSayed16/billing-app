@@ -12,16 +12,16 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
-  // PUBLIC ENDPOINTS
+  // PUBLIC ENDPOINTS (must be declared BEFORE parameterized :id routes)
 
   @Get('billing/:billingId')
-  @ApiOperation({ summary: 'PUBLIC: Get full invoice detail by billing ID' })
+  @ApiOperation({ summary: 'PUBLIC: Get full invoice detail by billing ID (no auth)' })
   findOnePublic(@Param('billingId') billingId: string) {
     return this.invoicesService.findOneByBillingId(billingId);
   }
 
   @Get('customer/:phone')
-  @ApiOperation({ summary: 'PUBLIC: Get summary list of invoices for a customer phone' })
+  @ApiOperation({ summary: 'PUBLIC: Get summary list of invoices by customer phone (no auth)' })
   findCustomerSummary(@Param('phone') phone: string) {
     return this.invoicesService.findCustomerSummary(phone);
   }
@@ -52,7 +52,7 @@ export class InvoicesController {
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get specific invoice details' })
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.invoicesService.findOne(id, req.user.role, req.user.storeId);
+    return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,6 +70,6 @@ export class InvoicesController {
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get or generate invoice PDF' })
   getGeneratePdf(@Param('id') id: string, @Req() req: any) {
-    return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId);
+    return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId);
   }
 }

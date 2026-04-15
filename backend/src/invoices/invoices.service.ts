@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateInvoiceDto, InvoiceItemDto } from './dto/create-invoice.dto';
+import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { generateBillingId } from './utils/billing-id.util';
 import { generateInvoiceNumber } from './utils/invoice-number.util';
 import { PdfService } from './pdf.service';
@@ -75,7 +75,6 @@ export class InvoicesService {
         if (redeemedPoints < store.brand.loyalty_min_redemption) {
           throw new BadRequestException(`Minimum points to redeem is ${store.brand.loyalty_min_redemption}`);
         }
-        // Conversion: 1 point = 1 unit of currency
         loyaltyDiscount = redeemedPoints * 1; 
       }
 
@@ -84,10 +83,9 @@ export class InvoicesService {
 
       if (grandTotal < 0) throw new BadRequestException('Grand total cannot be negative');
 
-      // Earned points logic
       const earnedPoints = Math.floor(grandTotal / 100) * store.brand.loyalty_points_per_100;
 
-      // 5. Generate Identifiers
+      // 5. Generate Unique Billing ID
       let billingId = generateBillingId();
       let unique = false;
       while (!unique) {
@@ -96,19 +94,19 @@ export class InvoicesService {
         else billingId = generateBillingId();
       }
 
-      // Generate sequence number based on count of invoices this year for this store
+      // 6. Generate Invoice Number (atomic: use raw SQL for sequence safety)
+      // Use a locking read to prevent duplicate sequence numbers under concurrency
       const currentYear = new Date().getFullYear();
-      const startOfYear = new Date(currentYear, 0, 1);
-      const invoicesThisYear = await tx.invoice.count({
-        where: {
-          store_id: storeId,
-          created_at: { gte: startOfYear }
-        }
-      });
-      const seqNumber = invoicesThisYear + 1;
+      const seqResult = await tx.$queryRaw<{ seq: bigint }[]>`
+        SELECT COUNT(*) + 1 as seq FROM invoices
+        WHERE store_id = ${storeId}::uuid
+        AND created_at >= ${new Date(currentYear, 0, 1)}
+        FOR UPDATE
+      `;
+      const seqNumber = Number(seqResult[0]?.seq ?? 1);
       const invoiceNumber = generateInvoiceNumber(store.name, currentYear, seqNumber);
 
-      // 6. Create Invoice
+      // 7. Create Invoice
       const invoice = await tx.invoice.create({
         data: {
           brand_id: brandId,
@@ -135,7 +133,7 @@ export class InvoicesService {
         }
       });
 
-      // 7. Update Customer & Ledger
+      // 8. Update Customer & Ledger
       if (customerId && existingCustomer) {
         await tx.customer.update({
           where: { id: customerId },
@@ -170,7 +168,7 @@ export class InvoicesService {
         }
       }
 
-      // 8. Audit Log
+      // 9. Audit Log
       await tx.auditLog.create({
         data: {
           brand_id: brandId,
@@ -234,7 +232,7 @@ export class InvoicesService {
     };
   }
 
-  async findOne(id: string, role: string, userStoreId?: string) {
+  async findOne(id: string, role: string, userStoreId?: string, userId?: string) {
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
       include: { items: true, customer: true, store: true }
@@ -242,7 +240,12 @@ export class InvoicesService {
 
     if (!invoice) throw new NotFoundException('Invoice not found');
 
-    if (role !== Role.SUPER_ADMIN && invoice.store_id !== userStoreId) {
+    // Employee can only see their own invoices
+    if (role === Role.EMPLOYEE && invoice.employee_id !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+    // Store Admin can only see invoices from their store
+    if (role === Role.STORE_ADMIN && invoice.store_id !== userStoreId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -252,10 +255,40 @@ export class InvoicesService {
   async findOneByBillingId(billingId: string) {
     const invoice = await this.prisma.invoice.findUnique({
       where: { billing_id: billingId },
-      include: {
-        items: true,
-        store: { select: { name: true, logo_url: true, address: true, city: true, phone: true, gst_number: true, brand_color: true } },
-        customer: { select: { name: true, phone: true } }
+      select: {
+        billing_id: true,
+        invoice_number: true,
+        subtotal: true,
+        tax_amount: true,
+        discount_amount: true,
+        loyalty_discount: true,
+        grand_total: true,
+        status: true,
+        created_at: true,
+        items: {
+          select: {
+            name: true,
+            quantity: true,
+            unit_price: true,
+            tax_rate: true,
+            tax_amount: true,
+            total: true,
+          }
+        },
+        store: {
+          select: {
+            name: true,
+            logo_url: true,
+            address: true,
+            city: true,
+            phone: true,
+            gst_number: true,
+            brand_color: true,
+          }
+        },
+        customer: {
+          select: { name: true, phone: true }
+        }
       }
     });
 
@@ -266,7 +299,12 @@ export class InvoicesService {
   async findCustomerSummary(phone: string) {
     const invoices = await this.prisma.invoice.findMany({
       where: { customer: { phone }, status: { in: [InvoiceStatus.ACTIVE, InvoiceStatus.PARTIALLY_REFUNDED] } },
-      include: { store: { select: { name: true } } },
+      select: {
+        created_at: true,
+        grand_total: true,
+        billing_id: true,
+        store: { select: { name: true } }
+      },
       orderBy: { created_at: 'desc' },
       take: 50
     });
@@ -327,8 +365,8 @@ export class InvoicesService {
     });
   }
 
-  async getGeneratePdf(id: string, role: string, userStoreId?: string) {
-    const invoice = await this.findOne(id, role, userStoreId);
+  async getGeneratePdf(id: string, role: string, userStoreId?: string, userId?: string) {
+    const invoice = await this.findOne(id, role, userStoreId, userId);
     
     if (invoice.invoice_pdf_url) {
       return { url: invoice.invoice_pdf_url };

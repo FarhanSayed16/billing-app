@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsUUID, ValidateNested, ArrayMinSize, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsUUID, ValidateNested, ArrayMinSize, Min, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class InvoiceItemDto {
@@ -14,6 +14,7 @@ export class CreateInvoiceDto {
   @IsString() @IsOptional() customer_phone?: string;
   @IsString() @IsOptional() customer_name?: string;
 
+  @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceItemDto)
   @ArrayMinSize(1)

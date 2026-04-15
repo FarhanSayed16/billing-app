@@ -70,6 +70,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreateInvoiceDto.prototype, "customer_name", void 0);
 __decorate([
+    (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ValidateNested)({ each: true }),
     (0, class_transformer_1.Type)(() => InvoiceItemDto),
     (0, class_validator_1.ArrayMinSize)(1),
