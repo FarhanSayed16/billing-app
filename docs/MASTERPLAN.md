@@ -45,8 +45,8 @@
 
 ## Sub-Phase 0A: Development Environment Setup
 
-- [ ] Install Node.js (v20 LTS) and verify with `node --version`
-- [ ] Install npm (comes with Node.js) and verify with `npm --version`
+- [x] Install Node.js (v20 LTS) and verify with `node --version`
+- [x] Install npm (comes with Node.js) and verify with `npm --version`
 - [ ] Install Flutter SDK (latest stable) and verify with `flutter doctor`
 - [ ] Install Dart SDK (bundled with Flutter)
 - [ ] Install PostgreSQL 16 locally (or use Docker container)
@@ -59,14 +59,14 @@
   - [ ] Thunder Client or Postman for API testing
 - [ ] Install Android Studio (for Android emulator and build tools)
 - [ ] Install Xcode (if on Mac, for iOS builds)
-- [ ] Install Git and configure identity (`git config --global user.name/email`)
+- [x] Install Git and configure identity (`git config --global user.name/email`)
 - [ ] Install Docker Desktop (for containerized development)
 
 ---
 
 ## Sub-Phase 0B: Repository Initialization
 
-- [ ] Create the project root directory structure:
+- [x] Create the project root directory structure:
   ```
   BillPush/
   ├── backend/          # NestJS API
@@ -76,30 +76,30 @@
   ├── docs/             # Documentation (move existing .md files here)
   └── docker/           # Docker compose files
   ```
-- [ ] Initialize Git repository: `git init`
-- [ ] Create `.gitignore` with entries for: node_modules, .env, build/, .dart_tool/, .flutter-plugins, .idea/, .vscode/
-- [ ] Create initial `README.md` with project overview
-- [ ] Make initial commit: "chore: project structure initialization"
+- [x] Initialize Git repository: `git init`
+- [x] Create `.gitignore` with entries for: node_modules, .env, build/, .dart_tool/, .flutter-plugins, .idea/, .vscode/
+- [x] Create initial `README.md` with project overview
+- [x] Make initial commit: "chore: project structure initialization"
 
 ---
 
 ## Sub-Phase 0C: Backend Project Initialization (NestJS)
 
-- [ ] Navigate to `backend/` directory
-- [ ] Initialize NestJS project: `npx -y @nestjs/cli new . --skip-git --package-manager npm`
-- [ ] Install core dependencies:
-  - [ ] `npm install @nestjs/config` (environment variables)
-  - [ ] `npm install @prisma/client` (database ORM)
-  - [ ] `npm install prisma --save-dev` (Prisma CLI)
-  - [ ] `npm install @nestjs/jwt @nestjs/passport passport passport-jwt` (authentication)
-  - [ ] `npm install bcrypt` and `npm install @types/bcrypt --save-dev` (password hashing)
-  - [ ] `npm install class-validator class-transformer` (DTO validation)
-  - [ ] `npm install @nestjs/swagger` (API documentation)
-  - [ ] `npm install helmet` (security headers)
-  - [ ] `npm install compression` (response compression)
-  - [ ] `npm install ioredis @nestjs/cache-manager cache-manager` (Redis caching)
-- [ ] Initialize Prisma: `npx prisma init`
-- [ ] Create `.env` file with variables:
+- [x] Navigate to `backend/` directory
+- [x] Initialize NestJS project: `npx -y @nestjs/cli new . --skip-git --package-manager npm`
+- [x] Install core dependencies:
+  - [x] `npm install @nestjs/config` (environment variables)
+  - [x] `npm install @prisma/client` (database ORM)
+  - [x] `npm install prisma --save-dev` (Prisma CLI)
+  - [x] `npm install @nestjs/jwt @nestjs/passport passport passport-jwt` (authentication)
+  - [x] `npm install bcrypt` and `npm install @types/bcrypt --save-dev` (password hashing)
+  - [x] `npm install class-validator class-transformer` (DTO validation)
+  - [x] `npm install @nestjs/swagger` (API documentation)
+  - [x] `npm install helmet` (security headers)
+  - [x] `npm install compression` (response compression)
+  - [x] `npm install ioredis @nestjs/cache-manager cache-manager` (Redis caching)
+- [x] Initialize Prisma: `npx prisma init`
+- [x] Create `.env` file with variables:
   ```
   DATABASE_URL=postgresql://user:password@localhost:5432/billpush
   JWT_SECRET=your-strong-secret-key
@@ -112,36 +112,36 @@
   S3_SECRET_KEY=xxx
   PORT=3000
   ```
-- [ ] Create `.env.example` with placeholder values (committed to Git)
-- [ ] Verify backend starts: `npm run start:dev`
-- [ ] Verify Swagger docs accessible at `http://localhost:3000/api`
+- [x] Create `.env.example` with placeholder values (committed to Git)
+- [x] Verify backend starts: `npm run start:dev`
+- [x] Verify Swagger docs accessible at `http://localhost:3000/api`
 
 ---
 
 ## Sub-Phase 0D: Mobile Project Initialization (Flutter)
 
-- [ ] Navigate to `mobile/` directory
-- [ ] Create Flutter project: `flutter create . --org com.billpush --project-name billpush`
-- [ ] Add core dependencies to `pubspec.yaml`:
-  - [ ] `dio` (HTTP client for API calls)
-  - [ ] `flutter_riverpod` or `provider` (state management)
-  - [ ] `go_router` (navigation/routing)
-  - [ ] `shared_preferences` (simple key-value local storage)
-  - [ ] `hive` + `hive_flutter` (offline data caching)
-  - [ ] `pdf` (in-app PDF generation)
-  - [ ] `share_plus` (native share sheet for WhatsApp sharing)
-  - [ ] `mobile_scanner` (camera-based barcode scanning)
-  - [ ] `flutter_secure_storage` (secure token storage)
-  - [ ] `image_picker` (logo upload for Store Admin)
-  - [ ] `qr_flutter` (QR code generation on invoices)
-  - [ ] `firebase_messaging` (push notifications)
-  - [ ] `firebase_core` (Firebase initialization)
-  - [ ] `intl` (date/currency formatting for Indian locale)
-  - [ ] `connectivity_plus` (online/offline detection)
-  - [ ] `path_provider` (local file system access for PDF storage)
-  - [ ] `fl_chart` (charts for analytics dashboards)
-- [ ] Run `flutter pub get`
-- [ ] Set up Flutter project folder structure:
+- [x] Navigate to `mobile/` directory
+- [x] Create Flutter project: `flutter create . --org com.billpush --project-name billpush`
+- [x] Add core dependencies to `pubspec.yaml`:
+  - [x] `dio` (HTTP client for API calls)
+  - [x] `flutter_riverpod` or `provider` (state management)
+  - [x] `go_router` (navigation/routing)
+  - [x] `shared_preferences` (simple key-value local storage)
+  - [x] `hive` + `hive_flutter` (offline data caching)
+  - [x] `pdf` (in-app PDF generation)
+  - [x] `share_plus` (native share sheet for WhatsApp sharing)
+  - [x] `mobile_scanner` (camera-based barcode scanning)
+  - [x] `flutter_secure_storage` (secure token storage)
+  - [x] `image_picker` (logo upload for Store Admin)
+  - [x] `qr_flutter` (QR code generation on invoices)
+  - [x] `firebase_messaging` (push notifications)
+  - [x] `firebase_core` (Firebase initialization)
+  - [x] `intl` (date/currency formatting for Indian locale)
+  - [x] `connectivity_plus` (online/offline detection)
+  - [x] `path_provider` (local file system access for PDF storage)
+  - [x] `fl_chart` (charts for analytics dashboards)
+- [x] Run `flutter pub get`
+- [x] Set up Flutter project folder structure:
   ```
   lib/
   ├── main.dart
@@ -178,18 +178,18 @@
       ├── common/
       └── layouts/
   ```
-- [ ] Verify app runs: `flutter run`
+- [x] Verify app runs: `flutter run`
 
 ---
 
 ## Sub-Phase 0E: Web Portal Project Initialization (Next.js)
 
-- [ ] Navigate to `web/` directory
-- [ ] Create Next.js project: `npx -y create-next-app@latest . --typescript --eslint --app --src-dir --no-tailwind`
-- [ ] Install dependencies:
-  - [ ] `npm install axios` (API client)
-  - [ ] `npm install @react-pdf/renderer` or use server-side Puppeteer for PDF (evaluate)
-- [ ] Set up project folder structure:
+- [x] Navigate to `web/` directory
+- [x] Create Next.js project: `npx -y create-next-app@latest . --typescript --eslint --app --src-dir --no-tailwind`
+- [x] Install dependencies:
+  - [x] `npm install axios` (API client)
+  - [x] `npm install @react-pdf/renderer` or use server-side Puppeteer for PDF (evaluate)
+- [x] Set up project folder structure:
   ```
   src/
   ├── app/
@@ -208,37 +208,37 @@
   └── styles/
       └── globals.css
   ```
-- [ ] Verify web portal starts: `npm run dev` and loads at `http://localhost:3001`
+- [x] Verify web portal starts: `npm run dev` and loads at `http://localhost:3001`
 
 ---
 
 ## Sub-Phase 0F: Database Setup
 
-- [ ] Create PostgreSQL database: `CREATE DATABASE billpush;`
-- [ ] Create a dedicated database user with limited permissions
-- [ ] Test connection from backend `.env` using `npx prisma db pull` (should connect without error)
-- [ ] Start Redis server and verify with `redis-cli ping` (should return PONG)
+- [x] Create PostgreSQL database: `CREATE DATABASE billpush;`
+- [x] Create a dedicated database user with limited permissions
+- [x] Test connection from backend `.env` using `npx prisma db pull` (should connect without error)
+- [x] Start Redis server and verify with `redis-cli ping` (should return PONG)
 
 ---
 
 ## Sub-Phase 0G: Docker Compose (Optional but Recommended)
 
-- [ ] Create `docker/docker-compose.yml` with services:
-  - [ ] PostgreSQL 16 container (port 5432)
-  - [ ] Redis container (port 6379)
-- [ ] Verify `docker-compose up -d` starts both services
-- [ ] Verify backend can connect to Dockerized PostgreSQL and Redis
+- [x] Create `docker/docker-compose.yml` with services:
+  - [x] PostgreSQL 16 container (port 5432)
+  - [x] Redis container (port 6379)
+- [x] Verify `docker-compose up -d` starts both services
+- [x] Verify backend can connect to Dockerized PostgreSQL and Redis
 
 ---
 
 ### PHASE 0 CHECKPOINT
-- [ ] Backend project starts without errors on `http://localhost:3000`
-- [ ] Flutter app builds and launches on emulator/device
-- [ ] Next.js web portal starts on `http://localhost:3001`
-- [ ] PostgreSQL is running and accessible
-- [ ] Redis is running and accessible
-- [ ] Git repo has initial commit with all project scaffolding
-- [ ] **Commit:** "chore: complete project scaffolding for all 3 apps"
+- [x] Backend project starts without errors on `http://localhost:3000`
+- [x] Flutter app builds and launches on emulator/device
+- [x] Next.js web portal starts on `http://localhost:3001`
+- [x] PostgreSQL is running and accessible
+- [x] Redis is running and accessible
+- [x] Git repo has initial commit with all project scaffolding
+- [x] **Commit:** "chore: complete project scaffolding for all 3 apps"
 
 ---
 
