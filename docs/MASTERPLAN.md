@@ -987,55 +987,55 @@
 
 ### 1K.1 — Landing Page
 
-- [ ] Build `web/src/app/page.tsx`:
-  - [ ] Clean centered layout with BillPush logo
-  - [ ] Two cards/options:
-    - [ ] "I have a Billing ID" → input field + "Look Up" button
-    - [ ] "View Purchase History" → phone number input + "Search" button
-  - [ ] Responsive design (works on mobile browser)
+- [x] Build `web/src/app/page.tsx`:
+  - [x] Clean centered layout with BillPush logo
+  - [x] Two cards/options:
+    - [x] "I have a Billing ID" → input field + "Look Up" button
+    - [x] "View Purchase History" → phone number input + "Search" button
+  - [x] Responsive design (works on mobile browser)
 
 ### 1K.2 — Invoice Detail Page (Billing ID Lookup)
 
-- [ ] Build `web/src/app/invoice/[billingId]/page.tsx`:
-  - [ ] Calls: `GET /invoices/billing/:billingId`
-  - [ ] Renders STORE-BRANDED invoice page:
-    - [ ] Store logo at top
-    - [ ] Store name, address, phone, GST
-    - [ ] Invoice number and date
-    - [ ] Customer name
-    - [ ] Itemized table
-    - [ ] Totals (subtotal, tax, discount, grand total)
-    - [ ] QR code
-    - [ ] "Download as PDF" button
-    - [ ] Footer: "Powered by BillPush"
-  - [ ] If billing_id not found: show "Invoice not found" page
+- [x] Build `web/src/app/invoice/[billingId]/page.tsx`:
+  - [x] Calls: `GET /invoices/billing/:billingId`
+  - [x] Renders STORE-BRANDED invoice page:
+    - [x] Store logo at top
+    - [x] Store name, address, phone, GST
+    - [x] Invoice number and date
+    - [x] Customer name
+    - [x] Itemized table
+    - [x] Totals (subtotal, tax, discount, grand total)
+    - [x] QR code
+    - [x] "Download as PDF" button
+    - [x] Footer: "Powered by BillPush"
+  - [x] If billing_id not found: show "Invoice not found" page
 
 ### 1K.3 — Purchase History Page (Phone Lookup)
 
-- [ ] Build `web/src/app/history/page.tsx`:
-  - [ ] Phone number input field
-  - [ ] On submit: calls `GET /invoices/customer/:phone`
-  - [ ] Shows summary list: Date, Store Name, Amount
-  - [ ] Each item has: "Enter Billing ID to view full detail" or "View Summary"
-  - [ ] No sensitive details without billing_id (privacy)
+- [x] Build `web/src/app/history/page.tsx`:
+  - [x] Phone number input field
+  - [x] On submit: calls `GET /invoices/customer/:phone`
+  - [x] Shows summary list: Date, Store Name, Amount
+  - [x] Each item has: "Enter Billing ID to view full detail" or "View Summary"
+  - [x] No sensitive details without billing_id (privacy)
 
 ### 1K.4 — Styling
 
-- [ ] Clean, minimal CSS (vanilla CSS as per guidelines)
-- [ ] Responsive layout (mobile-first)
-- [ ] Professional typography (Google Fonts: Inter)
-- [ ] BillPush branding on landing page only
-- [ ] Store branding on invoice detail pages
+- [x] Clean, minimal CSS (vanilla CSS as per guidelines)
+- [x] Responsive layout (mobile-first)
+- [x] Professional typography (Google Fonts: Inter)
+- [x] BillPush branding on landing page only
+- [x] Store branding on invoice detail pages
 
 ### 1K CHECKPOINT
-- [ ] Landing page loads with two lookup options
-- [ ] Billing ID lookup shows full branded invoice
-- [ ] Phone number lookup shows summary list only
-- [ ] PDF download works
-- [ ] Responsive on mobile and desktop
-- [ ] Store branding (logo, name, colors) renders correctly
-- [ ] "Powered by BillPush" footer on all invoice pages
-- [ ] **Commit:** "feat: customer web portal with bill lookup and history"
+- [x] Landing page loads with two lookup options
+- [x] Billing ID lookup shows full branded invoice
+- [x] Phone number lookup shows summary list only
+- [x] PDF download works
+- [x] Responsive on mobile and desktop
+- [x] Store branding (logo, name, colors) renders correctly
+- [x] "Powered by BillPush" footer on all invoice pages
+- [x] **Commit:** "feat: customer web portal with bill lookup and history"
 
 ---
 
