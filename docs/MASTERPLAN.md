@@ -421,48 +421,48 @@
 
 ### 1B.5 — Token Refresh
 
-- [ ] Endpoint: `POST /auth/refresh`
-  - [ ] Accepts refresh token
-  - [ ] Validates refresh token, generates new access token + new refresh token
-  - [ ] Old refresh token is invalidated (rotation)
+- [x] Endpoint: `POST /auth/refresh`
+  - [x] Accepts refresh token
+  - [x] Validates refresh token, generates new access token + new refresh token
+  - [x] Old refresh token is invalidated (rotation)
 
 ### 1B.6 — JWT Strategy and Guards
 
-- [ ] Implement JwtStrategy (extends PassportStrategy)
-  - [ ] Extracts token from Authorization header (Bearer scheme)
-  - [ ] Validates token signature and expiry
-  - [ ] Attaches user payload (userId, role, brandId, storeId) to request object
-- [ ] Create `JwtAuthGuard` (applies to all protected routes)
-- [ ] Create `RolesGuard` (checks if user.role is authorized for the endpoint)
-- [ ] Create `@Roles()` decorator for role-based endpoint protection
-- [ ] Test: unauthenticated request returns 401
-- [ ] Test: wrong role returns 403
+- [x] Implement JwtStrategy (extends PassportStrategy)
+  - [x] Extracts token from Authorization header (Bearer scheme)
+  - [x] Validates token signature and expiry
+  - [x] Attaches user payload (userId, role, brandId, storeId) to request object
+- [x] Create `JwtAuthGuard` (applies to all protected routes)
+- [x] Create `RolesGuard` (checks if user.role is authorized for the endpoint)
+- [x] Create `@Roles()` decorator for role-based endpoint protection
+- [x] Test: unauthenticated request returns 401
+- [x] Test: wrong role returns 403
 
 ### 1B.7 — Approval System (Super Admin)
 
-- [ ] Endpoint: `GET /auth/pending-registrations` (Super Admin only)
-  - [ ] Returns all users where approval_status=PENDING
-- [ ] Endpoint: `PATCH /auth/approve/:userId` (Super Admin only)
-  - [ ] Sets approval_status=APPROVED
-  - [ ] Sends push notification to the Store Admin (or just 200 OK for now)
-- [ ] Endpoint: `PATCH /auth/reject/:userId` (Super Admin only)
-  - [ ] Sets approval_status=REJECTED
-- [ ] Endpoint: `PATCH /auth/suspend/:userId` (Super Admin only)
-  - [ ] Sets approval_status=SUSPENDED, is_active=false
-  - [ ] Invalidates all active sessions for this user
+- [x] Endpoint: `GET /auth/pending-registrations` (Super Admin only)
+  - [x] Returns all users where approval_status=PENDING
+- [x] Endpoint: `PATCH /auth/approve/:userId` (Super Admin only)
+  - [x] Sets approval_status=APPROVED
+  - [x] Sends push notification to the Store Admin (or just 200 OK for now)
+- [x] Endpoint: `PATCH /auth/reject/:userId` (Super Admin only)
+  - [x] Sets approval_status=REJECTED
+- [x] Endpoint: `PATCH /auth/suspend/:userId` (Super Admin only)
+  - [x] Sets approval_status=SUSPENDED, is_active=false
+  - [x] Invalidates all active sessions for this user
 
 ### 1B CHECKPOINT
-- [ ] Super Admin can register (first-time setup) and receive JWT
-- [ ] Store Admin can self-register and gets "pending approval" message
-- [ ] Super Admin can approve/reject/suspend Store Admin
-- [ ] Approved Store Admin can login and receive JWT
-- [ ] Employee can login with PIN and receive JWT
-- [ ] Wrong credentials return appropriate errors
-- [ ] JWT guards protect all routes
-- [ ] Role guards restrict access properly
-- [ ] Token refresh works with rotation
-- [ ] Test all endpoints with Postman/Thunder Client
-- [ ] **Commit:** "feat: complete auth system with self-registration and approval"
+- [x] Super Admin can register (first-time setup) and receive JWT
+- [x] Store Admin can self-register and gets "pending approval" message
+- [x] Super Admin can approve/reject/suspend Store Admin
+- [x] Approved Store Admin can login and receive JWT
+- [x] Employee can login with PIN and receive JWT
+- [x] Wrong credentials return appropriate errors
+- [x] JWT guards protect all routes
+- [x] Role guards restrict access properly
+- [x] Token refresh works with rotation
+- [x] Test all endpoints with Postman/Thunder Client
+- [x] **Commit:** "feat: complete auth system with self-registration and approval"
 
 ---
 

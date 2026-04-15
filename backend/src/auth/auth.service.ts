@@ -1,19 +1,25 @@
-import { Injectable, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { Redis } from 'ioredis';
 import { CreateSuperAdminDto } from './dto/create-super-admin.dto';
 import { RegisterStoreAdminDto } from './dto/register-store-admin.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { EmployeeLoginDto } from './dto/employee-login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Role, ApprovalStatus } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
+  private redis: Redis;
+  
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+  }
 
   async setupSuperAdmin(dto: CreateSuperAdminDto) {
     const existingSuperAdmin = await this.prisma.user.findFirst({
@@ -75,7 +81,7 @@ export class AuthService {
 
     await this.prisma.user.create({
       data: {
-        brand_id: superAdmin.brand_id, // Store Admin belongs to the overarching Brand
+        brand_id: superAdmin.brand_id,
         name: dto.name,
         email: dto.email,
         phone: dto.phone,
@@ -173,5 +179,51 @@ export class AuthService {
         store_name: user.store?.name,
       },
     };
+  }
+
+  async refreshToken(dto: RefreshTokenDto) {
+    const isBlacklisted = await this.redis.get(`bl_rt_${dto.refresh_token}`);
+    if (isBlacklisted) throw new UnauthorizedException('Token has been invalidated');
+
+    try {
+      const payload = this.jwtService.verify(dto.refresh_token);
+      await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', 7 * 24 * 60 * 60);
+
+      const newPayload = { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
+      return {
+        access_token: this.jwtService.sign(newPayload),
+        refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async getPendingRegistrations() {
+    return this.prisma.user.findMany({
+      where: { approval_status: ApprovalStatus.PENDING },
+      select: { id: true, name: true, email: true, phone: true, created_at: true },
+    });
+  }
+
+  async approveUser(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { approval_status: ApprovalStatus.APPROVED },
+    });
+  }
+
+  async rejectUser(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { approval_status: ApprovalStatus.REJECTED },
+    });
+  }
+
+  async suspendUser(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { approval_status: ApprovalStatus.SUSPENDED, is_active: false },
+    });
   }
 }

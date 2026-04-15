@@ -47,13 +47,16 @@ const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
+const ioredis_1 = require("ioredis");
 const client_1 = require("@prisma/client");
 let AuthService = class AuthService {
     prisma;
     jwtService;
+    redis;
     constructor(prisma, jwtService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
+        this.redis = new ioredis_1.Redis(process.env.REDIS_URL || 'redis://localhost:6379');
     }
     async setupSuperAdmin(dto) {
         const existingSuperAdmin = await this.prisma.user.findFirst({
@@ -187,6 +190,47 @@ let AuthService = class AuthService {
                 store_name: user.store?.name,
             },
         };
+    }
+    async refreshToken(dto) {
+        const isBlacklisted = await this.redis.get(`bl_rt_${dto.refresh_token}`);
+        if (isBlacklisted)
+            throw new common_1.UnauthorizedException('Token has been invalidated');
+        try {
+            const payload = this.jwtService.verify(dto.refresh_token);
+            await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', 7 * 24 * 60 * 60);
+            const newPayload = { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
+            return {
+                access_token: this.jwtService.sign(newPayload),
+                refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
+            };
+        }
+        catch {
+            throw new common_1.UnauthorizedException('Invalid refresh token');
+        }
+    }
+    async getPendingRegistrations() {
+        return this.prisma.user.findMany({
+            where: { approval_status: client_1.ApprovalStatus.PENDING },
+            select: { id: true, name: true, email: true, phone: true, created_at: true },
+        });
+    }
+    async approveUser(userId) {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { approval_status: client_1.ApprovalStatus.APPROVED },
+        });
+    }
+    async rejectUser(userId) {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { approval_status: client_1.ApprovalStatus.REJECTED },
+        });
+    }
+    async suspendUser(userId) {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { approval_status: client_1.ApprovalStatus.SUSPENDED, is_active: false },
+        });
     }
 };
 exports.AuthService = AuthService;
