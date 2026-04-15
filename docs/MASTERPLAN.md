@@ -367,57 +367,57 @@
 
 ### 1B.1 — Auth Module Setup
 
-- [ ] Create NestJS module: `nest g module auth`
-- [ ] Create NestJS controller: `nest g controller auth`
-- [ ] Create NestJS service: `nest g service auth`
-- [ ] Create Prisma service (shared database access):
-  - [ ] File: `backend/src/prisma/prisma.service.ts`
-  - [ ] Extends `PrismaClient`, implements `onModuleInit`
-  - [ ] Register as global module
+- [x] Create NestJS module: `nest g module auth`
+- [x] Create NestJS controller: `nest g controller auth`
+- [x] Create NestJS service: `nest g service auth`
+- [x] Create Prisma service (shared database access):
+  - [x] File: `backend/src/prisma/prisma.service.ts`
+  - [x] Extends `PrismaClient`, implements `onModuleInit`
+  - [x] Register as global module
 
 ### 1B.2 — Super Admin Registration (First-Time Setup)
 
-- [ ] Create DTO: `CreateSuperAdminDto` (name, email, password, phone, brand_name, brand_gst)
-- [ ] Endpoint: `POST /auth/setup`
-  - [ ] Guard: Only works if NO Super Admin exists in the database yet
-  - [ ] Creates the Brand record
-  - [ ] Creates the Super Admin user with role=SUPER_ADMIN, approval_status=APPROVED
-  - [ ] Hashes password with bcrypt (cost factor 12)
-  - [ ] Returns JWT access token + refresh token
-- [ ] Validate: email format, password min 8 chars, required fields
+- [x] Create DTO: `CreateSuperAdminDto` (name, email, password, phone, brand_name, brand_gst)
+- [x] Endpoint: `POST /auth/setup`
+  - [x] Guard: Only works if NO Super Admin exists in the database yet
+  - [x] Creates the Brand record
+  - [x] Creates the Super Admin user with role=SUPER_ADMIN, approval_status=APPROVED
+  - [x] Hashes password with bcrypt (cost factor 12)
+  - [x] Returns JWT access token + refresh token
+- [x] Validate: email format, password min 8 chars, required fields
 
 ### 1B.3 — Store Admin Self-Registration
 
-- [ ] Create DTO: `RegisterStoreAdminDto` (name, email, password, phone)
-- [ ] Endpoint: `POST /auth/register`
-  - [ ] Creates user with role=STORE_ADMIN, approval_status=PENDING
-  - [ ] store_id is NULL initially (set later after approval + store profile setup)
-  - [ ] Hashes password with bcrypt
-  - [ ] Returns: `{ message: "Registration successful. Awaiting Super Admin approval." }`
-  - [ ] Does NOT return a JWT (user cannot log in until approved)
-- [ ] Validate: unique email, password requirements, phone format
+- [x] Create DTO: `RegisterStoreAdminDto` (name, email, password, phone)
+- [x] Endpoint: `POST /auth/register`
+  - [x] Creates user with role=STORE_ADMIN, approval_status=PENDING
+  - [x] store_id is NULL initially (set later after approval + store profile setup)
+  - [x] Hashes password with bcrypt
+  - [x] Returns: `{ message: "Registration successful. Awaiting Super Admin approval." }`
+  - [x] Does NOT return a JWT (user cannot log in until approved)
+- [x] Validate: unique email, password requirements, phone format
 
 ### 1B.4 — Login Endpoints
 
-- [ ] Create DTO: `AdminLoginDto` (email, password)
-- [ ] Endpoint: `POST /auth/login`
-  - [ ] Accepts email + password
-  - [ ] Verifies password with bcrypt
-  - [ ] Checks: is_active=true AND approval_status=APPROVED
-  - [ ] If PENDING: return 403 "Your account is pending approval"
-  - [ ] If REJECTED: return 403 "Your registration was rejected"
-  - [ ] If SUSPENDED: return 403 "Your account has been suspended"
-  - [ ] If approved: Generate JWT (payload: userId, role, brandId, storeId) + refresh token
-  - [ ] Update last_login_at
-  - [ ] Return: `{ access_token, refresh_token, user: { id, name, role, store } }`
+- [x] Create DTO: `AdminLoginDto` (email, password)
+- [x] Endpoint: `POST /auth/login`
+  - [x] Accepts email + password
+  - [x] Verifies password with bcrypt
+  - [x] Checks: is_active=true AND approval_status=APPROVED
+  - [x] If PENDING: return 403 "Your account is pending approval"
+  - [x] If REJECTED: return 403 "Your registration was rejected"
+  - [x] If SUSPENDED: return 403 "Your account has been suspended"
+  - [x] If approved: Generate JWT (payload: userId, role, brandId, storeId) + refresh token
+  - [x] Update last_login_at
+  - [x] Return: `{ access_token, refresh_token, user: { id, name, role, store } }`
 
-- [ ] Create DTO: `EmployeeLoginDto` (store_id, employee_id, pin)
-- [ ] Endpoint: `POST /auth/employee-login`
-  - [ ] Accepts store_id, employee user_id, 4-digit PIN
-  - [ ] Verifies PIN hash with bcrypt
-  - [ ] Checks: is_active=true, user belongs to the given store
-  - [ ] Generate JWT with minimal permissions (role=EMPLOYEE, storeId, userId)
-  - [ ] Return: `{ access_token, user: { id, name, role, store_name } }`
+- [x] Create DTO: `EmployeeLoginDto` (store_id, employee_id, pin)
+- [x] Endpoint: `POST /auth/employee-login`
+  - [x] Accepts store_id, employee user_id, 4-digit PIN
+  - [x] Verifies PIN hash with bcrypt
+  - [x] Checks: is_active=true, user belongs to the given store
+  - [x] Generate JWT with minimal permissions (role=EMPLOYEE, storeId, userId)
+  - [x] Return: `{ access_token, user: { id, name, role, store_name } }`
 
 ### 1B.5 — Token Refresh
 
