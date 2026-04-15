@@ -27,7 +27,10 @@ let RolesGuard = class RolesGuard {
             return true;
         }
         const { user } = context.switchToHttp().getRequest();
-        return requiredRoles.includes(user.role);
+        if (!requiredRoles.includes(user.role)) {
+            throw new common_1.ForbiddenException('You do not have permission to access this resource');
+        }
+        return true;
     }
 };
 exports.RolesGuard = RolesGuard;

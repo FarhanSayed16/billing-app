@@ -17,16 +17,18 @@ let S3Service = class S3Service {
     configService;
     s3;
     bucketName;
+    region;
     constructor(configService) {
         this.configService = configService;
+        this.region = this.configService.get('S3_REGION', 'ap-south-1');
         this.s3 = new client_s3_1.S3Client({
-            region: this.configService.get('AWS_REGION', 'us-east-1'),
+            region: this.region,
             credentials: {
-                accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID', 'test'),
-                secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY', 'test'),
+                accessKeyId: this.configService.get('S3_ACCESS_KEY', ''),
+                secretAccessKey: this.configService.get('S3_SECRET_KEY', ''),
             },
         });
-        this.bucketName = this.configService.get('AWS_S3_BUCKET', 'billpush-bucket');
+        this.bucketName = this.configService.get('S3_BUCKET_NAME', 'billpush-assets');
     }
     async uploadFile(file, key) {
         const command = new client_s3_1.PutObjectCommand({
@@ -37,7 +39,7 @@ let S3Service = class S3Service {
         });
         try {
             await this.s3.send(command);
-            return `https://${this.bucketName}.s3.${this.configService.get('AWS_REGION', 'us-east-1')}.amazonaws.com/${key}`;
+            return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
         }
         catch (e) {
             throw new common_1.InternalServerErrorException('Failed to upload file to S3');

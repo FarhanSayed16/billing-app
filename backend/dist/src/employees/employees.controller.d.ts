@@ -14,15 +14,12 @@ export declare class EmployeesController {
         name: string;
     }>;
     findAll(req: any, queryStoreId?: string): Promise<{
-        bills_today_count: number;
         id: string;
         name: string;
         phone: string;
         is_active: boolean;
         last_login_at: Date | null;
-        _count: {
-            invoices: number;
-        };
+        bills_today_count: number;
     }[]>;
     update(id: string, updateEmployeeDto: UpdateEmployeeDto, req: any): Promise<{
         id: string;

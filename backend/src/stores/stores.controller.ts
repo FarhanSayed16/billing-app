@@ -7,7 +7,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('stores')
 @ApiBearerAuth()
@@ -18,18 +18,21 @@ export class StoresController {
 
   @Post()
   @Roles(Role.STORE_ADMIN)
+  @ApiOperation({ summary: 'Create a store (Store Admin creates their store after approval)' })
   create(@Body() createStoreDto: CreateStoreDto, @Req() req: any) {
     return this.storesService.create(createStoreDto, req.user.userId, req.user.brandId);
   }
 
   @Get()
   @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'List all stores (Super Admin only)' })
   findAll(@Req() req: any) {
     return this.storesService.findAll(req.user.brandId);
   }
 
   @Get(':id')
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN)
+  @ApiOperation({ summary: 'Get a specific store' })
   findOne(@Param('id') id: string, @Req() req: any) {
     const userStoreId = req.user.role === Role.STORE_ADMIN ? req.user.storeId : undefined;
     return this.storesService.findOne(id, req.user.brandId, userStoreId);
@@ -37,6 +40,7 @@ export class StoresController {
 
   @Patch(':id')
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN)
+  @ApiOperation({ summary: 'Update a store' })
   update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto, @Req() req: any) {
     const userStoreId = req.user.role === Role.STORE_ADMIN ? req.user.storeId : undefined;
     return this.storesService.update(id, updateStoreDto, req.user.brandId, userStoreId);
@@ -44,20 +48,23 @@ export class StoresController {
 
   @Patch(':id/deactivate')
   @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Deactivate a store (Super Admin only)' })
   deactivate(@Param('id') id: string, @Req() req: any) {
     return this.storesService.setActivation(id, req.user.brandId, false);
   }
 
   @Patch(':id/activate')
   @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Activate a store (Super Admin only)' })
   activate(@Param('id') id: string, @Req() req: any) {
     return this.storesService.setActivation(id, req.user.brandId, true);
   }
 
   @Post(':id/logo')
-  @Roles(Role.STORE_ADMIN)
+  @Roles(Role.STORE_ADMIN, Role.SUPER_ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload store logo' })
   @ApiBody({
     schema: {
       type: 'object',

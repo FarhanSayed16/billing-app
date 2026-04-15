@@ -10,6 +10,11 @@ export declare class AuthController {
     setup(createSuperAdminDto: CreateSuperAdminDto): Promise<{
         access_token: string;
         refresh_token: string;
+        user: {
+            id: string;
+            name: string;
+            role: import("@prisma/client").$Enums.Role;
+        };
     }>;
     register(registerStoreAdminDto: RegisterStoreAdminDto): Promise<{
         message: string;
@@ -21,7 +26,10 @@ export declare class AuthController {
             id: string;
             name: string;
             role: import("@prisma/client").$Enums.Role;
-            store: string | null;
+            store: {
+                id: string;
+                name: string;
+            } | null;
         };
     }>;
     employeeLogin(employeeLoginDto: EmployeeLoginDto): Promise<{
@@ -43,53 +51,25 @@ export declare class AuthController {
         created_at: Date;
         email: string | null;
         phone: string;
+        role: import("@prisma/client").$Enums.Role;
     }[]>;
     approveUser(userId: string): Promise<{
         id: string;
         name: string;
-        created_at: Date;
-        updated_at: Date;
         email: string | null;
-        password_hash: string | null;
-        phone: string;
-        pin: string | null;
-        role: import("@prisma/client").$Enums.Role;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
-        is_active: boolean;
-        last_login_at: Date | null;
-        brand_id: string;
-        store_id: string | null;
     }>;
     rejectUser(userId: string): Promise<{
         id: string;
         name: string;
-        created_at: Date;
-        updated_at: Date;
         email: string | null;
-        password_hash: string | null;
-        phone: string;
-        pin: string | null;
-        role: import("@prisma/client").$Enums.Role;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
-        is_active: boolean;
-        last_login_at: Date | null;
-        brand_id: string;
-        store_id: string | null;
     }>;
     suspendUser(userId: string): Promise<{
         id: string;
         name: string;
-        created_at: Date;
-        updated_at: Date;
         email: string | null;
-        password_hash: string | null;
-        phone: string;
-        pin: string | null;
-        role: import("@prisma/client").$Enums.Role;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
         is_active: boolean;
-        last_login_at: Date | null;
-        brand_id: string;
-        store_id: string | null;
     }>;
 }

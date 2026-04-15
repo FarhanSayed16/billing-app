@@ -12,11 +12,11 @@ export class EmployeesService {
 
   async create(createEmployeeDto: CreateEmployeeDto, brandId: string, storeId: string) {
     const existingUser = await this.prisma.user.findFirst({
-      where: { phone: createEmployeeDto.phone, brand_id: brandId },
+      where: { phone: createEmployeeDto.phone, brand_id: brandId, role: Role.EMPLOYEE },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this phone number already exists in this brand.');
+      throw new ConflictException('An employee with this phone number already exists in this brand.');
     }
 
     const pin_hash = await bcrypt.hash(createEmployeeDto.pin, 12);
@@ -37,6 +37,9 @@ export class EmployeesService {
   }
 
   async findAll(brandId: string, storeId: string) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
     const employees = await this.prisma.user.findMany({
       where: { brand_id: brandId, store_id: storeId, role: Role.EMPLOYEE },
       select: {
@@ -46,14 +49,22 @@ export class EmployeesService {
         is_active: true,
         last_login_at: true,
         _count: {
-          select: { invoices: true },
+          select: {
+            invoices: {
+              where: { created_at: { gte: todayStart } },
+            },
+          },
         },
       },
     });
 
     return employees.map(emp => ({
-      ...emp,
-      bills_today_count: emp._count.invoices, 
+      id: emp.id,
+      name: emp.name,
+      phone: emp.phone,
+      is_active: emp.is_active,
+      last_login_at: emp.last_login_at,
+      bills_today_count: emp._count.invoices,
     }));
   }
 
@@ -101,6 +112,7 @@ export class EmployeesService {
     return this.prisma.user.findMany({
       where: { store_id: storeId, role: Role.EMPLOYEE, is_active: true },
       select: { id: true, name: true },
+      orderBy: { name: 'asc' },
     });
   }
 }

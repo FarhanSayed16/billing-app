@@ -45,18 +45,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
 const ioredis_1 = require("ioredis");
 const client_1 = require("@prisma/client");
+const REFRESH_EXPIRY_SECONDS = 7 * 24 * 60 * 60;
 let AuthService = class AuthService {
     prisma;
     jwtService;
+    configService;
     redis;
-    constructor(prisma, jwtService) {
+    constructor(prisma, jwtService, configService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
-        this.redis = new ioredis_1.Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+        this.configService = configService;
+        this.redis = new ioredis_1.Redis(this.configService.get('REDIS_URL', 'redis://localhost:6379'));
+    }
+    signRefreshToken(payload) {
+        return this.jwtService.sign(payload, { expiresIn: '7d' });
     }
     async setupSuperAdmin(dto) {
         const existingSuperAdmin = await this.prisma.user.findFirst({
@@ -84,10 +91,15 @@ let AuthService = class AuthService {
                 approval_status: client_1.ApprovalStatus.APPROVED,
             },
         });
-        const payload = { userId: user.id, role: user.role, brandId: user.brand_id };
+        const payload = { userId: user.id, role: user.role, brandId: user.brand_id, storeId: null };
         return {
             access_token: this.jwtService.sign(payload),
-            refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+            refresh_token: this.signRefreshToken(payload),
+            user: {
+                id: user.id,
+                name: user.name,
+                role: user.role,
+            },
         };
     }
     async registerStoreAdmin(dto) {
@@ -101,7 +113,7 @@ let AuthService = class AuthService {
             where: { role: client_1.Role.SUPER_ADMIN },
         });
         if (!superAdmin) {
-            throw new common_1.BadRequestException('System is not set up properly.');
+            throw new common_1.BadRequestException('System is not set up yet. Please run initial setup first.');
         }
         const password_hash = await bcrypt.hash(dto.password, 12);
         await this.prisma.user.create({
@@ -120,6 +132,7 @@ let AuthService = class AuthService {
     async adminLogin(dto) {
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
+            include: { store: { select: { id: true, name: true } } },
         });
         if (!user || !user.password_hash) {
             throw new common_1.ForbiddenException('Invalid credentials');
@@ -129,7 +142,7 @@ let AuthService = class AuthService {
             throw new common_1.ForbiddenException('Invalid credentials');
         }
         if (!user.is_active) {
-            throw new common_1.ForbiddenException('User is inactive');
+            throw new common_1.ForbiddenException('Your account has been deactivated');
         }
         if (user.approval_status === client_1.ApprovalStatus.PENDING) {
             throw new common_1.ForbiddenException('Your account is pending approval');
@@ -147,12 +160,12 @@ let AuthService = class AuthService {
         const payload = { userId: user.id, role: user.role, brandId: user.brand_id, storeId: user.store_id };
         return {
             access_token: this.jwtService.sign(payload),
-            refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+            refresh_token: this.signRefreshToken(payload),
             user: {
                 id: user.id,
                 name: user.name,
                 role: user.role,
-                store: user.store_id,
+                store: user.store ? { id: user.store.id, name: user.store.name } : null,
             },
         };
     }
@@ -163,14 +176,14 @@ let AuthService = class AuthService {
                 store_id: dto.store_id,
             },
             include: {
-                store: true,
-            }
+                store: { select: { id: true, name: true } },
+            },
         });
         if (!user || user.role !== client_1.Role.EMPLOYEE || !user.pin) {
             throw new common_1.ForbiddenException('Invalid credentials');
         }
         if (!user.is_active) {
-            throw new common_1.ForbiddenException('User is inactive');
+            throw new common_1.ForbiddenException('Your account has been deactivated');
         }
         const isMatch = await bcrypt.compare(dto.pin, user.pin);
         if (!isMatch) {
@@ -180,7 +193,7 @@ let AuthService = class AuthService {
             where: { id: user.id },
             data: { last_login_at: new Date() },
         });
-        const payload = { userId: user.id, role: user.role, storeId: user.store_id };
+        const payload = { userId: user.id, role: user.role, brandId: user.brand_id, storeId: user.store_id };
         return {
             access_token: this.jwtService.sign(payload),
             user: {
@@ -197,39 +210,54 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Token has been invalidated');
         try {
             const payload = this.jwtService.verify(dto.refresh_token);
-            await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', 7 * 24 * 60 * 60);
+            await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', REFRESH_EXPIRY_SECONDS);
             const newPayload = { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
             return {
                 access_token: this.jwtService.sign(newPayload),
-                refresh_token: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
+                refresh_token: this.signRefreshToken(newPayload),
             };
         }
         catch {
-            throw new common_1.UnauthorizedException('Invalid refresh token');
+            throw new common_1.UnauthorizedException('Invalid or expired refresh token');
         }
     }
     async getPendingRegistrations() {
         return this.prisma.user.findMany({
             where: { approval_status: client_1.ApprovalStatus.PENDING },
-            select: { id: true, name: true, email: true, phone: true, created_at: true },
+            select: { id: true, name: true, email: true, phone: true, role: true, created_at: true },
         });
     }
     async approveUser(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
+        if (user.approval_status !== client_1.ApprovalStatus.PENDING) {
+            throw new common_1.BadRequestException('User is not in pending state');
+        }
         return this.prisma.user.update({
             where: { id: userId },
             data: { approval_status: client_1.ApprovalStatus.APPROVED },
+            select: { id: true, name: true, email: true, approval_status: true },
         });
     }
     async rejectUser(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
         return this.prisma.user.update({
             where: { id: userId },
             data: { approval_status: client_1.ApprovalStatus.REJECTED },
+            select: { id: true, name: true, email: true, approval_status: true },
         });
     }
     async suspendUser(userId) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.BadRequestException('User not found');
         return this.prisma.user.update({
             where: { id: userId },
             data: { approval_status: client_1.ApprovalStatus.SUSPENDED, is_active: false },
+            select: { id: true, name: true, email: true, approval_status: true, is_active: true },
         });
     }
 };
@@ -237,6 +265,7 @@ exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

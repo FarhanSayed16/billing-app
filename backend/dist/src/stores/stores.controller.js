@@ -57,6 +57,7 @@ exports.StoresController = StoresController;
 __decorate([
     (0, common_1.Post)(),
     (0, roles_decorator_1.Roles)(client_1.Role.STORE_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a store (Store Admin creates their store after approval)' }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -66,6 +67,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'List all stores (Super Admin only)' }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -74,6 +76,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id'),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Get a specific store' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -83,6 +86,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a store' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
@@ -93,6 +97,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/deactivate'),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate a store (Super Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -102,6 +107,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/activate'),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
+    (0, swagger_1.ApiOperation)({ summary: 'Activate a store (Super Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -110,9 +116,10 @@ __decorate([
 ], StoresController.prototype, "activate", null);
 __decorate([
     (0, common_1.Post)(':id/logo'),
-    (0, roles_decorator_1.Roles)(client_1.Role.STORE_ADMIN),
+    (0, roles_decorator_1.Roles)(client_1.Role.STORE_ADMIN, client_1.Role.SUPER_ADMIN),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload store logo' }),
     (0, swagger_1.ApiBody)({
         schema: {
             type: 'object',

@@ -6,16 +6,18 @@ import { ConfigService } from '@nestjs/config';
 export class S3Service {
   private readonly s3: S3Client;
   private readonly bucketName: string;
+  private readonly region: string;
 
   constructor(private configService: ConfigService) {
+    this.region = this.configService.get<string>('S3_REGION', 'ap-south-1');
     this.s3 = new S3Client({
-      region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
+      region: this.region,
       credentials: {
-        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID', 'test'),
-        secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY', 'test'),
+        accessKeyId: this.configService.get<string>('S3_ACCESS_KEY', ''),
+        secretAccessKey: this.configService.get<string>('S3_SECRET_KEY', ''),
       },
     });
-    this.bucketName = this.configService.get<string>('AWS_S3_BUCKET', 'billpush-bucket');
+    this.bucketName = this.configService.get<string>('S3_BUCKET_NAME', 'billpush-assets');
   }
 
   async uploadFile(file: Express.Multer.File, key: string): Promise<string> {
@@ -28,7 +30,7 @@ export class S3Service {
 
     try {
       await this.s3.send(command);
-      return `https://${this.bucketName}.s3.${this.configService.get<string>('AWS_REGION', 'us-east-1')}.amazonaws.com/${key}`;
+      return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
     } catch (e) {
       throw new InternalServerErrorException('Failed to upload file to S3');
     }
