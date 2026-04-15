@@ -184,7 +184,7 @@ export class InvoicesService {
   }
 
   async findAll(brandId: string, query: any, role: string, storeId?: string, employeeId?: string) {
-    const { page = 1, limit = 10, date_from, date_to, status, q_store_id, q_customer_id, q_employee_id } = query;
+    const { page = 1, limit = 10, date_from, date_to, status, q_store_id, q_customer_id, q_employee_id, customer_search } = query;
     const skip = (Number(page) - 1) * Number(limit);
     
     const where: any = {};
@@ -206,6 +206,15 @@ export class InvoicesService {
     if (status) where.status = status;
     if (q_customer_id) where.customer_id = q_customer_id;
     if (q_employee_id && role !== Role.EMPLOYEE) where.employee_id = q_employee_id;
+    
+    if (customer_search) {
+      where.customer = {
+        OR: [
+          { name: { contains: customer_search, mode: 'insensitive' } },
+          { phone: { contains: customer_search, mode: 'insensitive' } }
+        ]
+      };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.invoice.findMany({

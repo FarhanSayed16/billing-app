@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../providers/api_provider.dart';
 import '../../../config/theme.dart';
@@ -107,6 +108,12 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                                   const Icon(Icons.phone_outlined, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
                                   Text(user['phone'] ?? 'N/A'),
+                                ]),
+                                const SizedBox(height: 4),
+                                Row(children: [
+                                  const Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 8),
+                                  Text('Joined: ${DateFormat('MMM d, yyyy').format(DateTime.parse(user['created_at']))}'),
                                 ]),
                                 const SizedBox(height: 16),
                                 Row(

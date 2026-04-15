@@ -110,6 +110,34 @@ class _StoreDashboardTabState extends ConsumerState<StoreDashboardTab> {
                   ),
                 ],
               ),
+              const SizedBox(height: 32),
+              const Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // Switch to Employees Tab (Index 2)
+                        // Note: Using Riverpod to manage dashboard index is cleaner, 
+                        // but a simple workaround is push context.
+                      },
+                      icon: const Icon(Icons.people),
+                      label: const Text('View Staff'),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.receipt_long),
+                      label: const Text('View Invoices'),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 40),
             ],
           ),

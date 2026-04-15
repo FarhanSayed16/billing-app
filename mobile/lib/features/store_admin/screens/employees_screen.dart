@@ -42,6 +42,11 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
       final dio = ref.read(dioProvider);
       await dio.patch('/employees/$empId', data: {'is_active': !isActive});
       _fetchEmployees();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(!isActive ? 'Employee Activated' : 'Employee Deactivated'), backgroundColor: AppTheme.successColor),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -49,6 +54,15 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
         );
       }
     }
+  }
+
+  void _showResetPinSheet(String empId, String empName) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => _ResetPinForm(empId: empId, empName: empName),
+    );
   }
 
   void _showAddEmployeeSheet() {
@@ -84,23 +98,106 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                              child: Text(emp['name'].substring(0, 1).toUpperCase()),
+                          child: Dismissible(
+                            key: Key(emp['id']),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.only(right: 20),
+                              decoration: BoxDecoration(color: isActive ? AppTheme.errorColor : AppTheme.successColor, borderRadius: BorderRadius.circular(12)),
+                              child: Icon(isActive ? Icons.person_off : Icons.person, color: Colors.white),
                             ),
-                            title: Text(emp['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(emp['phone'] ?? 'No phone'),
-                            trailing: Switch(
-                              value: isActive,
-                              activeColor: AppTheme.successColor,
-                              onChanged: (_) => _toggleStatus(emp['id'], isActive),
+                            confirmDismiss: (direction) async {
+                              _toggleStatus(emp['id'], isActive);
+                              return false; // Prevent actual removal from tree
+                            },
+                            child: ListTile(
+                              onTap: () => _showResetPinSheet(emp['id'], emp['name']),
+                              leading: CircleAvatar(
+                                backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                                child: Text(emp['name'].substring(0, 1).toUpperCase()),
+                              ),
+                              title: Text(emp['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text('${emp['phone'] ?? 'No phone'}\nLast Login: N/A'),
+                              isThreeLine: true,
+                              trailing: Icon(
+                                Icons.circle,
+                                size: 12,
+                                color: isActive ? AppTheme.successColor : AppTheme.errorColor,
+                              ),
                             ),
                           ),
                         );
                       },
                     ),
             ),
+    );
+  }
+}
+
+class _ResetPinForm extends ConsumerStatefulWidget {
+  final String empId;
+  final String empName;
+  const _ResetPinForm({required this.empId, required this.empName});
+
+  @override
+  ConsumerState<_ResetPinForm> createState() => _ResetPinFormState();
+}
+
+class _ResetPinFormState extends ConsumerState<_ResetPinForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _pinCtrl = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      final dio = ref.read(dioProvider);
+      await dio.patch('/employees/${widget.empId}/reset-pin', data: {
+        'new_pin': _pinCtrl.text.trim(),
+      });
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN Reset Successful'), backgroundColor: AppTheme.successColor));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to reset PIN'), backgroundColor: AppTheme.errorColor));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 24, right: 24, top: 24),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Reset PIN for ${widget.empName}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            BillPushTextField(
+              label: 'New 4-Digit PIN',
+              controller: _pinCtrl,
+              keyboardType: TextInputType.number,
+              isPassword: true,
+              validator: (v) => v!.length != 4 ? 'Must be exactly 4 digits' : null,
+            ),
+            const SizedBox(height: 20),
+            BillPushButton(
+              text: 'Reset PIN',
+              isLoading: _isLoading,
+              onPressed: _submit,
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }

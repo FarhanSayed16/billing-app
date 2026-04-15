@@ -37,10 +37,29 @@ export class StoresService {
       },
     });
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const storeIds = stores.map(s => s.id);
+    const revenueStats = await this.prisma.invoice.groupBy({
+      by: ['store_id'],
+      where: {
+        store_id: { in: storeIds },
+        created_at: { gte: today },
+        status: { not: 'FULLY_REFUNDED' }
+      },
+      _sum: {
+        grand_total: true
+      }
+    });
+
+    const revMap = new Map(revenueStats.map(r => [r.store_id, Number(r._sum.grand_total || 0)]));
+
     return stores.map(store => ({
       ...store,
       employee_count: store._count.users,
       total_invoices: store._count.invoices,
+      today_revenue: revMap.get(store.id) || 0,
     }));
   }
 

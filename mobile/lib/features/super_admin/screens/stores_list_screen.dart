@@ -108,7 +108,8 @@ class _StoresListScreenState extends ConsumerState<StoresListScreen> {
                                     child: store['logo_url'] == null ? const Icon(Icons.store, color: AppTheme.primaryColor) : null,
                                   ),
                                   title: Text(store['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Text('${store['city']} • ${store['employee_count']} Staff'),
+                                  subtitle: Text('${store['city']} • ${store['employee_count']} Staff\nToday\'s Revenue: ₹${store['today_revenue']}'),
+                                  isThreeLine: true,
                                   trailing: Icon(
                                     Icons.circle,
                                     size: 12,

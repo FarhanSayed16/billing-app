@@ -17,11 +17,18 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
   List<dynamic> _invoices = [];
   bool _isLoading = true;
   String _filter = 'Today'; // Today, Week, Month
+  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchInvoices();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchInvoices() async {
@@ -41,11 +48,17 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
         startTime = DateTime(now.year, now.month, 1);
       }
 
-      final res = await dio.get('/invoices', queryParameters: {
+      final Map<String, dynamic> query = {
         'date_from': startTime.toIso8601String(),
         'date_to': now.toIso8601String(),
         'limit': 100,
-      });
+      };
+
+      if (_searchCtrl.text.trim().isNotEmpty) {
+        query['customer_search'] = _searchCtrl.text.trim();
+      }
+
+      final res = await dio.get('/invoices', queryParameters: query);
       
       setState(() => _invoices = res.data['data']);
     } catch (e) {
@@ -67,6 +80,18 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Search customer...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onSubmitted: (_) => _fetchInvoices(),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: SegmentedButton<String>(
               segments: const [
                 ButtonSegment(value: 'Today', label: Text('Today')),
