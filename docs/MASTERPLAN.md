@@ -827,10 +827,10 @@
   - [ ] Settings
 
 ### 1H CHECKPOINT
-- [ ] Super Admin can approve/reject Store Admin registrations from the app
-- [ ] Super Admin can view all stores
-- [ ] Super Admin can activate/deactivate a store
-- [ ] **Commit:** "feat: Super Admin MVP screens — approvals and store management"
+- [x] Super Admin can approve/reject Store Admin registrations from the app
+- [x] Super Admin can view all stores
+- [x] Super Admin can activate/deactivate a store
+- [x] **Commit:** "feat: Super Admin MVP screens — approvals and store management"
 
 ---
 
@@ -874,12 +874,12 @@
   - [ ] Settings
 
 ### 1I CHECKPOINT
-- [ ] Store Admin sees their store dashboard with today's stats
-- [ ] Store Admin can create, edit, deactivate employees
-- [ ] Store Admin can view all store invoices
-- [ ] Store Admin can void an invoice
-- [ ] Store Admin can update store profile
-- [ ] **Commit:** "feat: Store Admin MVP screens — dashboard, employees, invoices"
+- [x] Store Admin sees their store dashboard with today's stats
+- [x] Store Admin can create, edit, deactivate employees
+- [x] Store Admin can view all store invoices
+- [x] Store Admin can void an invoice
+- [x] Store Admin can update store profile
+- [x] **Commit:** "feat: Store Admin MVP screens — dashboard, employees, invoices"
 
 ---
 
