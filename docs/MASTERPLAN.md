@@ -802,29 +802,29 @@
 
 ## Sub-Phase 1H: Flutter Mobile App — Super Admin Screens (MVP)
 
-- [ ] **Pending Approvals Screen:**
-  - [ ] List of Store Admins with approval_status=PENDING
-  - [ ] Each card shows: name, email, phone, registration date
-  - [ ] Approve button (green) and Reject button (red)
-  - [ ] Pull-to-refresh
-  - [ ] Badge count shown on navigation
+- [x] **Pending Approvals Screen:**
+  - [x] List of Store Admins with approval_status=PENDING
+  - [x] Each card shows: name, email, phone, registration date
+  - [x] Approve button (green) and Reject button (red)
+  - [x] Pull-to-refresh
+  - [x] Badge count shown on navigation
 
-- [ ] **Store List Screen:**
-  - [ ] List of all stores with: name, city, is_active status, today's revenue
-  - [ ] Tap to view store detail
-  - [ ] Search bar to filter by store name
+- [x] **Store List Screen:**
+  - [x] List of all stores with: name, city, is_active status, today's revenue
+  - [x] Tap to view store detail
+  - [x] Search bar to filter by store name
 
-- [ ] **Store Detail Screen (Super Admin View):**
-  - [ ] Store info: name, address, logo, phone, GST
-  - [ ] Employee count
-  - [ ] Today's stats: bills generated, revenue
-  - [ ] Activate/Deactivate toggle
+- [x] **Store Detail Screen (Super Admin View):**
+  - [x] Store info: name, address, logo, phone, GST
+  - [x] Employee count
+  - [x] Today's stats: bills generated, revenue
+  - [x] Activate/Deactivate toggle
 
-- [ ] **Super Admin Bottom Navigation:**
-  - [ ] Dashboard (placeholder for Phase 2)
-  - [ ] Stores (store list)
-  - [ ] Approvals (pending registrations with badge)
-  - [ ] Settings
+- [x] **Super Admin Bottom Navigation:**
+  - [x] Dashboard (placeholder for Phase 2)
+  - [x] Stores (store list)
+  - [x] Approvals (pending registrations with badge)
+  - [x] Settings
 
 ### 1H CHECKPOINT
 - [x] Super Admin can approve/reject Store Admin registrations from the app
@@ -836,42 +836,42 @@
 
 ## Sub-Phase 1I: Flutter Mobile App — Store Admin Screens (MVP)
 
-- [ ] **Store Dashboard Screen:**
-  - [ ] Today's revenue (large number)
-  - [ ] Bills generated today
-  - [ ] Average bill value
-  - [ ] Quick action: "View Employees" and "View Invoices"
+- [x] **Store Dashboard Screen:**
+  - [x] Today's revenue (large number)
+  - [x] Bills generated today
+  - [x] Average bill value
+  - [x] Quick action: "View Employees" and "View Invoices"
 
-- [ ] **Employee Management Screen:**
-  - [ ] List of employees with: name, is_active, last_login
-  - [ ] "Add Employee" FAB → bottom sheet or new screen:
-    - [ ] Name, Phone, 4-digit PIN input
-    - [ ] "Create" button
-  - [ ] Swipe to deactivate/reactivate
-  - [ ] Tap to edit or reset PIN
+- [x] **Employee Management Screen:**
+  - [x] List of employees with: name, is_active, last_login
+  - [x] "Add Employee" FAB → bottom sheet or new screen:
+    - [x] Name, Phone, 4-digit PIN input
+    - [x] "Create" button
+  - [x] Swipe to deactivate/reactivate
+  - [x] Tap to edit or reset PIN
 
-- [ ] **Invoice List Screen:**
-  - [ ] List of all invoices from this store
-  - [ ] Each row: invoice_number, customer_name, grand_total, time, status
-  - [ ] Filter by: today, this week, this month, custom date range
-  - [ ] Search by customer name or phone
-  - [ ] Tap to view invoice detail
+- [x] **Invoice List Screen:**
+  - [x] List of all invoices from this store
+  - [x] Each row: invoice_number, customer_name, grand_total, time, status
+  - [x] Filter by: today, this week, this month, custom date range
+  - [x] Search by customer name or phone
+  - [x] Tap to view invoice detail
 
-- [ ] **Invoice Detail Screen:**
-  - [ ] Full invoice view: store header, customer info, itemized list, totals
-  - [ ] "Void Invoice" button (with confirmation dialog)
-  - [ ] "Re-share" button (opens share sheet with PDF)
-  - [ ] Status badge (ACTIVE / REFUNDED)
+- [x] **Invoice Detail Screen:**
+  - [x] Full invoice view: store header, customer info, itemized list, totals
+  - [x] "Void Invoice" button (with confirmation dialog)
+  - [x] "Re-share" button (opens share sheet with PDF)
+  - [x] Status badge (ACTIVE / REFUNDED)
 
-- [ ] **Store Settings Screen:**
-  - [ ] Edit store profile: name, address, logo, phone, GST, color
-  - [ ] Discount settings: can employees apply discounts? Max discount %?
+- [x] **Store Settings Screen:**
+  - [x] Edit store profile: name, address, logo, phone, GST, color
+  - [x] Discount settings: can employees apply discounts? Max discount %?
 
-- [ ] **Store Admin Bottom Navigation:**
-  - [ ] Dashboard
-  - [ ] Invoices
-  - [ ] Employees
-  - [ ] Settings
+- [x] **Store Admin Bottom Navigation:**
+  - [x] Dashboard
+  - [x] Invoices
+  - [x] Employees
+  - [x] Settings
 
 ### 1I CHECKPOINT
 - [x] Store Admin sees their store dashboard with today's stats
