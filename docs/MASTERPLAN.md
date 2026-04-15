@@ -254,8 +254,8 @@
 
 ### 1A.1 — Define Core Prisma Schema
 
-- [ ] Open `backend/prisma/schema.prisma`
-- [ ] Define the `brands` model:
+- [x] Open `backend/prisma/schema.prisma`
+- [x] Define the `brands` model:
   ```
   Fields: id (UUID), name, logo_url, primary_color, gst_number,
   loyalty_points_per_100 (Int, default 1),
@@ -263,16 +263,16 @@
   loyalty_expiry_months (Int, default 12),
   created_at, updated_at
   ```
-  - [ ] NOTE: No whatsapp_phone_id or whatsapp_api_token (removed per PROJECT_PLAN)
-- [ ] Define the `stores` model:
+  - [x] NOTE: No whatsapp_phone_id or whatsapp_api_token (removed per PROJECT_PLAN)
+- [x] Define the `stores` model:
   ```
   Fields: id (UUID), brand_id (FK), name, address, city, state,
   gst_number, phone, logo_url, brand_color (nullable),
   is_active (Boolean, default true),
   created_at, updated_at
   ```
-  - [ ] Relation: stores belongsTo brands (brand_id)
-- [ ] Define the `users` model:
+  - [x] Relation: stores belongsTo brands (brand_id)
+- [x] Define the `users` model:
   ```
   Fields: id (UUID), brand_id (FK), store_id (FK, nullable),
   email (nullable, unique), password_hash (nullable),
@@ -282,8 +282,8 @@
   is_active (Boolean, default true),
   last_login_at (nullable), created_at, updated_at
   ```
-  - [ ] Relation: users belongsTo brands, users belongsTo stores (nullable)
-- [ ] Define the `customers` model:
+  - [x] Relation: users belongsTo brands, users belongsTo stores (nullable)
+- [x] Define the `customers` model:
   ```
   Fields: id (UUID), brand_id (FK), phone (unique per brand),
   name, total_visits (Int, default 0),
@@ -292,22 +292,22 @@
   first_visit_at (nullable), last_visit_at (nullable),
   created_at, updated_at
   ```
-  - [ ] Relation: customers belongsTo brands
-  - [ ] Unique constraint: @@unique([brand_id, phone])
-- [ ] Define the `products` model:
+  - [x] Relation: customers belongsTo brands
+  - [x] Unique constraint: @@unique([brand_id, phone])
+- [x] Define the `products` model:
   ```
   Fields: id (UUID), brand_id (FK), name, sku, barcode (nullable),
   category, base_price (Decimal), tax_rate (Decimal),
   image_url (nullable), is_active (Boolean, default true),
   created_at, updated_at
   ```
-- [ ] Define the `store_inventory` model:
+- [x] Define the `store_inventory` model:
   ```
   Fields: id (UUID), store_id (FK), product_id (FK),
   quantity (Int), low_stock_threshold (Int, default 10),
   updated_at
   ```
-- [ ] Define the `invoices` model:
+- [x] Define the `invoices` model:
   ```
   Fields: id (UUID), invoice_number, billing_id (unique, 16 chars),
   brand_id (FK), store_id (FK), customer_id (FK, nullable for guest),
@@ -322,44 +322,44 @@
   qr_code_url (nullable),
   created_at
   ```
-  - [ ] NOTE: No whatsapp_status column (removed per PROJECT_PLAN)
-- [ ] Define the `invoice_items` model:
+  - [x] NOTE: No whatsapp_status column (removed per PROJECT_PLAN)
+- [x] Define the `invoice_items` model:
   ```
   Fields: id (UUID), invoice_id (FK), product_id (FK, nullable),
   name, quantity (Int), unit_price (Decimal),
   tax_rate (Decimal), tax_amount (Decimal), total (Decimal)
   ```
-- [ ] Define the `loyalty_ledger` model:
+- [x] Define the `loyalty_ledger` model:
   ```
   Fields: id (UUID), customer_id (FK), invoice_id (FK, nullable),
   type (Enum: EARNED, REDEEMED, EXPIRED, ADJUSTED),
   points (Int), description, created_at
   ```
-- [ ] Define the `audit_logs` model:
+- [x] Define the `audit_logs` model:
   ```
   Fields: id (UUID), brand_id (FK), user_id (FK),
   action, target_type, target_id (UUID),
   metadata (Json, nullable), ip_address (nullable),
   created_at
   ```
-- [ ] NOTE: No `campaigns` table (deferred to Phase 4 per PROJECT_PLAN)
+- [x] NOTE: No `campaigns` table (deferred to Phase 4 per PROJECT_PLAN)
 
 ### 1A.2 — Run Migration
 
-- [ ] Generate migration: `npx prisma migrate dev --name init_core_schema`
-- [ ] Verify all tables created in PostgreSQL
-- [ ] Generate Prisma client: `npx prisma generate`
-- [ ] Create a seed file (`backend/prisma/seed.ts`) with:
-  - [ ] One default brand (BillPush demo brand)
-  - [ ] One Super Admin user (email: admin@billpush.com, password: hashed)
-- [ ] Run seed: `npx prisma db seed`
-- [ ] Verify seed data exists in database
+- [x] Generate migration: `npx prisma migrate dev --name init_core_schema`
+- [x] Verify all tables created in PostgreSQL
+- [x] Generate Prisma client: `npx prisma generate`
+- [x] Create a seed file (`backend/prisma/seed.ts`) with:
+  - [x] One default brand (BillPush demo brand)
+  - [x] One Super Admin user (email: admin@billpush.com, password: hashed)
+- [x] Run seed: `npx prisma db seed`
+- [x] Verify seed data exists in database
 
 ### 1A CHECKPOINT
-- [ ] All tables exist in PostgreSQL
-- [ ] Prisma client is generated and importable
-- [ ] Seed data is in place
-- [ ] **Commit:** "feat: complete Prisma schema with all core tables"
+- [x] All tables exist in PostgreSQL
+- [x] Prisma client is generated and importable
+- [x] Seed data is in place
+- [x] **Commit:** "feat: complete Prisma schema with all core tables"
 
 ---
 
