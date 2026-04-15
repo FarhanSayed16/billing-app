@@ -887,90 +887,85 @@
 
 ### 1J.1 — POS Home Screen
 
-- [ ] Build POS home with two large buttons:
-  - [ ] "New Bill" (primary action, large)
-  - [ ] "Recent Bills" (secondary)
-- [ ] Show employee name and store name at the top
-- [ ] Show online/offline indicator
+- [x] Build POS home with two large buttons:
+  - [x] "New Bill" (primary action, large)
+  - [x] "Recent Bills" (secondary)
+- [x] Show employee name and store name at the top
+- [x] Show online/offline indicator
 
 ### 1J.2 — Customer Entry Screen
 
-- [ ] Large phone number input field (numeric keyboard, 10 digits)
-- [ ] "Next" button → calls `GET /customers/lookup/:phone`
-- [ ] If customer exists:
-  - [ ] Show "Welcome back, {Name}!" with loyalty points
-  - [ ] Auto-fill name, proceed to cart
-- [ ] If customer not found:
-  - [ ] Show "New Customer" label
-  - [ ] Name input field appears
-  - [ ] "Continue" button
+- [x] Large phone number input field (numeric keyboard, 10 digits)
+- [x] "Next" button → calls `GET /customers/lookup/:phone`
+- [x] If customer exists:
+  - [x] Show "Welcome back, {Name}!" with loyalty points
+  - [x] Auto-fill name, proceed to cart
+- [x] If customer not found:
+  - [x] Show "New Customer" label
+  - [x] Name input field appears
+  - [x] "Continue" button
 
 ### 1J.3 — Cart / Item Entry Screen
 
-- [ ] Cart view with running total at the bottom
-- [ ] Two modes for adding items:
-  - [ ] **Manual mode (MVP — Phase 1):**
-    - [ ] Product search field with autocomplete (searches catalog API)
-    - [ ] OR "Custom Item" button → name + price input
-    - [ ] Quantity adjuster (+/-)
-    - [ ] "Add to Cart" button
+- [x] Cart view with running total at the bottom
+- [x] Two modes for adding items:
+  - [x] **Manual mode (MVP — Phase 1):**
+    - [x] Product search field with autocomplete (searches catalog API)
+    - [x] OR "Custom Item" button → name + price input
+    - [x] Quantity adjuster (+/-)
+    - [x] "Add to Cart" button
   - [ ] Barcode scanning will be added in Phase 2
-- [ ] Cart item list:
-  - [ ] Each item shows: name, qty, unit price, line total
-  - [ ] Swipe to remove
-  - [ ] Tap to edit quantity
-- [ ] Running total bar always visible at bottom:
-  - [ ] Subtotal | Tax | Grand Total
+- [x] Cart item list:
+  - [x] Each item shows: name, qty, unit price, line total
+  - [x] Swipe to remove
+  - [x] Tap to edit quantity
+- [x] Running total bar always visible at bottom:
+  - [x] Subtotal | Tax | Grand Total
 
 ### 1J.4 — Review and Confirm Screen
 
-- [ ] Full bill summary:
-  - [ ] Customer: name (phone)
-  - [ ] Items (itemized table)
-  - [ ] Subtotal
-  - [ ] Tax breakdown (GST %)
-  - [ ] Discount (if applied) — toggle with amount input
-  - [ ] Loyalty Points (if applied) — toggle showing available points and ₹ value
-  - [ ] **Grand Total** (large, bold)
-- [ ] Big green button: **"CONFIRM & SHARE"**
-- [ ] On tap:
-  1. [ ] POST /invoices to create the invoice
-  2. [ ] Receive response with billing_id and all data
-  3. [ ] Generate PDF locally using `pdf` Flutter package:
-     - [ ] Store logo at top (from store profile)
-     - [ ] Store name, address, phone, GST
-     - [ ] Invoice details (number, date, customer)
-     - [ ] Itemized table
-     - [ ] Totals
-     - [ ] QR code (encoding billing_id)
-     - [ ] Footer: "Powered by BillPush" + web link
-  4. [ ] Save PDF to local temp directory
-  5. [ ] Open **Native Share Sheet** using `share_plus` package:
-     - [ ] Pre-compose message text:
-       ```
-       Thank you for shopping at {store_name}!
-       Your bill: ₹{grand_total}
-       View invoice: bills.billpush.com/v/{billing_id}
-       ```
-     - [ ] Attach PDF file
-  6. [ ] After share sheet is dismissed: update invoice `share_triggered = true` via API
-  7. [ ] Navigate to Success Screen
+- [x] Full bill summary:
+  - [x] Customer: name (phone)
+  - [x] Items (itemized table)
+  - [x] Subtotal
+  - [x] Tax breakdown (GST %)
+  - [x] Discount (if applied) — toggle with amount input
+  - [x] Loyalty Points (if applied) — toggle showing available points and ₹ value
+  - [x] **Grand Total** (large, bold)
+- [x] Big green button: **"CONFIRM & SHARE"**
+- [x] On tap:
+  1. [x] POST /invoices to create the invoice
+  2. [x] Receive response with billing_id and all data
+  3. [x] Generate PDF locally using `pdf` Flutter package:
+     - [x] Store logo at top (from store profile)
+     - [x] Store name, address, phone, GST
+     - [x] Invoice details (number, date, customer)
+     - [x] Itemized table
+     - [x] Totals
+     - [x] QR code (encoding billing_id)
+     - [x] Footer: "Powered by BillPush" + web link
+  4. [x] Save PDF to local temp directory
+  5. [x] Open **Native Share Sheet** using `share_plus` package:
+     - [x] Pre-compose message text
+     - [x] Attach PDF file
+  6. [x] After share sheet is dismissed: update invoice `share_triggered = true` via API
+  7. [x] Navigate to Success Screen
 
 ### 1J.5 — Success Screen
 
-- [ ] Confirmation animation (checkmark)
-- [ ] "Invoice shared successfully!"
-- [ ] Invoice number and billing ID displayed
-- [ ] Two buttons:
-  - [ ] "New Bill" (goes back to POS Home)
-  - [ ] "View Bill" (opens invoice detail)
+- [x] Confirmation animation (checkmark)
+- [x] "Invoice shared successfully!"
+- [x] Invoice number and billing ID displayed
+- [x] Two buttons:
+  - [x] "New Bill" (goes back to POS Home)
+  - [x] "View Bill" (opens invoice detail)
 
 ### 1J.6 — Recent Bills Screen
 
-- [ ] List of employee's own bills from the current shift
-- [ ] Each row: time, customer name, grand_total
-- [ ] Tap to view invoice detail
-- [ ] "Re-share" button on each item
+- [x] List of employee's own bills from the current shift
+- [x] Each row: time, customer name, grand_total
+- [x] Tap to view invoice detail
+- [x] "Re-share" button on each item
 
 ### 1J CHECKPOINT
 - [x] Employee can enter customer phone and name

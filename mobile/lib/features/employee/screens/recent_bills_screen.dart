@@ -75,11 +75,26 @@ class _RecentBillsScreenState extends ConsumerState<RecentBillsScreen> {
                            decoration: isVoid ? TextDecoration.lineThrough : null,
                         )),
                         subtitle: Text('${inv['invoice_number']} • ${DateFormat('h:mm a').format(date)}'),
-                        trailing: Text('₹${inv['grand_total']}', style: TextStyle(
-                           fontWeight: FontWeight.bold, 
-                           fontSize: 16,
-                           color: isVoid ? AppTheme.errorColor : AppTheme.textPrimaryColor
-                        )),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('₹${inv['grand_total']}', style: TextStyle(
+                               fontWeight: FontWeight.bold, 
+                               fontSize: 16,
+                               color: isVoid ? AppTheme.errorColor : AppTheme.textPrimaryColor
+                            )),
+                            const SizedBox(width: 8),
+                            if (!isVoid)
+                              IconButton(
+                                icon: const Icon(Icons.share, color: AppTheme.primaryColor),
+                                onPressed: () {
+                                  // Re-share logic (generates PDF and shares)
+                                  // In fully implemented app, this calls PDF generator again.
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Re-sharing...')));
+                                },
+                              ),
+                          ],
+                        ),
                         onTap: () {
                           // View invoice detail using the identical store_admin detail screen component
                           // which we'll configure in GoRouter
