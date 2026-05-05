@@ -5,3 +5,5 @@ build/
 .flutter-plugins
 .idea/
 .vscode/
+*
+!.gitignore
