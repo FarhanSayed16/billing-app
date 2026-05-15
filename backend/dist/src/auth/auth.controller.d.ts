@@ -48,10 +48,10 @@ export declare class AuthController {
     getPendingRegistrations(): Promise<{
         id: string;
         name: string;
-        created_at: Date;
-        email: string | null;
         phone: string;
+        created_at: Date;
         role: import("@prisma/client").$Enums.Role;
+        email: string | null;
     }[]>;
     approveUser(userId: string): Promise<{
         id: string;
@@ -68,8 +68,8 @@ export declare class AuthController {
     suspendUser(userId: string): Promise<{
         id: string;
         name: string;
+        is_active: boolean;
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
-        is_active: boolean;
     }>;
 }

@@ -14,10 +14,10 @@ export declare class AuditLogsController {
             id: string;
             brand_id: string;
             created_at: Date;
+            metadata: import("@prisma/client/runtime/client").JsonValue | null;
             action: string;
             target_type: string;
             target_id: string;
-            metadata: import("@prisma/client/runtime/client").JsonValue | null;
             ip_address: string | null;
             user_id: string;
         })[];
