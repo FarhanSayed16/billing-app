@@ -8,26 +8,26 @@ export declare class InvoicesService {
     create(createInvoiceDto: CreateInvoiceDto, storeId: string, employeeId: string, brandId: string): Promise<{
         store: {
             id: string;
-            name: string;
-            logo_url: string | null;
-            gst_number: string | null;
-            created_at: Date;
-            updated_at: Date;
-            phone: string;
-            is_active: boolean;
             brand_id: string;
+            name: string;
             address: string;
             city: string;
             state: string;
+            gst_number: string | null;
+            phone: string;
+            logo_url: string | null;
             brand_color: string | null;
+            is_active: boolean;
+            created_at: Date;
+            updated_at: Date;
         };
         customer: {
             id: string;
+            brand_id: string;
             name: string;
+            phone: string;
             created_at: Date;
             updated_at: Date;
-            phone: string;
-            brand_id: string;
             total_visits: number;
             total_spend: import("@prisma/client-runtime-utils").Decimal;
             loyalty_points: number;
@@ -37,18 +37,19 @@ export declare class InvoicesService {
         items: {
             id: string;
             name: string;
-            total: import("@prisma/client-runtime-utils").Decimal;
             tax_amount: import("@prisma/client-runtime-utils").Decimal;
+            total: import("@prisma/client-runtime-utils").Decimal;
             product_id: string | null;
             quantity: number;
             unit_price: import("@prisma/client-runtime-utils").Decimal;
             tax_rate: import("@prisma/client-runtime-utils").Decimal;
+            returned_quantity: number;
             invoice_id: string;
         }[];
     } & {
         id: string;
-        created_at: Date;
         brand_id: string;
+        created_at: Date;
         store_id: string;
         employee_id: string;
         invoice_number: string;
@@ -85,26 +86,26 @@ export declare class InvoicesService {
     findOne(id: string, role: string, userStoreId?: string, userId?: string): Promise<{
         store: {
             id: string;
-            name: string;
-            logo_url: string | null;
-            gst_number: string | null;
-            created_at: Date;
-            updated_at: Date;
-            phone: string;
-            is_active: boolean;
             brand_id: string;
+            name: string;
             address: string;
             city: string;
             state: string;
+            gst_number: string | null;
+            phone: string;
+            logo_url: string | null;
             brand_color: string | null;
+            is_active: boolean;
+            created_at: Date;
+            updated_at: Date;
         };
         customer: {
             id: string;
+            brand_id: string;
             name: string;
+            phone: string;
             created_at: Date;
             updated_at: Date;
-            phone: string;
-            brand_id: string;
             total_visits: number;
             total_spend: import("@prisma/client-runtime-utils").Decimal;
             loyalty_points: number;
@@ -114,18 +115,19 @@ export declare class InvoicesService {
         items: {
             id: string;
             name: string;
-            total: import("@prisma/client-runtime-utils").Decimal;
             tax_amount: import("@prisma/client-runtime-utils").Decimal;
+            total: import("@prisma/client-runtime-utils").Decimal;
             product_id: string | null;
             quantity: number;
             unit_price: import("@prisma/client-runtime-utils").Decimal;
             tax_rate: import("@prisma/client-runtime-utils").Decimal;
+            returned_quantity: number;
             invoice_id: string;
         }[];
     } & {
         id: string;
-        created_at: Date;
         brand_id: string;
+        created_at: Date;
         store_id: string;
         employee_id: string;
         invoice_number: string;
@@ -144,28 +146,20 @@ export declare class InvoicesService {
         qr_code_url: string | null;
     }>;
     findOneByBillingId(billingId: string): Promise<{
-        created_at: Date;
         store: {
             name: string;
-            logo_url: string | null;
-            gst_number: string | null;
-            phone: string;
             address: string;
             city: string;
+            gst_number: string | null;
+            phone: string;
+            logo_url: string | null;
             brand_color: string | null;
         };
+        created_at: Date;
         customer: {
             name: string;
             phone: string;
         } | null;
-        items: {
-            name: string;
-            total: import("@prisma/client-runtime-utils").Decimal;
-            tax_amount: import("@prisma/client-runtime-utils").Decimal;
-            quantity: number;
-            unit_price: import("@prisma/client-runtime-utils").Decimal;
-            tax_rate: import("@prisma/client-runtime-utils").Decimal;
-        }[];
         invoice_number: string;
         billing_id: string;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
@@ -174,6 +168,14 @@ export declare class InvoicesService {
         loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
         grand_total: import("@prisma/client-runtime-utils").Decimal;
         status: import("@prisma/client").$Enums.InvoiceStatus;
+        items: {
+            name: string;
+            tax_amount: import("@prisma/client-runtime-utils").Decimal;
+            total: import("@prisma/client-runtime-utils").Decimal;
+            quantity: number;
+            unit_price: import("@prisma/client-runtime-utils").Decimal;
+            tax_rate: import("@prisma/client-runtime-utils").Decimal;
+        }[];
     }>;
     findCustomerSummary(phone: string): Promise<{
         invoice_date: Date;
