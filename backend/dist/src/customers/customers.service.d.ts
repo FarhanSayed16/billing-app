@@ -36,8 +36,8 @@ export declare class CustomersService {
     findOne(id: string, brandId: string): Promise<{
         invoices: {
             id: string;
-            created_at: Date;
             brand_id: string;
+            created_at: Date;
             store_id: string;
             employee_id: string;
             invoice_number: string;
@@ -57,11 +57,11 @@ export declare class CustomersService {
         }[];
     } & {
         id: string;
+        brand_id: string;
         name: string;
+        phone: string;
         created_at: Date;
         updated_at: Date;
-        phone: string;
-        brand_id: string;
         total_visits: number;
         total_spend: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points: number;
@@ -70,11 +70,11 @@ export declare class CustomersService {
     }>;
     update(id: string, updateCustomerDto: UpdateCustomerDto, brandId: string): Promise<{
         id: string;
+        brand_id: string;
         name: string;
+        phone: string;
         created_at: Date;
         updated_at: Date;
-        phone: string;
-        brand_id: string;
         total_visits: number;
         total_spend: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points: number;
