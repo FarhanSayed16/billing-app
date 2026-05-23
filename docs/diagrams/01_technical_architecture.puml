@@ -1,0 +1,103 @@
+@startuml BillPush_Technical_Architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #333333
+skinparam defaultFontName Inter
+skinparam defaultFontSize 11
+skinparam roundCorner 8
+skinparam shadowing false
+
+skinparam rectangle {
+  BackgroundColor #F8F9FA
+  BorderColor #DEE2E6
+  FontColor #333333
+  RoundCorner 8
+}
+
+skinparam database {
+  BackgroundColor #F8F9FA
+  BorderColor #ADB5BD
+  FontColor #333333
+}
+
+skinparam cloud {
+  BackgroundColor #F8F9FA
+  BorderColor #ADB5BD
+  FontColor #333333
+}
+
+title BillPush  -  System Technical Architecture
+
+rectangle "CLIENT LAYER" #FFFFFF {
+
+  rectangle "Flutter Mobile App\n(iOS and Android)\n---\nPOS / Analytics / Mgmt" as FlutterApp #DBEAFE
+
+  rectangle "React Web Portal\n(Next.js 15 SSR)\n---\nCustomer Vault / Admin" as ReactWeb #D1FAE5
+
+  rectangle "WhatsApp Client\n(Customer Phone)\n---\nInvoices and Promos" as WhatsApp #DCFCE7
+}
+
+rectangle "API GATEWAY\nHTTPS / JWT / Rate Limit" as Gateway #EDE9FE
+
+rectangle "BACKEND SERVICES  (Node.js + NestJS)" #FFFFFF {
+
+  rectangle "Auth Service\nLogin / JWT / 2FA / PIN" as AuthSvc #DBEAFE
+  rectangle "Store Service\nCRUD Stores / Franchise" as StoreSvc #FCE7F3
+  rectangle "Invoice Service\nBill Gen / PDF / QR" as InvoiceSvc #FEF3C7
+  rectangle "Customer Service\nCRM / Lookup / Loyalty" as CustomerSvc #D1FAE5
+  rectangle "Catalog Service\nProducts / SKUs / Barcode" as CatalogSvc #EDE9FE
+  rectangle "Analytics Engine\nAggregations / Reports" as AnalyticsSvc #DBEAFE
+  rectangle "Campaign Service\nSegments / Schedule" as CampaignSvc #FEE2E2
+  rectangle "Notification Hub\nPush (FCM) / In-App" as NotifSvc #D1FAE5
+}
+
+rectangle "DATA LAYER" #FFFFFF {
+
+  database "PostgreSQL 16\nPrimary DB / RLS" as PgDB
+
+  database "Redis\nCache / Sessions / Queue" as Redis
+
+  database "AWS S3 / R2\nImages / PDFs / Assets" as S3
+}
+
+rectangle "EXTERNAL SERVICES" #FFFFFF {
+
+  cloud "Meta WhatsApp\nCloud API" as MetaAPI
+
+  cloud "Firebase\nCloud Messaging" as FCM
+}
+
+FlutterApp --> Gateway
+ReactWeb --> Gateway
+
+Gateway --> AuthSvc
+Gateway --> StoreSvc
+Gateway --> InvoiceSvc
+Gateway --> CustomerSvc
+Gateway --> CatalogSvc
+Gateway --> AnalyticsSvc
+Gateway --> CampaignSvc
+
+AuthSvc --> PgDB
+StoreSvc --> PgDB
+InvoiceSvc --> PgDB
+CustomerSvc --> PgDB
+CatalogSvc --> PgDB
+AnalyticsSvc --> PgDB
+CampaignSvc --> PgDB
+
+CatalogSvc --> Redis : Cache
+CustomerSvc --> Redis : Lookup Cache
+CampaignSvc --> Redis : Job Queue
+
+InvoiceSvc --> S3 : PDF Storage
+CatalogSvc --> S3 : Product Images
+
+InvoiceSvc --> MetaAPI : Send Invoice
+CampaignSvc --> MetaAPI : Bulk Campaigns
+MetaAPI --> WhatsApp : Deliver Message
+
+NotifSvc --> FCM : Push Notifs
+FCM --> FlutterApp : Push
+
+@enduml
