@@ -1,0 +1,121 @@
+@startuml BillPush_Feature_Modules
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #333333
+skinparam defaultFontName Inter
+skinparam defaultFontSize 11
+skinparam roundCorner 8
+skinparam shadowing false
+
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #DEE2E6
+  FontColor #333333
+  RoundCorner 8
+}
+
+skinparam rectangle {
+  RoundCorner 8
+  FontColor #333333
+}
+
+title BillPush  -  Feature Modules and Capabilities Map
+
+package "MODULE 1: Auth and Access Control  [Phase 1]" as M1 {
+  rectangle "Email + Password\n(Admins)" as M1A #EDE9FE
+  rectangle "4-Digit PIN\n(Employees)" as M1B #EDE9FE
+  rectangle "OTP via WhatsApp\n(Customers)" as M1C #EDE9FE
+  rectangle "JWT + Refresh\nToken Rotation" as M1D #EDE9FE
+  rectangle "Role-Based\nScreen Routing" as M1E #EDE9FE
+  rectangle "Auto Session\nTimeout (30 min)" as M1F #EDE9FE
+}
+
+package "MODULE 2: Point of Sale Engine  [Phase 1]" as M2 {
+  rectangle "Touch-Optimized\nMobile UI" as M2A #FEE2E2
+  rectangle "Camera Barcode\nScanning" as M2B #FEE2E2
+  rectangle "Manual Item\nEntry + Search" as M2C #FEE2E2
+  rectangle "Custom Item\n(Name + Price)" as M2D #FEE2E2
+  rectangle "Real-Time GST\nCalculation" as M2E #FEE2E2
+  rectangle "Discount\nApplication" as M2F #FEE2E2
+  rectangle "Offline Mode\n(Cache and Sync)" as M2G #FEE2E2
+}
+
+package "MODULE 3: Invoice Generation  [Phase 1]" as M3 {
+  rectangle "Unique Invoice\nNumber (Per Store)" as M3A #FEF3C7
+  rectangle "16-Char Billing ID\n(Customer Lookup)" as M3B #FEF3C7
+  rectangle "Encrypted QR Code\n(Returns Scanning)" as M3C #FEF3C7
+  rectangle "Branded Invoice\nWeb Page" as M3D #FEF3C7
+  rectangle "PDF Download\nGeneration" as M3E #FEF3C7
+  rectangle "GST Breakdown\n(CGST+SGST/IGST)" as M3F #FEF3C7
+}
+
+package "MODULE 4: Customer CRM  [Phase 1]" as M4 {
+  rectangle "Global Phone-Based\nCustomer Registry" as M4A #D1FAE5
+  rectangle "Auto Deduplication\n(Cross-Store)" as M4B #D1FAE5
+  rectangle "Visit and Spend\nTracking" as M4C #D1FAE5
+  rectangle "Smart Auto-Fill\n(Returning Customer)" as M4D #D1FAE5
+  rectangle "Search and Filter\n(Name/Phone/Spend)" as M4E #D1FAE5
+}
+
+package "MODULE 5: Product Catalog  [Phase 2]" as M5 {
+  rectangle "Central Catalog\n(Super Admin)" as M5A #E0E7FF
+  rectangle "Barcode Mapping\n(SKU Registry)" as M5B #E0E7FF
+  rectangle "Category Tags\n(Shirts/Pants/etc)" as M5C #E0E7FF
+  rectangle "Catalog Push\n(To All Stores)" as M5D #E0E7FF
+  rectangle "Per-Store Stock\nTracking" as M5E #E0E7FF
+  rectangle "Low-Stock\nAlerts" as M5F #E0E7FF
+}
+
+package "MODULE 6: Analytics  [Phase 2]" as M6 {
+  rectangle "Global Revenue\nDashboard" as M6A #DBEAFE
+  rectangle "Store Comparison\nLeaderboard" as M6B #DBEAFE
+  rectangle "Peak Hours\nHeatmap" as M6C #DBEAFE
+  rectangle "Employee\nPerformance" as M6D #DBEAFE
+  rectangle "Top Products\nAnalysis" as M6E #DBEAFE
+  rectangle "CSV/Excel\nExport" as M6F #DBEAFE
+}
+
+package "MODULE 7: Loyalty and Rewards  [Phase 3]" as M7 {
+  rectangle "Auto Points\nEarning" as M7A #DCFCE7
+  rectangle "Cross-Store\nRedemption" as M7B #DCFCE7
+  rectangle "Configurable\nRates and Expiry" as M7C #DCFCE7
+  rectangle "Balance Check\n(WhatsApp Bot)" as M7D #DCFCE7
+  rectangle "Milestone\nNotifications" as M7E #DCFCE7
+}
+
+package "MODULE 8: Returns  [Phase 3]" as M8 {
+  rectangle "QR Code Scan\nfrom Customer Phone" as M8A #FED7AA
+  rectangle "Partial / Full\nRefund Processing" as M8B #FED7AA
+  rectangle "Admin Approval\nfor High-Value" as M8C #FED7AA
+  rectangle "Points Reversal" as M8D #FED7AA
+  rectangle "WhatsApp Refund\nConfirmation" as M8E #FED7AA
+}
+
+package "MODULE 9: WhatsApp Marketing  [Phase 3]" as M9 {
+  rectangle "Audience\nSegmentation" as M9A #FCE7F3
+  rectangle "Template-Based\nMessages" as M9B #FCE7F3
+  rectangle "Promo Code\nGeneration" as M9C #FCE7F3
+  rectangle "Scheduled\nSending" as M9D #FCE7F3
+  rectangle "Delivery and Read\nTracking" as M9E #FCE7F3
+  rectangle "Campaign ROI\nDashboard" as M9F #FCE7F3
+  rectangle "Opt-Out\nManagement" as M9G #FCE7F3
+}
+
+package "MODULE 10: Audit and Compliance  [Phase 4]" as M10 {
+  rectangle "System-Wide\nActivity Log" as M10A #F3F4F6
+  rectangle "Who/What/When\nTracking" as M10B #F3F4F6
+  rectangle "Searchable and\nFilterable" as M10C #F3F4F6
+  rectangle "Compliance\nExport" as M10D #F3F4F6
+}
+
+M2 -[#E11D48,dashed]-> M3 : generates
+M2 -[#059669,dashed]-> M4 : creates/lookups
+M2 -[#7C3AED,dashed]-> M5 : scans products
+M3 -[#059669,dashed]-> M7 : earns points
+M3 -[#EA580C,dashed]-> M8 : QR for returns
+M4 -[#DB2777,dashed]-> M9 : audience data
+M6 -[#2563EB,dashed]-> M3 : aggregates invoices
+M7 -[#059669,dashed]-> M2 : redeems at POS
+M8 -[#EA580C,dashed]-> M7 : reverses points
+
+@enduml
