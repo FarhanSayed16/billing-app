@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateSuperAdminDto } from './dto/create-super-admin.dto';
 import { RegisterStoreAdminDto } from './dto/register-store-admin.dto';
@@ -47,6 +47,14 @@ export class AuthController {
   }
 
   // --- Protected Endpoints ---
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  @ApiOperation({ summary: 'Get current authenticated user profile' })
+  getMe(@Req() req: any) {
+    return this.authService.getMe(req.user.userId);
+  }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
