@@ -45,6 +45,22 @@ export declare class AuthController {
         access_token: string;
         refresh_token: string;
     }>;
+    getMe(req: any): Promise<{
+        store: {
+            id: string;
+            name: string;
+            address: string;
+            city: string;
+        } | null;
+        id: string;
+        brand_id: string;
+        name: string;
+        phone: string;
+        role: import("@prisma/client").$Enums.Role;
+        store_id: string | null;
+        email: string | null;
+        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
+    }>;
     getPendingRegistrations(): Promise<{
         id: string;
         name: string;

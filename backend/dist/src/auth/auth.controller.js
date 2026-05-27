@@ -45,6 +45,9 @@ let AuthController = class AuthController {
     refresh(refreshTokenDto) {
         return this.authService.refreshToken(refreshTokenDto);
     }
+    getMe(req) {
+        return this.authService.getMe(req.user.userId);
+    }
     getPendingRegistrations() {
         return this.authService.getPendingRegistrations();
     }
@@ -99,6 +102,16 @@ __decorate([
     __metadata("design:paramtypes", [refresh_token_dto_1.RefreshTokenDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "refresh", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('me'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get current authenticated user profile' }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getMe", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
