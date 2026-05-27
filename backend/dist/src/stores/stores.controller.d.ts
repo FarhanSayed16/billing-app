@@ -4,10 +4,13 @@ import { UpdateStoreDto } from './dto/update-store.dto';
 export declare class StoresController {
     private readonly storesService;
     constructor(storesService: StoresService);
-    create(createStoreDto: CreateStoreDto, req: any): Promise<{
-        id: string;
-        brand_id: string;
+    getPublicStores(): Promise<{
         name: string;
+        id: string;
+    }[]>;
+    create(createStoreDto: CreateStoreDto, req: any): Promise<{
+        name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -18,6 +21,7 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     findAll(req: any): Promise<{
         employee_count: number;
@@ -27,9 +31,8 @@ export declare class StoresController {
             users: number;
             invoices: number;
         };
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -40,6 +43,7 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }[]>;
     findOne(id: string, req: any): Promise<{
         employee_count: number;
@@ -48,9 +52,8 @@ export declare class StoresController {
             users: number;
             invoices: number;
         };
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -61,11 +64,11 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     update(id: string, updateStoreDto: UpdateStoreDto, req: any): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -76,11 +79,11 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     deactivate(id: string, req: any): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -91,11 +94,11 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     activate(id: string, req: any): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -106,11 +109,11 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     uploadLogo(id: string, req: any, file: Express.Multer.File): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -121,5 +124,6 @@ export declare class StoresController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
 }

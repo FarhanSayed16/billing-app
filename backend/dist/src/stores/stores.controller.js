@@ -28,6 +28,9 @@ let StoresController = class StoresController {
     constructor(storesService) {
         this.storesService = storesService;
     }
+    getPublicStores() {
+        return this.storesService.getPublicStores();
+    }
     create(createStoreDto, req) {
         return this.storesService.create(createStoreDto, req.user.userId, req.user.brandId);
     }
@@ -35,7 +38,7 @@ let StoresController = class StoresController {
         return this.storesService.findAll(req.user.brandId);
     }
     findOne(id, req) {
-        const userStoreId = req.user.role === client_1.Role.STORE_ADMIN ? req.user.storeId : undefined;
+        const userStoreId = (req.user.role === client_1.Role.STORE_ADMIN || req.user.role === client_1.Role.EMPLOYEE) ? req.user.storeId : undefined;
         return this.storesService.findOne(id, req.user.brandId, userStoreId);
     }
     update(id, updateStoreDto, req) {
@@ -55,7 +58,16 @@ let StoresController = class StoresController {
 };
 exports.StoresController = StoresController;
 __decorate([
+    (0, common_1.Get)('public'),
+    (0, swagger_1.ApiOperation)({ summary: 'Public endpoint to get list of active stores for login' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], StoresController.prototype, "getPublicStores", null);
+__decorate([
     (0, common_1.Post)(),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.STORE_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Create a store (Store Admin creates their store after approval)' }),
     __param(0, (0, common_1.Body)()),
@@ -66,6 +78,8 @@ __decorate([
 ], StoresController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'List all stores (Super Admin only)' }),
     __param(0, (0, common_1.Req)()),
@@ -75,7 +89,9 @@ __decorate([
 ], StoresController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN, client_1.Role.EMPLOYEE),
     (0, swagger_1.ApiOperation)({ summary: 'Get a specific store' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
@@ -85,6 +101,8 @@ __decorate([
 ], StoresController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Update a store' }),
     __param(0, (0, common_1.Param)('id')),
@@ -96,6 +114,8 @@ __decorate([
 ], StoresController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id/deactivate'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Deactivate a store (Super Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
@@ -106,6 +126,8 @@ __decorate([
 ], StoresController.prototype, "deactivate", null);
 __decorate([
     (0, common_1.Patch)(':id/activate'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Activate a store (Super Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
@@ -116,6 +138,8 @@ __decorate([
 ], StoresController.prototype, "activate", null);
 __decorate([
     (0, common_1.Post)(':id/logo'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(client_1.Role.STORE_ADMIN, client_1.Role.SUPER_ADMIN),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
@@ -142,8 +166,6 @@ __decorate([
 ], StoresController.prototype, "uploadLogo", null);
 exports.StoresController = StoresController = __decorate([
     (0, swagger_1.ApiTags)('stores'),
-    (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('stores'),
     __metadata("design:paramtypes", [stores_service_1.StoresService])
 ], StoresController);
