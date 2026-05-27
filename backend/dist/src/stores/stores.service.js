@@ -33,6 +33,16 @@ let StoresService = class StoresService {
         });
         return store;
     }
+    async getPublicStores() {
+        return this.prisma.store.findMany({
+            where: { is_active: true },
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: { name: 'asc' },
+        });
+    }
     async findAll(brandId) {
         const stores = await this.prisma.store.findMany({
             where: { brand_id: brandId },

@@ -93,12 +93,12 @@ let InvoicesService = class InvoicesService {
                 else
                     billingId = (0, billing_id_util_1.generateBillingId)();
             }
+            await tx.$queryRaw `SELECT id FROM stores WHERE id = ${storeId}::uuid FOR UPDATE`;
             const currentYear = new Date().getFullYear();
             const seqResult = await tx.$queryRaw `
         SELECT COUNT(*) + 1 as seq FROM invoices
         WHERE store_id = ${storeId}::uuid
         AND created_at >= ${new Date(currentYear, 0, 1)}
-        FOR UPDATE
       `;
             const seqNumber = Number(seqResult[0]?.seq ?? 1);
             const invoiceNumber = (0, invoice_number_util_1.generateInvoiceNumber)(store.name, currentYear, seqNumber);
@@ -362,6 +362,16 @@ let InvoicesService = class InvoicesService {
             data: { invoice_pdf_url: s3Url }
         });
         return { url: s3Url };
+    }
+    async markShared(id) {
+        const invoice = await this.prisma.invoice.findUnique({ where: { id } });
+        if (!invoice)
+            throw new common_1.NotFoundException('Invoice not found');
+        await this.prisma.invoice.update({
+            where: { id },
+            data: { share_triggered: true },
+        });
+        return { message: 'Invoice marked as shared' };
     }
 };
 exports.InvoicesService = InvoicesService;
