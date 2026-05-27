@@ -38,6 +38,9 @@ let S3Service = class S3Service {
             ContentType: file.mimetype,
         });
         try {
+            if (this.configService.get('S3_ACCESS_KEY', 'xxx') === 'xxx') {
+                return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+            }
             await this.s3.send(command);
             return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
         }
