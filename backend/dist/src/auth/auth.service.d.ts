@@ -78,4 +78,20 @@ export declare class AuthService {
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
+    getMe(userId: string): Promise<{
+        store: {
+            id: string;
+            name: string;
+            address: string;
+            city: string;
+        } | null;
+        id: string;
+        brand_id: string;
+        name: string;
+        phone: string;
+        role: import("@prisma/client").$Enums.Role;
+        store_id: string | null;
+        email: string | null;
+        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
+    }>;
 }

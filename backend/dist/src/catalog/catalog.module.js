@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CatalogModule = void 0;
 const common_1 = require("@nestjs/common");
+const cache_manager_1 = require("@nestjs/cache-manager");
 const products_service_1 = require("./products/products.service");
 const products_controller_1 = require("./products/products.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
@@ -16,7 +17,7 @@ let CatalogModule = class CatalogModule {
 exports.CatalogModule = CatalogModule;
 exports.CatalogModule = CatalogModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, cache_manager_1.CacheModule.register()],
         providers: [products_service_1.ProductsService],
         controllers: [products_controller_1.ProductsController]
     })
