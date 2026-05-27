@@ -8,6 +8,11 @@ import { StoresModule } from './stores/stores.module';
 import { EmployeesModule } from './employees/employees.module';
 import { CustomersModule } from './customers/customers.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { ReturnsModule } from './returns/returns.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { CatalogModule } from './catalog/catalog.module';
+import { LoyaltyModule } from './loyalty/loyalty.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -18,8 +23,14 @@ import { InvoicesModule } from './invoices/invoices.module';
     EmployeesModule,
     CustomersModule,
     InvoicesModule,
+    ReturnsModule,
+    AnalyticsModule,
+    CatalogModule,
+    LoyaltyModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
