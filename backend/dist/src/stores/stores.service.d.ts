@@ -7,9 +7,8 @@ export declare class StoresService {
     private s3Service;
     constructor(prisma: PrismaService, s3Service: S3Service);
     create(createStoreDto: CreateStoreDto, userId: string, brandId: string): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -20,7 +19,12 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
+    getPublicStores(): Promise<{
+        name: string;
+        id: string;
+    }[]>;
     findAll(brandId: string): Promise<{
         employee_count: number;
         total_invoices: number;
@@ -29,9 +33,8 @@ export declare class StoresService {
             users: number;
             invoices: number;
         };
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -42,6 +45,7 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }[]>;
     findOne(id: string, brandId: string, userStoreId?: string): Promise<{
         employee_count: number;
@@ -50,9 +54,8 @@ export declare class StoresService {
             users: number;
             invoices: number;
         };
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -63,11 +66,11 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     update(id: string, updateStoreDto: UpdateStoreDto, brandId: string, userStoreId?: string): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -78,11 +81,11 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     setActivation(id: string, brandId: string, isActive: boolean): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -93,11 +96,11 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
     uploadLogo(id: string, brandId: string, userStoreId: string | undefined, file: Express.Multer.File): Promise<{
-        id: string;
-        brand_id: string;
         name: string;
+        id: string;
         address: string;
         city: string;
         state: string;
@@ -108,5 +111,6 @@ export declare class StoresService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
+        brand_id: string;
     }>;
 }
