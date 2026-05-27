@@ -44,6 +44,9 @@ let InvoicesController = class InvoicesController {
     voidInvoice(id, req) {
         return this.invoicesService.voidInvoice(id, req.user.storeId, req.user.userId);
     }
+    markShared(id) {
+        return this.invoicesService.markShared(id);
+    }
     getGeneratePdf(id, req) {
         return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId);
     }
@@ -113,6 +116,17 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], InvoicesController.prototype, "voidInvoice", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Patch)(':id/share'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN, client_1.Role.EMPLOYEE),
+    (0, swagger_1.ApiOperation)({ summary: 'Mark invoice as shared' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], InvoicesController.prototype, "markShared", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
