@@ -29,6 +29,11 @@ export class S3Service {
     });
 
     try {
+      if (this.configService.get<string>('S3_ACCESS_KEY', 'xxx') === 'xxx') {
+        // Local mock for development without real AWS keys
+        return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+      }
+      
       await this.s3.send(command);
       return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
     } catch (e) {
