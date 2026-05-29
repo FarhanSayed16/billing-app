@@ -10,13 +10,19 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('stores')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
+  @Get('public')
+  @ApiOperation({ summary: 'Public endpoint to get list of active stores for login' })
+  getPublicStores() {
+    return this.storesService.getPublicStores();
+  }
+
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STORE_ADMIN)
   @ApiOperation({ summary: 'Create a store (Store Admin creates their store after approval)' })
   create(@Body() createStoreDto: CreateStoreDto, @Req() req: any) {
@@ -24,6 +30,8 @@ export class StoresController {
   }
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'List all stores (Super Admin only)' })
   findAll(@Req() req: any) {
@@ -31,14 +39,18 @@ export class StoresController {
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get a specific store' })
   findOne(@Param('id') id: string, @Req() req: any) {
-    const userStoreId = req.user.role === Role.STORE_ADMIN ? req.user.storeId : undefined;
+    const userStoreId = (req.user.role === Role.STORE_ADMIN || req.user.role === Role.EMPLOYEE) ? req.user.storeId : undefined;
     return this.storesService.findOne(id, req.user.brandId, userStoreId);
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN)
   @ApiOperation({ summary: 'Update a store' })
   update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto, @Req() req: any) {
@@ -47,6 +59,8 @@ export class StoresController {
   }
 
   @Patch(':id/deactivate')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Deactivate a store (Super Admin only)' })
   deactivate(@Param('id') id: string, @Req() req: any) {
@@ -54,6 +68,8 @@ export class StoresController {
   }
 
   @Patch(':id/activate')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Activate a store (Super Admin only)' })
   activate(@Param('id') id: string, @Req() req: any) {
@@ -61,6 +77,8 @@ export class StoresController {
   }
 
   @Post(':id/logo')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STORE_ADMIN, Role.SUPER_ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
