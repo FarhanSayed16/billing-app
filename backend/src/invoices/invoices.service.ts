@@ -95,13 +95,14 @@ export class InvoicesService {
       }
 
       // 6. Generate Invoice Number (atomic: use raw SQL for sequence safety)
-      // Use a locking read to prevent duplicate sequence numbers under concurrency
+      // Use a locking read on the store to prevent duplicate sequence numbers under concurrency
+      await tx.$queryRaw`SELECT id FROM stores WHERE id = ${storeId}::uuid FOR UPDATE`;
+
       const currentYear = new Date().getFullYear();
       const seqResult = await tx.$queryRaw<{ seq: bigint }[]>`
         SELECT COUNT(*) + 1 as seq FROM invoices
         WHERE store_id = ${storeId}::uuid
         AND created_at >= ${new Date(currentYear, 0, 1)}
-        FOR UPDATE
       `;
       const seqNumber = Number(seqResult[0]?.seq ?? 1);
       const invoiceNumber = generateInvoiceNumber(store.name, currentYear, seqNumber);
@@ -389,5 +390,17 @@ export class InvoicesService {
     });
 
     return { url: s3Url };
+  }
+
+  async markShared(id: string) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id } });
+    if (!invoice) throw new NotFoundException('Invoice not found');
+
+    await this.prisma.invoice.update({
+      where: { id },
+      data: { share_triggered: true },
+    });
+
+    return { message: 'Invoice marked as shared' };
   }
 }
