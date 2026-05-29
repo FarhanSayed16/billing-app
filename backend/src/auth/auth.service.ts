@@ -253,4 +253,23 @@ export class AuthService {
       select: { id: true, name: true, email: true, approval_status: true, is_active: true },
     });
   }
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        brand_id: true,
+        store_id: true,
+        approval_status: true,
+        store: { select: { id: true, name: true, address: true, city: true } },
+      },
+    });
+
+    if (!user) throw new BadRequestException('User not found');
+    return user;
+  }
 }

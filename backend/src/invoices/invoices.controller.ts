@@ -66,6 +66,15 @@ export class InvoicesController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
+  @Patch(':id/share')
+  @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
+  @ApiOperation({ summary: 'Mark invoice as shared' })
+  markShared(@Param('id') id: string) {
+    return this.invoicesService.markShared(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Get(':id/pdf')
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get or generate invoice PDF' })
