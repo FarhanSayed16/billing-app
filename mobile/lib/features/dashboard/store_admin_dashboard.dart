@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../store_admin/screens/store_dashboard_tab.dart';
 import '../store_admin/screens/employees_screen.dart';
 import '../store_admin/screens/invoices_screen.dart';
+import '../store_admin/screens/inventory_screen.dart';
 import '../store_admin/screens/settings_tab.dart';
 
 class StoreAdminDashboard extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _StoreAdminDashboardState extends ConsumerState<StoreAdminDashboard> {
     final screens = <Widget>[
       StoreDashboardTab(onSwitchTab: _switchTab),
       const InvoicesScreen(),
+      const InventoryScreen(),
       const EmployeesScreen(),
       const SettingsTab(),
     ];
@@ -39,6 +41,7 @@ class _StoreAdminDashboardState extends ConsumerState<StoreAdminDashboard> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: 'Invoices'),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), label: 'Inventory'),
           BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Staff'),
           BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Settings'),
         ],

@@ -22,6 +22,7 @@ const analytics_module_1 = require("./analytics/analytics.module");
 const catalog_module_1 = require("./catalog/catalog.module");
 const loyalty_module_1 = require("./loyalty/loyalty.module");
 const notifications_module_1 = require("./notifications/notifications.module");
+const inventory_module_1 = require("./inventory/inventory.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -40,6 +41,7 @@ exports.AppModule = AppModule = __decorate([
             catalog_module_1.CatalogModule,
             loyalty_module_1.LoyaltyModule,
             notifications_module_1.NotificationsModule,
+            inventory_module_1.InventoryModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

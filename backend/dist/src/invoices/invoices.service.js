@@ -167,6 +167,28 @@ let InvoicesService = class InvoicesService {
                     target_id: invoice.id,
                 }
             });
+            for (const item of invoiceItemsInput) {
+                if (item.product_id) {
+                    const inv = await tx.storeInventory.findFirst({
+                        where: { store_id: storeId, product_id: item.product_id }
+                    });
+                    if (inv) {
+                        await tx.storeInventory.update({
+                            where: { id: inv.id },
+                            data: { quantity: { decrement: item.quantity } }
+                        });
+                    }
+                    else {
+                        await tx.storeInventory.create({
+                            data: {
+                                store_id: storeId,
+                                product_id: item.product_id,
+                                quantity: -item.quantity
+                            }
+                        });
+                    }
+                }
+            }
             return invoice;
         });
     }

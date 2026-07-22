@@ -25,7 +25,7 @@ class BillPushSkeleton extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         itemCount: itemCount,
         padding: const EdgeInsets.all(AppTheme.spacingMd),
-        itemBuilder: (_, __) => Padding(
+        itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.only(bottom: AppTheme.spacingLg),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

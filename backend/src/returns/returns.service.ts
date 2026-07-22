@@ -185,7 +185,21 @@ export class ReturnsService {
         where: { id: returnItem.invoice_item_id },
         data: { returned_quantity: { increment: returnItem.quantity } },
       });
-      // Optionally increment inventory back here (removed from phase 4, so skip inventory)
+
+      // 1.5. Increment inventory back
+      const invoiceItem = invoice.items.find(i => i.id === returnItem.invoice_item_id);
+      if (invoiceItem && invoiceItem.product_id) {
+        const inv = await tx.storeInventory.findFirst({
+          where: { store_id: invoice.store_id, product_id: invoiceItem.product_id }
+        });
+        
+        if (inv) {
+          await tx.storeInventory.update({
+            where: { id: inv.id },
+            data: { quantity: { increment: returnItem.quantity } }
+          });
+        }
+      }
     }
 
     // 2. Update invoice status
