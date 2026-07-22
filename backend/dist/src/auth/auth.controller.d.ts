@@ -46,46 +46,46 @@ export declare class AuthController {
         refresh_token: string;
     }>;
     getMe(req: any): Promise<{
-        id: string;
-        brand_id: string;
-        store_id: string | null;
-        email: string | null;
-        name: string;
-        phone: string;
-        role: import("@prisma/client").$Enums.Role;
-        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
         store: {
             id: string;
             name: string;
             address: string;
             city: string;
         } | null;
-    }>;
-    getPendingRegistrations(): Promise<{
         id: string;
-        email: string | null;
+        brand_id: string;
         name: string;
         phone: string;
         role: import("@prisma/client").$Enums.Role;
+        store_id: string | null;
+        email: string | null;
+        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
+    }>;
+    getPendingRegistrations(): Promise<{
+        id: string;
+        name: string;
+        phone: string;
         created_at: Date;
+        role: import("@prisma/client").$Enums.Role;
+        email: string | null;
     }[]>;
     approveUser(userId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
     rejectUser(userId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
+        email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
     suspendUser(userId: string): Promise<{
         id: string;
-        email: string | null;
         name: string;
-        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
         is_active: boolean;
+        email: string | null;
+        approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
 }

@@ -10,16 +10,16 @@ export declare class InvoicesService {
             id: string;
             brand_id: string;
             name: string;
-            phone: string;
-            is_active: boolean;
-            created_at: Date;
-            updated_at: Date;
             address: string;
             city: string;
             state: string;
             gst_number: string | null;
+            phone: string;
             logo_url: string | null;
             brand_color: string | null;
+            is_active: boolean;
+            created_at: Date;
+            updated_at: Date;
         };
         customer: {
             id: string;
@@ -49,20 +49,20 @@ export declare class InvoicesService {
     } & {
         id: string;
         brand_id: string;
-        store_id: string;
         created_at: Date;
-        grand_total: import("@prisma/client-runtime-utils").Decimal;
-        status: import("@prisma/client").$Enums.InvoiceStatus;
+        store_id: string;
+        employee_id: string;
         invoice_number: string;
         billing_id: string;
         customer_id: string | null;
-        employee_id: string;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         tax_amount: import("@prisma/client-runtime-utils").Decimal;
         discount_amount: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points_redeemed: number;
         loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
+        grand_total: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points_earned: number;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
         share_triggered: boolean;
         invoice_pdf_url: string | null;
         qr_code_url: string | null;
@@ -88,16 +88,16 @@ export declare class InvoicesService {
             id: string;
             brand_id: string;
             name: string;
-            phone: string;
-            is_active: boolean;
-            created_at: Date;
-            updated_at: Date;
             address: string;
             city: string;
             state: string;
             gst_number: string | null;
+            phone: string;
             logo_url: string | null;
             brand_color: string | null;
+            is_active: boolean;
+            created_at: Date;
+            updated_at: Date;
         };
         customer: {
             id: string;
@@ -127,47 +127,47 @@ export declare class InvoicesService {
     } & {
         id: string;
         brand_id: string;
-        store_id: string;
         created_at: Date;
-        grand_total: import("@prisma/client-runtime-utils").Decimal;
-        status: import("@prisma/client").$Enums.InvoiceStatus;
+        store_id: string;
+        employee_id: string;
         invoice_number: string;
         billing_id: string;
         customer_id: string | null;
-        employee_id: string;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         tax_amount: import("@prisma/client-runtime-utils").Decimal;
         discount_amount: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points_redeemed: number;
         loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
+        grand_total: import("@prisma/client-runtime-utils").Decimal;
         loyalty_points_earned: number;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
         share_triggered: boolean;
         invoice_pdf_url: string | null;
         qr_code_url: string | null;
     }>;
     findOneByBillingId(billingId: string): Promise<{
-        created_at: Date;
         store: {
             name: string;
-            phone: string;
             address: string;
             city: string;
             gst_number: string | null;
+            phone: string;
             logo_url: string | null;
             brand_color: string | null;
         };
-        grand_total: import("@prisma/client-runtime-utils").Decimal;
-        status: import("@prisma/client").$Enums.InvoiceStatus;
+        created_at: Date;
+        customer: {
+            name: string;
+            phone: string;
+        } | null;
         invoice_number: string;
         billing_id: string;
         subtotal: import("@prisma/client-runtime-utils").Decimal;
         tax_amount: import("@prisma/client-runtime-utils").Decimal;
         discount_amount: import("@prisma/client-runtime-utils").Decimal;
         loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
-        customer: {
-            name: string;
-            phone: string;
-        } | null;
+        grand_total: import("@prisma/client-runtime-utils").Decimal;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
         items: {
             name: string;
             tax_amount: import("@prisma/client-runtime-utils").Decimal;
