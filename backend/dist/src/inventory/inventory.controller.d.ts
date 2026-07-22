@@ -14,8 +14,8 @@ export declare class InventoryController {
     }[]>;
     adjustStock(paramStoreId: string, productId: string, quantity: number, reason: string, req: any): Promise<{
         id: string;
-        updated_at: Date;
         store_id: string;
+        updated_at: Date;
         product_id: string;
         quantity: number;
         low_stock_threshold: number;

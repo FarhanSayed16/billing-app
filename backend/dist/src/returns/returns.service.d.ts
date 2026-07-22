@@ -8,11 +8,11 @@ export declare class ReturnsService {
         returnRequest: {
             id: string;
             brand_id: string;
+            store_id: string;
             created_at: Date;
             updated_at: Date;
-            store_id: string;
-            employee_id: string;
             status: string;
+            employee_id: string;
             invoice_id: string;
             reason: string | null;
             refund_amount: import("@prisma/client-runtime-utils").Decimal;
@@ -21,11 +21,11 @@ export declare class ReturnsService {
     }>;
     getPendingReturns(storeId: string, brandId: string): Promise<({
         invoice: {
+            billing_id: string;
             customer: {
                 name: string;
                 phone: string;
             } | null;
-            billing_id: string;
         };
         items: ({
             invoice_item: {
@@ -52,11 +52,11 @@ export declare class ReturnsService {
     } & {
         id: string;
         brand_id: string;
+        store_id: string;
         created_at: Date;
         updated_at: Date;
-        store_id: string;
-        employee_id: string;
         status: string;
+        employee_id: string;
         invoice_id: string;
         reason: string | null;
         refund_amount: import("@prisma/client-runtime-utils").Decimal;

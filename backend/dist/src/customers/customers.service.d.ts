@@ -37,20 +37,20 @@ export declare class CustomersService {
         invoices: {
             id: string;
             brand_id: string;
-            created_at: Date;
             store_id: string;
-            employee_id: string;
+            created_at: Date;
+            grand_total: import("@prisma/client-runtime-utils").Decimal;
+            status: import("@prisma/client").$Enums.InvoiceStatus;
             invoice_number: string;
             billing_id: string;
             customer_id: string | null;
+            employee_id: string;
             subtotal: import("@prisma/client-runtime-utils").Decimal;
             tax_amount: import("@prisma/client-runtime-utils").Decimal;
             discount_amount: import("@prisma/client-runtime-utils").Decimal;
             loyalty_points_redeemed: number;
             loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
-            grand_total: import("@prisma/client-runtime-utils").Decimal;
             loyalty_points_earned: number;
-            status: import("@prisma/client").$Enums.InvoiceStatus;
             share_triggered: boolean;
             invoice_pdf_url: string | null;
             qr_code_url: string | null;

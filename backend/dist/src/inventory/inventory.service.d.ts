@@ -14,8 +14,8 @@ export declare class InventoryService {
     }[]>;
     adjustStock(storeId: string, productId: string, quantity: number, reason: string, userId: string, brandId: string): Promise<{
         id: string;
-        updated_at: Date;
         store_id: string;
+        updated_at: Date;
         product_id: string;
         quantity: number;
         low_stock_threshold: number;
