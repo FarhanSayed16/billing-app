@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillPush | The Future of Retail Billing</title>
+    <meta name="description" content="BillPush is a modern, cloud-synced point-of-sale and retail billing system for your mobile device. Manage inventory, staff, and sales from anywhere.">
+    <meta name="keywords" content="POS system, billing app, retail management, inventory tracking, point of sale">
+    <meta property="og:title" content="BillPush - The Future of Retail Billing">
+    <meta property="og:description" content="Transform your smartphone into a powerful point-of-sale system.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2L2 7L12 12L22 7L12 2Z' fill='%236366F1'/></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/layout.css">
+</head>
+<body>
+    <!-- Animated Grid Background -->
+    <div class="grid-bg"></div>
+    
+    <!-- Background Glows -->
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#nav-grad)"/>
+                        <path d="M2 17L12 22L22 17" stroke="url(#nav-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="url(#nav-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="nav-grad" x1="2" y1="2" x2="22" y2="22">
+                                <stop stop-color="#6366F1"/>
+                                <stop offset="1" stop-color="#A855F7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span>BillPush</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#tech-stack">Built With</a>
+                <a href="https://billpush-backend.onrender.com/api/docs" target="_blank">API Docs</a>
+                <a href="#download" class="btn btn-primary btn-nav">Download App</a>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="badge animate-on-load" style="animation-delay: 0.1s;">
+                    <span class="badge-dot"></span>
+                    Next-Gen POS System
+                </div>
+                <h1 class="animate-on-load" style="animation-delay: 0.2s;">
+                    The Future of Retail<br>
+                    <span class="gradient-text">in Your Pocket</span>
+                </h1>
+                <p class="hero-desc animate-on-load" style="animation-delay: 0.3s;">
+                    Transform your smartphone into a powerful point-of-sale system. Manage inventory, track staff, generate invoices, and analyze sales — all in real-time from one beautiful app.
+                </p>
+                <div class="hero-cta animate-on-load" style="animation-delay: 0.4s;" id="download">
+                    <a href="#" class="store-badge" aria-label="Download on App Store">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store">
+                    </a>
+                    <a href="#" class="store-badge" aria-label="Get it on Google Play">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+                    </a>
+                </div>
+                <div class="hero-stats animate-on-load" style="animation-delay: 0.5s;">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value" data-count="500">0</div>
+                        <div class="hero-stat-label">Active Stores</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value" data-count="50000">0</div>
+                        <div class="hero-stat-label">Invoices Generated</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">99.9%</div>
+                        <div class="hero-stat-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual animate-on-load" style="animation-delay: 0.6s;">
+                <div class="mockup-container">
+                    <div class="mockup-glow"></div>
+                    <img src="assets/mockup.png" alt="BillPush App Mockup" class="mockup-img floating">
+                    <div class="glass-card stat-card stat-card-1">
+                        <div class="icon-circle icon-green">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="label">Today's Sales</span>
+                            <span class="value">₹1,28,450</span>
+                        </div>
+                        <span class="stat-trend up">+12.5%</span>
+                    </div>
+                    <div class="glass-card stat-card stat-card-2">
+                        <div class="icon-circle icon-amber">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="label">Low Stock Alert</span>
+                            <span class="value">12 Items</span>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card stat-card-3">
+                        <div class="icon-circle icon-blue">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="label">Staff Online</span>
+                            <span class="value">4 / 6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Scroll indicator -->
+        <div class="scroll-indicator fade-in-up" style="animation-delay: 0.6s;">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </header>
+
+    <!-- Trusted By / Logos Bar -->
+    <section class="trust-bar">
+        <div class="container">
+            <p class="trust-label fade-in-up">POWERED BY MODERN INFRASTRUCTURE</p>
+            <div class="trust-logos fade-in-up" style="animation-delay: 0.1s;">
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/nestjs" alt="NestJS">
+                    <span>NestJS</span>
+                </div>
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/supabase" alt="Supabase">
+                    <span>Supabase</span>
+                </div>
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/flutter" alt="Flutter">
+                    <span>Flutter</span>
+                </div>
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/prisma" alt="Prisma">
+                    <span>Prisma</span>
+                </div>
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/redis" alt="Redis">
+                    <span>Redis</span>
+                </div>
+                <div class="trust-logo">
+                    <img src="https://cdn.simpleicons.org/render" alt="Render">
+                    <span>Render</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <span class="section-label">FEATURES</span>
+                <h2>Everything you need to <span class="gradient-text">run your store</span></h2>
+                <p>A complete ecosystem for modern retail — from checkout to analytics, all in the palm of your hand.</p>
+            </div>
+            
+            <div class="bento-grid">
+                <!-- Large POS Card -->
+                <div class="bento-card bento-large fade-in-up">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <span class="card-label">CORE FEATURE</span>
+                        <h3>Lightning Fast POS</h3>
+                        <p>Ring up customers in seconds. Scan barcodes, search products, apply discounts, and print receipts — all from your phone.</p>
+                    </div>
+                    <div class="card-visual pos-visual">
+                        <div class="mini-pos">
+                            <div class="pos-header">
+                                <span>Current Sale</span>
+                                <span class="badge-small">3 Items</span>
+                            </div>
+                            <div class="pos-items">
+                                <div class="pos-item">
+                                    <div class="item-dot" style="background: #6366F1;"></div>
+                                    <div class="item-info">
+                                        <span class="item-name">Wireless Headphones</span>
+                                        <span class="item-qty">Qty: 1</span>
+                                    </div>
+                                    <span class="item-price">₹2,499</span>
+                                </div>
+                                <div class="pos-item">
+                                    <div class="item-dot" style="background: #A855F7;"></div>
+                                    <div class="item-info">
+                                        <span class="item-name">Premium Coffee Beans</span>
+                                        <span class="item-qty">Qty: 2</span>
+                                    </div>
+                                    <span class="item-price">₹1,200</span>
+                                </div>
+                                <div class="pos-item">
+                                    <div class="item-dot" style="background: #EC4899;"></div>
+                                    <div class="item-info">
+                                        <span class="item-name">USB-C Cable 2m</span>
+                                        <span class="item-qty">Qty: 1</span>
+                                    </div>
+                                    <span class="item-price">₹349</span>
+                                </div>
+                            </div>
+                            <div class="pos-divider"></div>
+                            <div class="pos-summary">
+                                <div class="pos-summary-row">
+                                    <span>Subtotal</span>
+                                    <span>₹4,048</span>
+                                </div>
+                                <div class="pos-summary-row">
+                                    <span>GST (18%)</span>
+                                    <span>₹728.64</span>
+                                </div>
+                            </div>
+                            <div class="pos-total">
+                                <span>Total</span>
+                                <span class="total-price">₹4,776.64</span>
+                            </div>
+                            <button class="pos-checkout-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                Charge ₹4,776.64
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time Sync -->
+                <div class="bento-card fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#icon-grad-1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                                <defs>
+                                    <linearGradient id="icon-grad-1" x1="0" y1="0" x2="24" y2="24">
+                                        <stop stop-color="#6366F1"/>
+                                        <stop offset="1" stop-color="#A855F7"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h3>Real-time Cloud Sync</h3>
+                        <p>Every sale, every stock update — instantly synced across all devices. Powered by Supabase PostgreSQL.</p>
+                        <div class="sync-visual">
+                            <div class="sync-dot"></div>
+                            <div class="sync-line"></div>
+                            <div class="sync-dot"></div>
+                            <div class="sync-line"></div>
+                            <div class="sync-dot"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Staff Management -->
+                <div class="bento-card fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#icon-grad-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                <defs>
+                                    <linearGradient id="icon-grad-2" x1="0" y1="0" x2="24" y2="24">
+                                        <stop stop-color="#3B82F6"/>
+                                        <stop offset="1" stop-color="#EC4899"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h3>Staff & Roles</h3>
+                        <p>Create unique PINs for employees. Restrict access with role-based permissions — ADMIN, CASHIER, MANAGER.</p>
+                        <div class="role-chips">
+                            <span class="role-chip admin">Admin</span>
+                            <span class="role-chip cashier">Cashier</span>
+                            <span class="role-chip manager">Manager</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory -->
+                <div class="bento-card bento-wide fade-in-up" style="animation-delay: 0.3s;">
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#icon-grad-3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                <defs>
+                                    <linearGradient id="icon-grad-3" x1="0" y1="0" x2="24" y2="24">
+                                        <stop stop-color="#F59E0B"/>
+                                        <stop offset="1" stop-color="#EF4444"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h3>Smart Inventory</h3>
+                        <p>Track stock levels in real-time. Get automatic low-stock alerts. Manage product variations (size, color) with ease.</p>
+                    </div>
+                    <div class="inventory-mini-table">
+                        <div class="inv-row inv-header">
+                            <span>Product</span>
+                            <span>Stock</span>
+                            <span>Status</span>
+                        </div>
+                        <div class="inv-row">
+                            <span>iPhone 15 Case</span>
+                            <span>142</span>
+                            <span class="inv-status good">In Stock</span>
+                        </div>
+                        <div class="inv-row">
+                            <span>USB-C Charger</span>
+                            <span>8</span>
+                            <span class="inv-status warning">Low</span>
+                        </div>
+                        <div class="inv-row">
+                            <span>Bluetooth Speaker</span>
+                            <span>0</span>
+                            <span class="inv-status danger">Out</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices -->
+                <div class="bento-card fade-in-up" style="animation-delay: 0.4s;">
+                    <div class="card-content">
+                        <div class="feature-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#icon-grad-4)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                                <defs>
+                                    <linearGradient id="icon-grad-4" x1="0" y1="0" x2="24" y2="24">
+                                        <stop stop-color="#10B981"/>
+                                        <stop offset="1" stop-color="#06B6D4"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h3>Digital Invoices</h3>
+                        <p>Generate professional GST invoices. Share via WhatsApp, email, or print on thermal printers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <span class="section-label">GETTING STARTED</span>
+                <h2>Up and running in <span class="gradient-text">3 simple steps</span></h2>
+                <p>No complex setup. No hardware required. Just download and go.</p>
+            </div>
+            
+            <div class="steps-grid">
+                <div class="step fade-in-up">
+                    <div class="step-icon-wrap">
+                        <div class="step-number">1</div>
+                        <svg class="step-connector" viewBox="0 0 100 2" preserveAspectRatio="none"><line x1="0" y1="1" x2="100" y2="1" stroke="url(#conn-grad)" stroke-width="2" stroke-dasharray="6 4"/></svg>
+                    </div>
+                    <h3>Download & Register</h3>
+                    <p>Get BillPush from the App Store or Google Play. Create your free admin account in under 30 seconds.</p>
+                </div>
+                <div class="step fade-in-up" style="animation-delay: 0.15s;">
+                    <div class="step-icon-wrap">
+                        <div class="step-number">2</div>
+                        <svg class="step-connector" viewBox="0 0 100 2" preserveAspectRatio="none"><line x1="0" y1="1" x2="100" y2="1" stroke="url(#conn-grad)" stroke-width="2" stroke-dasharray="6 4"/></svg>
+                    </div>
+                    <h3>Setup Your Store</h3>
+                    <p>Add your store name, logo, and products. Invite employees and assign roles with unique PIN codes.</p>
+                </div>
+                <div class="step fade-in-up" style="animation-delay: 0.3s;">
+                    <div class="step-icon-wrap">
+                        <div class="step-number">3</div>
+                    </div>
+                    <h3>Start Selling</h3>
+                    <p>Your POS is live! Staff can log in and start ringing up sales immediately. Sales data syncs in real-time.</p>
+                </div>
+            </div>
+            <!-- Hidden SVG for connector gradient -->
+            <svg width="0" height="0"><defs><linearGradient id="conn-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6366F1"/><stop offset="100%" stop-color="#A855F7" stop-opacity="0.3"/></linearGradient></defs></svg>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-stack" id="tech-stack">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <span class="section-label">ARCHITECTURE</span>
+                <h2>Built with <span class="gradient-text">production-grade</span> tech</h2>
+                <p>Enterprise-level reliability with a modern developer-first stack.</p>
+            </div>
+            <div class="tech-grid fade-in-up">
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <h4>Flutter</h4>
+                    <p>Cross-platform mobile app with native performance</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h4>NestJS</h4>
+                    <p>Scalable Node.js backend with TypeScript</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                    </div>
+                    <h4>Prisma + Supabase</h4>
+                    <p>Type-safe ORM with managed PostgreSQL</p>
+                </div>
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h4>JWT + Redis</h4>
+                    <p>Secure auth with token rotation & caching</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <footer class="footer" id="footer-cta">
+        <div class="container">
+            <div class="footer-cta fade-in-up">
+                <div class="cta-glow"></div>
+                <span class="section-label">GET STARTED TODAY</span>
+                <h2>Ready to modernize<br>your retail store?</h2>
+                <p>Download BillPush and start billing smarter — it's completely free.</p>
+                <div class="hero-cta" style="justify-content: center; margin-bottom: 0;">
+                    <a href="#" class="store-badge" aria-label="Download on App Store">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Download on the App Store">
+                    </a>
+                    <a href="#" class="store-badge" aria-label="Get it on Google Play">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <div class="logo-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#f-grad)"/>
+                                <path d="M2 17L12 22L22 17" stroke="url(#f-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" stroke="url(#f-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <defs><linearGradient id="f-grad" x1="2" y1="2" x2="22" y2="22"><stop stop-color="#6366F1"/><stop offset="1" stop-color="#A855F7"/></linearGradient></defs>
+                            </svg>
+                        </div>
+                        <span>BillPush</span>
+                    </div>
+                    <p class="footer-desc">Transforming retail billing for the mobile-first generation.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#download">Download</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Developers</h4>
+                    <a href="https://billpush-backend.onrender.com/api/docs" target="_blank">API Documentation</a>
+                    <a href="https://github.com/FarhanSayed16/billing-app" target="_blank">GitHub</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <span>&copy; 2026 BillPush. All rights reserved.</span>
+                <div class="footer-socials">
+                    <a href="https://github.com/FarhanSayed16/billing-app" target="_blank" aria-label="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="scripts/main.js"></script>
+</body>
+</html>
