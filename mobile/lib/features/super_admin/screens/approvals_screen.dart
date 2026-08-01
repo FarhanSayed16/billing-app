@@ -135,7 +135,10 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                                     const SizedBox(width: 12),
                                     ElevatedButton(
                                       onPressed: () => _processApproval(user['id'], true),
-                                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.successColor),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.successColor,
+                                        minimumSize: const Size(100, 40),
+                                      ),
                                       child: const Text('Approve'),
                                     ),
                                   ],
