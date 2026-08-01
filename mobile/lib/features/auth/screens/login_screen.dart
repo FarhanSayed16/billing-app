@@ -414,11 +414,11 @@ class _GuestLoginButton extends ConsumerStatefulWidget {
 class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
   bool _isLoading = false;
 
-  Future<void> _guestLogin() async {
+  Future<void> _guestLogin(String role) async {
     setState(() => _isLoading = true);
     try {
       final dio = ref.read(dioProvider);
-      final res = await dio.post('/auth/guest-login');
+      final res = await dio.post('/auth/guest-login', data: {'role': role});
 
       final accessToken = res.data['access_token'];
       final refreshToken = res.data['refresh_token'];
@@ -432,7 +432,14 @@ class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
       );
 
       if (!mounted) return;
-      context.go('/super-admin');
+      
+      if (user['role'] == 'SUPER_ADMIN') {
+        context.go('/super-admin');
+      } else if (user['role'] == 'STORE_ADMIN') {
+        context.go('/store-admin');
+      } else if (user['role'] == 'EMPLOYEE') {
+        context.go('/employee/pos');
+      }
     } on DioException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -445,6 +452,52 @@ class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showRoleSelection() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Explore as...', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings, color: AppTheme.primaryColor),
+              title: const Text('Super Admin (Brand Owner)'),
+              subtitle: const Text('View global analytics and approve stores'),
+              onTap: () {
+                Navigator.pop(context);
+                _guestLogin('SUPER_ADMIN');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.store, color: AppTheme.primaryColor),
+              title: const Text('Store Manager'),
+              subtitle: const Text('Manage store inventory and staff'),
+              onTap: () {
+                Navigator.pop(context);
+                _guestLogin('STORE_ADMIN');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.point_of_sale, color: AppTheme.primaryColor),
+              title: const Text('Staff (POS Worker)'),
+              subtitle: const Text('Generate bills and checkout customers'),
+              onTap: () {
+                Navigator.pop(context);
+                _guestLogin('EMPLOYEE');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -466,7 +519,7 @@ class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
           width: double.infinity,
           height: 50,
           child: OutlinedButton.icon(
-            onPressed: _isLoading ? null : _guestLogin,
+            onPressed: _isLoading ? null : _showRoleSelection,
             icon: _isLoading
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.explore_outlined),
@@ -483,4 +536,3 @@ class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
     );
   }
 }
-

@@ -23,6 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user || !user.is_active || user.approval_status === ApprovalStatus.SUSPENDED) {
       throw new UnauthorizedException('Session invalid or user suspended');
     }
-    return { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
+    return { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId, isGuest: payload.isGuest || false };
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Patch, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateSuperAdminDto } from './dto/create-super-admin.dto';
 import { RegisterStoreAdminDto } from './dto/register-store-admin.dto';
@@ -48,8 +48,8 @@ export class AuthController {
 
   @Post('guest-login')
   @ApiOperation({ summary: 'Guest Login — explore the app without credentials' })
-  guestLogin() {
-    return this.authService.guestLogin();
+  guestLogin(@Body() body: { role?: string }) {
+    return this.authService.guestLogin(body?.role);
   }
 
   // --- Protected Endpoints ---
@@ -76,7 +76,8 @@ export class AuthController {
   @Roles(Role.SUPER_ADMIN)
   @Patch('approve/:userId')
   @ApiOperation({ summary: 'Approve Store Admin (Super Admin only)' })
-  approveUser(@Param('userId') userId: string) {
+  approveUser(@Param('userId') userId: string, @Req() req: any) {
+    if (req.user.isGuest) throw new ForbiddenException('Guest users cannot approve registrations');
     return this.authService.approveUser(userId);
   }
 
@@ -85,7 +86,8 @@ export class AuthController {
   @Roles(Role.SUPER_ADMIN)
   @Patch('reject/:userId')
   @ApiOperation({ summary: 'Reject Store Admin (Super Admin only)' })
-  rejectUser(@Param('userId') userId: string) {
+  rejectUser(@Param('userId') userId: string, @Req() req: any) {
+    if (req.user.isGuest) throw new ForbiddenException('Guest users cannot reject registrations');
     return this.authService.rejectUser(userId);
   }
 
@@ -94,7 +96,8 @@ export class AuthController {
   @Roles(Role.SUPER_ADMIN)
   @Patch('suspend/:userId')
   @ApiOperation({ summary: 'Suspend Store Admin (Super Admin only)' })
-  suspendUser(@Param('userId') userId: string) {
+  suspendUser(@Param('userId') userId: string, @Req() req: any) {
+    if (req.user.isGuest) throw new ForbiddenException('Guest users cannot suspend users');
     return this.authService.suspendUser(userId);
   }
 }

@@ -253,7 +253,7 @@ export class AuthService {
       select: { id: true, name: true, email: true, approval_status: true, is_active: true },
     });
   }
-  async guestLogin() {
+  async guestLogin(requestedRole?: string) {
     const superAdmin = await this.prisma.user.findFirst({
       where: { role: Role.SUPER_ADMIN },
     });
@@ -262,14 +262,47 @@ export class AuthService {
       throw new BadRequestException('System is not set up yet.');
     }
 
-    const payload = { userId: superAdmin.id, role: superAdmin.role, brandId: superAdmin.brand_id, storeId: null };
+    // Determine which user to impersonate based on requested role
+    let targetUser: any = superAdmin;
+    let effectiveRole = Role.SUPER_ADMIN;
+
+    if (requestedRole === 'STORE_ADMIN') {
+      const storeAdmin = await this.prisma.user.findFirst({
+        where: { role: Role.STORE_ADMIN, approval_status: 'APPROVED', is_active: true },
+        include: { store: { select: { id: true, name: true } } },
+      });
+      if (storeAdmin) {
+        targetUser = storeAdmin;
+        effectiveRole = Role.STORE_ADMIN;
+      }
+    } else if (requestedRole === 'EMPLOYEE') {
+      const employee = await this.prisma.user.findFirst({
+        where: { role: Role.EMPLOYEE, approval_status: 'APPROVED', is_active: true },
+        include: { store: { select: { id: true, name: true } } },
+      });
+      if (employee) {
+        targetUser = employee;
+        effectiveRole = Role.EMPLOYEE;
+      }
+    }
+
+    const payload = {
+      userId: targetUser.id,
+      role: effectiveRole,
+      brandId: targetUser.brand_id,
+      storeId: targetUser.store_id || null,
+      isGuest: true,
+    };
+
     return {
       access_token: this.jwtService.sign(payload as Record<string, unknown>),
       refresh_token: this.signRefreshToken(payload),
       user: {
-        id: superAdmin.id,
-        name: 'Guest User',
-        role: superAdmin.role,
+        id: targetUser.id,
+        name: `Guest (${effectiveRole === Role.SUPER_ADMIN ? 'Admin' : effectiveRole === Role.STORE_ADMIN ? 'Store Manager' : 'Staff'})`,
+        role: effectiveRole,
+        isGuest: true,
+        store: targetUser.store ? { id: targetUser.store.id, name: targetUser.store.name } : null,
       },
     };
   }
