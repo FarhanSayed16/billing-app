@@ -43,13 +43,14 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
   }
 
   String _formatCurrency(dynamic value) {
-    final num = (value is int) ? value.toDouble() : (value as num).toDouble();
-    if (num >= 100000) {
-      return '₹${(num / 100000).toStringAsFixed(1)}L';
-    } else if (num >= 1000) {
-      return '₹${(num / 1000).toStringAsFixed(1)}K';
+    if (value == null) return '₹0';
+    final val = (value is int) ? value.toDouble() : (value as num).toDouble();
+    if (val >= 100000) {
+      return '₹${(val / 100000).toStringAsFixed(1)}L';
+    } else if (val >= 1000) {
+      return '₹${(val / 1000).toStringAsFixed(1)}K';
     }
-    return '₹${num.toStringAsFixed(0)}';
+    return '₹${val.toStringAsFixed(0)}';
   }
 
   @override
