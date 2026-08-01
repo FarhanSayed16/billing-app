@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../providers/api_provider.dart';
 import '../../config/theme.dart';
 
@@ -99,6 +100,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     final changePercent = revenue['changePercent'] ?? 0;
     final topProducts = (_analytics?['topProductsThisMonth'] as List?) ?? [];
     final topStores = (_analytics?['topStoresThisMonth'] as List?) ?? [];
+    final trendData = (revenue['trend'] as List?) ?? [];
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -115,12 +117,17 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         ),
         const SizedBox(height: 20),
 
+        if (trendData.isNotEmpty) ...[
+          _buildRevenueChart(trendData),
+          const SizedBox(height: 20),
+        ],
+
         // Revenue Cards Row
         Row(
           children: [
             Expanded(
               child: _MetricCard(
-                title: "Today's Revenue",
+                title: "Last 24 Hours",
                 value: _formatCurrency(revenue['today'] ?? 0),
                 icon: Icons.trending_up,
                 color: AppTheme.primaryColor,
@@ -130,11 +137,11 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _MetricCard(
-                title: 'This Month',
+                title: 'Last 30 Days',
                 value: _formatCurrency(revenue['month'] ?? 0),
                 icon: Icons.calendar_month,
                 color: const Color(0xFF10B981),
-                subtitle: '${changePercent >= 0 ? '+' : ''}${changePercent.toStringAsFixed(1)}% vs last month',
+                subtitle: '${changePercent >= 0 ? '+' : ''}${changePercent.toStringAsFixed(1)}% vs prev',
               ),
             ),
           ],
@@ -170,7 +177,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
           children: [
             Expanded(
               child: _MetricCard(
-                title: 'Weekly Revenue',
+                title: 'Last 7 Days',
                 value: _formatCurrency(revenue['week'] ?? 0),
                 icon: Icons.show_chart,
                 color: const Color(0xFF3B82F6),
@@ -192,7 +199,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
 
         // Top Products
         if (topProducts.isNotEmpty) ...[
-          _SectionHeader(title: 'Top Products This Month', icon: Icons.star),
+          _SectionHeader(title: 'Top Products (30 Days)', icon: Icons.star),
           const SizedBox(height: 8),
           Card(
             elevation: 1,
@@ -227,7 +234,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
 
         // Top Stores
         if (topStores.isNotEmpty) ...[
-          _SectionHeader(title: 'Top Stores This Month', icon: Icons.storefront),
+          _SectionHeader(title: 'Top Stores (30 Days)', icon: Icons.storefront),
           const SizedBox(height: 8),
           Card(
             elevation: 1,
@@ -279,6 +286,86 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildRevenueChart(List<dynamic> trendData) {
+    if (trendData.length < 2) return const SizedBox.shrink();
+
+    List<FlSpot> spots = [];
+    double maxAmt = 0;
+    
+    for (int i = 0; i < trendData.length; i++) {
+      final item = trendData[i];
+      final amt = (item['amount'] is int) ? (item['amount'] as int).toDouble() : (item['amount'] as num).toDouble();
+      spots.add(FlSpot(i.toDouble(), amt));
+      if (amt > maxAmt) maxAmt = amt;
+    }
+
+    // Add 20% padding to max Y
+    final maxY = maxAmt > 0 ? maxAmt * 1.2 : 1000;
+
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('7-Day Revenue Trend', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[800])),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 160,
+              child: LineChart(
+                LineChartData(
+                  gridData: const FlGridData(show: false),
+                  titlesData: const FlTitlesData(show: false),
+                  borderData: FlBorderData(show: false),
+                  minX: 0,
+                  maxX: (trendData.length - 1).toDouble(),
+                  minY: 0,
+                  maxY: maxY,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: AppTheme.primaryColor,
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.primaryColor.withOpacity(0.3),
+                            AppTheme.primaryColor.withOpacity(0.0),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                  ],
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (spot) => Colors.blueGrey.shade800,
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((LineBarSpot touchedSpot) {
+                          return LineTooltipItem(
+                            _formatCurrency(touchedSpot.y),
+                            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
