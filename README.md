@@ -120,3 +120,15 @@ The repository includes a `render.yaml` Blueprint file.
    - S3 configuration keys.
 
 Render will automatically run `npm install`, generate Prisma clients, run your production migrations (`prisma migrate deploy`), and start the NestJS server.
+
+---
+
+<div align="center">
+  <h3>Built by Farhan Sayed</h3>
+  <p>AI & Full Stack Engineer specializing in modern scalable systems.</p>
+  <p>
+    🌐 <a href="https://farhanbuilds.in">farhanbuilds.in</a> | 
+    ✉️ <a href="mailto:farhanbuilds16@gmail.com">farhanbuilds16@gmail.com</a> | 
+    🐙 <a href="https://github.com/FarhanSayed16">GitHub</a>
+  </p>
+</div>
