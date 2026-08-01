@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ─── Sticky Navbar ───────────────────────────
+    // ─── Sticky Navbar with shrink ──────────────
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
         navbar.classList.toggle('scrolled', window.scrollY > 50);
@@ -38,44 +38,36 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 
-    // ─── Animated Counter ────────────────────────
-    const counters = document.querySelectorAll('[data-count]');
-    let counterAnimated = false;
-
-    const counterObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !counterAnimated) {
-                counterAnimated = true;
-                counters.forEach(counter => {
-                    const target = parseInt(counter.getAttribute('data-count'));
-                    const duration = 2000;
-                    const start = performance.now();
-
-                    function update(now) {
-                        const elapsed = now - start;
-                        const progress = Math.min(elapsed / duration, 1);
-                        // Ease out cubic
-                        const eased = 1 - Math.pow(1 - progress, 3);
-                        const current = Math.floor(eased * target);
-                        
-                        if (target >= 1000) {
-                            counter.textContent = current.toLocaleString() + '+';
-                        } else {
-                            counter.textContent = current.toLocaleString() + '+';
-                        }
-
-                        if (progress < 1) {
-                            requestAnimationFrame(update);
-                        }
-                    }
-
-                    requestAnimationFrame(update);
-                });
+    // ─── Parallax on Hero Mockup ────────────────
+    const heroMockup = document.getElementById('heroMockup');
+    if (heroMockup) {
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY < 800) {
+                heroMockup.style.transform = `translateY(${scrollY * 0.08}px)`;
             }
-        });
-    }, { threshold: 0.5 });
+        }, { passive: true });
+    }
 
-    counters.forEach(c => counterObserver.observe(c));
+    // ─── Feature Card Tilt Effect ────────────────
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / centerY * -3;
+            const rotateY = (x - centerX) / centerX * 3;
+            
+            card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    });
 
     // ─── Smooth Scroll for anchor links ──────────
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -88,6 +80,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetEl.scrollIntoView({ behavior: 'smooth' });
             }
         });
+    });
+
+    // ─── Staggered animation for grid items ──────
+    const staggerObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const items = entry.target.querySelectorAll('.feature-card, .step, .tech-card');
+                items.forEach((item, index) => {
+                    item.style.transitionDelay = `${index * 0.08}s`;
+                    item.classList.add('visible');
+                });
+                staggerObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.features-grid, .steps-grid, .tech-grid').forEach(grid => {
+        staggerObserver.observe(grid);
     });
 
 });
