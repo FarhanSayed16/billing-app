@@ -20,18 +20,22 @@ export class AnalyticsService {
     
     // Date ranges
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfWeek = new Date(startOfToday);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Start of week (7 days ago for a rolling week)
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - 7);
+    
+    // Start of month (30 days ago for rolling month)
+    const startOfMonth = new Date(now);
+    startOfMonth.setDate(now.getDate() - 30);
+    
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    // Previous month period for comparison
-    const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-
-    // Previous week
-    const startOfPrevWeek = new Date(startOfWeek);
-    startOfPrevWeek.setDate(startOfPrevWeek.getDate() - 7);
+    // Previous month period for comparison (31-60 days ago)
+    const startOfPrevMonth = new Date(now);
+    startOfPrevMonth.setDate(now.getDate() - 60);
+    const endOfPrevMonth = new Date(now);
+    endOfPrevMonth.setDate(now.getDate() - 31);
 
     // Fetch metrics concurrently
     const [
@@ -39,8 +43,6 @@ export class AnalyticsService {
       uniqueCustomers,
       invoices,
       topProducts,
-      newCustomersThisWeek,
-      newCustomersLastWeek,
     ] = await Promise.all([
       this.prisma.store.count({ where: { brand_id: brandId, is_active: true } }),
       this.prisma.customer.count({ where: { brand_id: brandId } }),
@@ -61,12 +63,6 @@ export class AnalyticsService {
         orderBy: { _sum: { quantity: 'desc' } },
         take: 5,
       }),
-      this.prisma.customer.count({
-        where: { brand_id: brandId, created_at: { gte: startOfWeek } },
-      }),
-      this.prisma.customer.count({
-        where: { brand_id: brandId, created_at: { gte: startOfPrevWeek, lt: startOfWeek } },
-      }),
     ]);
 
     // Aggregate
@@ -80,10 +76,24 @@ export class AnalyticsService {
     let billsMonth = 0;
     
     const storeRevenues: Record<string, number> = {};
+    const trend: Record<string, number> = {};
+
+    // Initialize trend for last 7 days
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      trend[key] = 0;
+    }
 
     for (const inv of invoices) {
       const amt = Number(inv.grand_total);
       const date = inv.created_at;
+      const dateKey = date.toISOString().split('T')[0];
+
+      if (trend[dateKey] !== undefined) {
+        trend[dateKey] += amt;
+      }
 
       if (date >= startOfYear) revenueYear += amt;
       if (date >= startOfMonth) {
@@ -124,6 +134,8 @@ export class AnalyticsService {
         return { name: store?.name || 'Unknown', revenue: rev };
       })
     );
+    
+    const trendArray = Object.entries(trend).map(([date, amount]) => ({ date, amount }));
 
     const result = {
       revenue: {
@@ -132,6 +144,7 @@ export class AnalyticsService {
         month: revenueMonth,
         year: revenueYear,
         changePercent: Math.round(revenueChangePercent * 100) / 100,
+        trend: trendArray,
       },
       invoices: {
         today: billsToday,
@@ -142,10 +155,6 @@ export class AnalyticsService {
       uniqueCustomers,
       topStoresThisMonth: topStores,
       topProductsThisMonth: topProducts.map(p => ({ name: p.name, quantity: p._sum.quantity || 0 })),
-      newCustomers: {
-        thisWeek: newCustomersThisWeek,
-        lastWeek: newCustomersLastWeek,
-      },
     };
 
     await this.cacheManager.set(cacheKey, result, 300000); // 5 minutes cache
