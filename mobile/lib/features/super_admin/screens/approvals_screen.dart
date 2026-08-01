@@ -96,20 +96,28 @@ class _ApprovalsScreenState extends ConsumerState<ApprovalsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(user['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                                Text(user['name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                                 const SizedBox(height: 8),
+                                if (user['email'] != null)
                                 Row(children: [
                                   const Icon(Icons.email_outlined, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
                                   Text(user['email']),
                                 ]),
-                                const SizedBox(height: 4),
+                                if (user['email'] != null) const SizedBox(height: 4),
                                 Row(children: [
                                   const Icon(Icons.phone_outlined, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),
                                   Text(user['phone'] ?? 'N/A'),
                                 ]),
                                 const SizedBox(height: 4),
+                                Row(children: [
+                                  const Icon(Icons.badge_outlined, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 8),
+                                  Text('Role: ${user['role'] ?? 'N/A'}'),
+                                ]),
+                                const SizedBox(height: 4),
+                                if (user['created_at'] != null)
                                 Row(children: [
                                   const Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey),
                                   const SizedBox(width: 8),

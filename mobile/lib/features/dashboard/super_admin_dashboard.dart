@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/api_provider.dart';
+import 'dashboard_home_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../super_admin/screens/approvals_screen.dart';
@@ -34,7 +35,7 @@ class _SuperAdminDashboardState extends ConsumerState<SuperAdminDashboard> {
   @override
   Widget build(BuildContext context) {
     final screens = <Widget>[
-      const Center(child: Text('Dashboard Placeholder (Phase 2)')),
+      const DashboardHomeScreen(),
       const StoresListScreen(),
       const ApprovalsScreen(),
       _buildSettingsTab(),
