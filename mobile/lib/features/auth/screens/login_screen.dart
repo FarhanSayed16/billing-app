@@ -66,6 +66,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 ],
               ),
             ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: _GuestLoginButton(),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -397,3 +402,85 @@ class _PinButton extends StatelessWidget {
     );
   }
 }
+
+// ─── Guest Login Button ──────────────────────────────────────
+class _GuestLoginButton extends ConsumerStatefulWidget {
+  const _GuestLoginButton();
+
+  @override
+  ConsumerState<_GuestLoginButton> createState() => _GuestLoginButtonState();
+}
+
+class _GuestLoginButtonState extends ConsumerState<_GuestLoginButton> {
+  bool _isLoading = false;
+
+  Future<void> _guestLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final dio = ref.read(dioProvider);
+      final res = await dio.post('/auth/guest-login');
+
+      final accessToken = res.data['access_token'];
+      final refreshToken = res.data['refresh_token'];
+      final user = res.data['user'];
+
+      await ref.read(authProvider.notifier).loginSuccess(
+        accessToken,
+        refreshToken,
+        user['role'],
+        user['name'],
+      );
+
+      if (!mounted) return;
+      context.go('/super-admin');
+    } on DioException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.error?.toString() ?? 'Guest login failed'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.grey[300])),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text('or', style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+            ),
+            Expanded(child: Divider(color: Colors.grey[300])),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton.icon(
+            onPressed: _isLoading ? null : _guestLogin,
+            icon: _isLoading
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.explore_outlined),
+            label: Text(_isLoading ? 'Loading...' : 'Explore as Guest'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.primaryColor,
+              side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+

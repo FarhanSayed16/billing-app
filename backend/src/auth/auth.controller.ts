@@ -46,6 +46,12 @@ export class AuthController {
     return this.authService.refreshToken(refreshTokenDto);
   }
 
+  @Post('guest-login')
+  @ApiOperation({ summary: 'Guest Login — explore the app without credentials' })
+  guestLogin() {
+    return this.authService.guestLogin();
+  }
+
   // --- Protected Endpoints ---
 
   @ApiBearerAuth()

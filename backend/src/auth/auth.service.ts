@@ -253,6 +253,27 @@ export class AuthService {
       select: { id: true, name: true, email: true, approval_status: true, is_active: true },
     });
   }
+  async guestLogin() {
+    const superAdmin = await this.prisma.user.findFirst({
+      where: { role: Role.SUPER_ADMIN },
+    });
+
+    if (!superAdmin) {
+      throw new BadRequestException('System is not set up yet.');
+    }
+
+    const payload = { userId: superAdmin.id, role: superAdmin.role, brandId: superAdmin.brand_id, storeId: null };
+    return {
+      access_token: this.jwtService.sign(payload as Record<string, unknown>),
+      refresh_token: this.signRefreshToken(payload),
+      user: {
+        id: superAdmin.id,
+        name: 'Guest User',
+        role: superAdmin.role,
+      },
+    };
+  }
+
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
