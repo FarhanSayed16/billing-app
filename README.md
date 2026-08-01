@@ -42,84 +42,91 @@
 
 ---
 
-## ✨ Features
+## 📖 About The Project
 
-- **⚡ Lightning Fast POS**: Ring up customers in seconds. Search products, apply discounts, and generate invoices all from your phone.
-- **☁️ Real-time Cloud Sync**: Every sale, every stock update instantly synced across all devices. Powered by Supabase PostgreSQL.
-- **👥 Staff & Roles**: Create unique PINs for employees. Restrict access with role-based permissions for Admin, Cashier, and Manager.
-- **📦 Smart Inventory**: Track stock levels in real-time. Get automatic low-stock alerts. Manage product variations with ease.
-- **📄 Digital Invoices**: Generate professional GST-compliant invoices. Share via WhatsApp, email, or print on thermal printers.
-- **📈 Live Analytics**: Revenue trends, top products, store comparisons — all visualized in a dashboard updated in real-time.
+Traditional retail billing systems are often tied to clunky desktop hardware, expensive licenses, and offline data. **BillPush** changes that. 
+
+It is a complete **Omni-Channel Point-of-Sale (POS) and CRM platform** designed for the modern, mobile-first small business owner. Whether you run a single retail store or manage multiple branches, BillPush allows your staff to ring up sales, manage inventory, and generate GST-compliant invoices directly from their Android smartphones. 
+
+All data is instantly synced to the cloud via Supabase, allowing owners to view real-time live analytics and stock alerts from anywhere in the world.
+
+---
+
+## ✨ Key Features
+
+- **⚡ Lightning Fast POS**: Ring up customers in seconds. Search products, apply discounts, and generate invoices effortlessly.
+- **☁️ Real-time Cloud Sync**: Every sale and stock update is instantly synced across all employee devices. 
+- **👥 Advanced Staff Roles**: Restrict access using secure role-based PINs (Admin, Cashier, Manager).
+- **📦 Smart Inventory**: Track stock levels in real-time, get automatic low-stock alerts, and manage product variations.
+- **📄 Digital Invoicing**: Generate professional invoices and share them instantly via WhatsApp, email, or print to Bluetooth thermal printers.
+- **📈 Live Analytics Dashboard**: Monitor revenue trends, identify top-selling products, and track staff performance.
 
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-BillPush is engineered with a modern, scalable developer stack:
+BillPush is a full-stack monorepo consisting of three distinct applications:
 
-### Mobile Frontend (`/mobile`)
+### 1. Mobile App (`/mobile`)
+The core POS interface used by cashiers and store owners.
 - **Framework**: Flutter (Dart)
 - **State Management**: Riverpod
-- **Local Storage**: Hive & SharedPreferences
+- **Local Storage**: Hive (for offline caching) & SharedPreferences
 - **Routing**: GoRouter
 
-### Backend API (`/backend`)
+### 2. Backend API (`/backend`)
+The high-performance central server handling business logic, authentication, and database interactions.
 - **Framework**: NestJS (TypeScript)
-- **Database**: PostgreSQL (via Supabase)
+- **Database**: PostgreSQL (Managed via Supabase)
 - **ORM**: Prisma
 - **Auth & Caching**: JWT tokens with Managed Redis
-- **Storage**: AWS S3 for media uploads
+- **Storage**: AWS S3 for product media uploads
 
-### Landing Page (`/landing`)
-- **Stack**: Pure HTML5, CSS3, Vanilla JS
-- **Styling**: Custom CSS variables with a modern, responsive fintech SaaS aesthetic
+### 3. Landing Page (`/landing`)
+The marketing website to showcase the app and distribute the APK.
+- **Stack**: HTML5, CSS3, Vanilla JS (Zero heavy frameworks)
 
 ---
 
 ## 🚀 Getting Started Locally
 
-### 1. Backend Setup
+To run the full BillPush ecosystem locally, you will need **Node.js**, the **Flutter SDK**, and access to a **PostgreSQL** database.
+
+### Step 1: Clone the Repository
+```bash
+git clone https://github.com/FarhanSayed16/billing-app.git
+cd billing-app
+```
+
+### Step 2: Run the Backend
+You will need a `.env` file in the `/backend` directory containing your `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, and `JWT_SECRET`.
 ```bash
 cd backend
 npm install
-# Set up your .env file with DATABASE_URL, DIRECT_URL, REDIS_URL, JWT_SECRET
 npx prisma generate
 npx prisma db push
 npm run start:dev
 ```
+*The backend will now be running on `http://localhost:3000`.*
 
-### 2. Mobile App Setup
+### Step 3: Run the Mobile App
+Open a new terminal window. You need an Android emulator running or a physical device connected via USB.
 ```bash
 cd mobile
 flutter pub get
-# Update lib/config/constants.dart with your local backend URL
+```
+*Note: Ensure you update `lib/config/constants.dart` to point to your local machine's IP address (e.g., `192.168.x.x:3000`) so the phone can communicate with the local NestJS backend.*
+```bash
 flutter run
 ```
 
----
+### Step 4: Run the Landing Page
+You can serve the landing page using any simple static server, or simply use the VS Code Live Server extension.
+```bash
+npx serve landing
+```
 
-## 🌐 Production Deployment (Render)
 
-This backend is pre-configured to be deployed natively on [Render](https://render.com/) utilizing cloud databases. The legacy Docker configuration has been removed to ensure seamless scalability.
-
-### Prerequisites
-1. **Supabase (PostgreSQL)**: Create a project on Supabase. Note down both the **Transaction URL** (Port 6543, used for connection pooling) and the **Session URL** (Port 5432, used for Prisma migrations).
-2. **Managed Redis**: Create a Redis database (e.g., using Upstash or Render's Redis add-on).
-3. **AWS S3**: You will need S3 bucket credentials for media uploads.
-
-### 1-Click Deploy
-The repository includes a `render.yaml` Blueprint file. 
-1. Go to your Render Dashboard -> **Blueprints** -> **New Blueprint Instance**.
-2. Connect this repository.
-3. Render will automatically detect the `billpush-backend` web service.
-4. Fill in the requested Environment Variables:
-   - `DATABASE_URL`: Your Supabase Transaction Pooler URL (`pgbouncer=true`).
-   - `DIRECT_URL`: Your Supabase Session URL.
-   - `REDIS_URL`: Your Managed Redis connection string.
-   - `JWT_SECRET`: A strong secret key.
-   - S3 configuration keys.
-
-Render will automatically run `npm install`, generate Prisma clients, run your production migrations (`prisma migrate deploy`), and start the NestJS server.
 
 ---
 
