@@ -264,7 +264,7 @@ export class AuthService {
 
     // Determine which user to impersonate based on requested role
     let targetUser: any = superAdmin;
-    let effectiveRole = Role.SUPER_ADMIN;
+    let effectiveRole: Role = Role.SUPER_ADMIN;
 
     if (requestedRole === 'STORE_ADMIN') {
       const storeAdmin = await this.prisma.user.findFirst({
