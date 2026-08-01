@@ -53,15 +53,23 @@ class _PosHomeScreenState extends ConsumerState<PosHomeScreen> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Welcome, $_employeeName', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey)),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Welcome, $_employeeName', 
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(color: AppTheme.successColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
@@ -106,6 +114,7 @@ class _PosHomeScreenState extends ConsumerState<PosHomeScreen> {
             const Spacer(flex: 2),
           ],
         ),
+      ),
       ),
     );
   }
