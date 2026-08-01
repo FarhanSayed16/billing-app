@@ -216,7 +216,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
                       children: [
                         CircleAvatar(
                           radius: 14,
-                          backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
                           child: Text('${i + 1}', style: TextStyle(fontSize: 12, color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(width: 12),
@@ -251,7 +251,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
                       children: [
                         CircleAvatar(
                           radius: 14,
-                          backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+                          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
                           child: Text('${i + 1}', style: const TextStyle(fontSize: 12, color: Color(0xFF10B981), fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(width: 12),
@@ -303,7 +303,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     }
 
     // Add 20% padding to max Y
-    final maxY = maxAmt > 0 ? maxAmt * 1.2 : 1000;
+    final maxY = maxAmt > 0 ? maxAmt * 1.2 : 1000.0;
 
     return Card(
       elevation: 1,
@@ -338,8 +338,8 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
                         show: true,
                         gradient: LinearGradient(
                           colors: [
-                            AppTheme.primaryColor.withOpacity(0.3),
-                            AppTheme.primaryColor.withOpacity(0.0),
+                            AppTheme.primaryColor.withValues(alpha: 0.3),
+                            AppTheme.primaryColor.withValues(alpha: 0.0),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -400,7 +400,7 @@ class _MetricCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, size: 18, color: color),
