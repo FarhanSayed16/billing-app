@@ -1,33 +1,37 @@
 :root {
     /* Premium Fintech/SaaS Color Palette */
-    --bg-white: #FFFFFF;
-    --bg-off-white: #FAFAFA;
-    --bg-warm: #FFF8F5; /* Warm orange tint for features section */
-    --bg-light-gray: #F4F4F5;
+    --bg-white: #FDFBF7;
+    --bg-off-white: #FDFBF7; /* Warm Ivory / Alabaster */
+    --bg-warm: #F4EDE9; /* Soft Beige */
+    /* Warm pinkish tint for features section */
+    --bg-light-gray: #F5F5F4; /* Stone 100 */
     --bg-card: #FFFFFF;
-    --bg-dark: #1C1917; /* Stone 900 — warm dark for tech/footer */
-    --bg-dark-card: #292524; /* Stone 800 */
-    --bg-dark-hover: #44403C; /* Stone 700 */
+    --bg-dark: #1C1917;
+    /* Stone 900 — warm dark for tech/footer */
+    --bg-dark-card: #292524;
+    /* Stone 800 */
+    --bg-dark-hover: #44403C;
+    /* Stone 700 */
 
-    --text-heading: #18181B;
-    /* Zinc 900 */
-    --text-body: #52525B;
+    --text-heading: #090b0a;
+    /* Zinc 950 */
+    --text-body: #3F3F46;
     /* Zinc 600 */
     --text-muted: #A1A1AA;
     /* Zinc 400 */
     --text-subtle: #D4D4D8;
     /* Zinc 300 */
 
-    --brand: #e16a33;
-    /* Orange 600 */
-    --brand-dark: #b54e20;
-    /* Orange 800 */
-    --brand-light: #f5b799;
-    /* Orange 300 */
-    --brand-soft: #fdefeb;
-    /* Orange 50 */
-    --brand-accent: #ff7e36;
-    /* Orange 500 for vivid pop */
+    --brand: #4B1426;
+    /* Burgundy */
+    --brand-dark: #320D19;
+    /* Dark Burgundy */
+    --brand-light: #7E2644;
+    /* Light Burgundy */
+    --brand-soft: #F9EBEE;
+    /* Soft Pink */
+    --brand-accent: #A72B54;
+    /* Vivid pop */
 
     --accent-emerald: #059669;
     --accent-emerald-bg: #ECFDF5;
