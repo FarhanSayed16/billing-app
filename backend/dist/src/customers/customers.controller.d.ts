@@ -39,21 +39,21 @@ export declare class CustomersController {
             brand_id: string;
             created_at: Date;
             store_id: string;
-            employee_id: string;
             invoice_number: string;
             billing_id: string;
-            customer_id: string | null;
-            subtotal: import("@prisma/client-runtime-utils").Decimal;
-            tax_amount: import("@prisma/client-runtime-utils").Decimal;
-            discount_amount: import("@prisma/client-runtime-utils").Decimal;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            tax_amount: import("@prisma/client/runtime/library").Decimal;
+            discount_amount: import("@prisma/client/runtime/library").Decimal;
             loyalty_points_redeemed: number;
-            loyalty_discount: import("@prisma/client-runtime-utils").Decimal;
-            grand_total: import("@prisma/client-runtime-utils").Decimal;
+            loyalty_discount: import("@prisma/client/runtime/library").Decimal;
+            grand_total: import("@prisma/client/runtime/library").Decimal;
             loyalty_points_earned: number;
             status: import("@prisma/client").$Enums.InvoiceStatus;
             share_triggered: boolean;
             invoice_pdf_url: string | null;
             qr_code_url: string | null;
+            customer_id: string | null;
+            employee_id: string;
         }[];
     } & {
         id: string;
@@ -63,7 +63,7 @@ export declare class CustomersController {
         created_at: Date;
         updated_at: Date;
         total_visits: number;
-        total_spend: import("@prisma/client-runtime-utils").Decimal;
+        total_spend: import("@prisma/client/runtime/library").Decimal;
         loyalty_points: number;
         first_visit_at: Date | null;
         last_visit_at: Date | null;
@@ -76,7 +76,7 @@ export declare class CustomersController {
         created_at: Date;
         updated_at: Date;
         total_visits: number;
-        total_spend: import("@prisma/client-runtime-utils").Decimal;
+        total_spend: import("@prisma/client/runtime/library").Decimal;
         loyalty_points: number;
         first_visit_at: Date | null;
         last_visit_at: Date | null;

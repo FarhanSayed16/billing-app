@@ -13,7 +13,7 @@ export declare class AuditLogsService {
             id: string;
             brand_id: string;
             created_at: Date;
-            metadata: import("@prisma/client/runtime/client").JsonValue | null;
+            metadata: import("@prisma/client/runtime/library").JsonValue | null;
             action: string;
             target_type: string;
             target_id: string;

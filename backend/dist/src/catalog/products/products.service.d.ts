@@ -29,11 +29,11 @@ export declare class ProductsService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        tax_rate: import("@prisma/client-runtime-utils").Decimal;
         sku: string | null;
         barcode: string | null;
         category: string | null;
-        base_price: import("@prisma/client-runtime-utils").Decimal;
+        base_price: import("@prisma/client/runtime/library").Decimal;
+        tax_rate: import("@prisma/client/runtime/library").Decimal;
         image_url: string | null;
     }>;
     findAll(brandId: string, search?: string, category?: string, page?: number, limit?: number): Promise<{}>;
@@ -44,11 +44,11 @@ export declare class ProductsService {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        tax_rate: import("@prisma/client-runtime-utils").Decimal;
         sku: string | null;
         barcode: string | null;
         category: string | null;
-        base_price: import("@prisma/client-runtime-utils").Decimal;
+        base_price: import("@prisma/client/runtime/library").Decimal;
+        tax_rate: import("@prisma/client/runtime/library").Decimal;
         image_url: string | null;
     }>;
     update(id: string, brandId: string, data: UpdateProductDto, userId: string): Promise<{

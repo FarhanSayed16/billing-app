@@ -260,6 +260,54 @@ let AuthService = class AuthService {
             select: { id: true, name: true, email: true, approval_status: true, is_active: true },
         });
     }
+    async guestLogin(requestedRole) {
+        const superAdmin = await this.prisma.user.findFirst({
+            where: { role: client_1.Role.SUPER_ADMIN },
+        });
+        if (!superAdmin) {
+            throw new common_1.BadRequestException('System is not set up yet.');
+        }
+        let targetUser = superAdmin;
+        let effectiveRole = client_1.Role.SUPER_ADMIN;
+        if (requestedRole === 'STORE_ADMIN') {
+            const storeAdmin = await this.prisma.user.findFirst({
+                where: { role: client_1.Role.STORE_ADMIN, approval_status: 'APPROVED', is_active: true },
+                include: { store: { select: { id: true, name: true } } },
+            });
+            if (storeAdmin) {
+                targetUser = storeAdmin;
+                effectiveRole = client_1.Role.STORE_ADMIN;
+            }
+        }
+        else if (requestedRole === 'EMPLOYEE') {
+            const employee = await this.prisma.user.findFirst({
+                where: { role: client_1.Role.EMPLOYEE, approval_status: 'APPROVED', is_active: true },
+                include: { store: { select: { id: true, name: true } } },
+            });
+            if (employee) {
+                targetUser = employee;
+                effectiveRole = client_1.Role.EMPLOYEE;
+            }
+        }
+        const payload = {
+            userId: targetUser.id,
+            role: effectiveRole,
+            brandId: targetUser.brand_id,
+            storeId: targetUser.store_id || null,
+            isGuest: true,
+        };
+        return {
+            access_token: this.jwtService.sign(payload),
+            refresh_token: this.signRefreshToken(payload),
+            user: {
+                id: targetUser.id,
+                name: `Guest (${effectiveRole === client_1.Role.SUPER_ADMIN ? 'Admin' : effectiveRole === client_1.Role.STORE_ADMIN ? 'Store Manager' : 'Staff'})`,
+                role: effectiveRole,
+                isGuest: true,
+                store: targetUser.store ? { id: targetUser.store.id, name: targetUser.store.name } : null,
+            },
+        };
+    }
     async getMe(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },

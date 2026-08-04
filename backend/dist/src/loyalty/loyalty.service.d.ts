@@ -10,10 +10,10 @@ export declare class LoyaltyService {
         ledger: {
             id: string;
             created_at: Date;
-            type: import("@prisma/client").$Enums.LedgerType;
-            description: string | null;
             customer_id: string;
             invoice_id: string | null;
+            type: import("@prisma/client").$Enums.LedgerType;
+            description: string | null;
             points: number;
         }[];
     }>;
@@ -31,10 +31,10 @@ export declare class LoyaltyService {
         ledger: {
             id: string;
             created_at: Date;
-            type: import("@prisma/client").$Enums.LedgerType;
-            description: string | null;
             customer_id: string;
             invoice_id: string | null;
+            type: import("@prisma/client").$Enums.LedgerType;
+            description: string | null;
             points: number;
         }[];
     }>;

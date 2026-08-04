@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "services": {
+    "backend": {
+      "type": "node",
+      "path": "backend",
+      "cmd": "npm run start",
+      "restart": false,
+      "autoLaunch": true,
+      "packageManager": "npm"
+    },
+    "web": {
+      "type": "node",
+      "path": "web",
+      "cmd": "npm run dev",
+      "restart": false,
+      "autoLaunch": true,
+      "packageManager": "npm"
+    }
+  }
+}

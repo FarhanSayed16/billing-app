@@ -16,8 +16,8 @@ export declare class InventoryService {
         id: string;
         updated_at: Date;
         store_id: string;
-        product_id: string;
         quantity: number;
         low_stock_threshold: number;
+        product_id: string;
     }>;
 }

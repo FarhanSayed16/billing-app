@@ -45,6 +45,22 @@ export declare class AuthController {
         access_token: string;
         refresh_token: string;
     }>;
+    guestLogin(body: {
+        role?: string;
+    }): Promise<{
+        access_token: string;
+        refresh_token: string;
+        user: {
+            id: any;
+            name: string;
+            role: import("@prisma/client").$Enums.Role;
+            isGuest: boolean;
+            store: {
+                id: any;
+                name: any;
+            } | null;
+        };
+    }>;
     getMe(req: any): Promise<{
         store: {
             id: string;
@@ -69,19 +85,19 @@ export declare class AuthController {
         role: import("@prisma/client").$Enums.Role;
         email: string | null;
     }[]>;
-    approveUser(userId: string): Promise<{
+    approveUser(userId: string, req: any): Promise<{
         id: string;
         name: string;
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
-    rejectUser(userId: string): Promise<{
+    rejectUser(userId: string, req: any): Promise<{
         id: string;
         name: string;
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
-    suspendUser(userId: string): Promise<{
+    suspendUser(userId: string, req: any): Promise<{
         id: string;
         name: string;
         is_active: boolean;

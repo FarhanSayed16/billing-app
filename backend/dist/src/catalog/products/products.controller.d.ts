@@ -9,11 +9,11 @@ export declare class ProductsController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        tax_rate: import("@prisma/client-runtime-utils").Decimal;
         sku: string | null;
         barcode: string | null;
         category: string | null;
-        base_price: import("@prisma/client-runtime-utils").Decimal;
+        base_price: import("@prisma/client/runtime/library").Decimal;
+        tax_rate: import("@prisma/client/runtime/library").Decimal;
         image_url: string | null;
     }>;
     findAll(req: any, search?: string, category?: string, page?: string, limit?: string): Promise<{}>;
@@ -24,11 +24,11 @@ export declare class ProductsController {
         is_active: boolean;
         created_at: Date;
         updated_at: Date;
-        tax_rate: import("@prisma/client-runtime-utils").Decimal;
         sku: string | null;
         barcode: string | null;
         category: string | null;
-        base_price: import("@prisma/client-runtime-utils").Decimal;
+        base_price: import("@prisma/client/runtime/library").Decimal;
+        tax_rate: import("@prisma/client/runtime/library").Decimal;
         image_url: string | null;
     }>;
     update(id: string, updateProductDto: UpdateProductDto, req: any): Promise<{

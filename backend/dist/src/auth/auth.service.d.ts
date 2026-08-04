@@ -78,6 +78,20 @@ export declare class AuthService {
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
     }>;
+    guestLogin(requestedRole?: string): Promise<{
+        access_token: string;
+        refresh_token: string;
+        user: {
+            id: any;
+            name: string;
+            role: import("@prisma/client").$Enums.Role;
+            isGuest: boolean;
+            store: {
+                id: any;
+                name: any;
+            } | null;
+        };
+    }>;
     getMe(userId: string): Promise<{
         store: {
             id: string;

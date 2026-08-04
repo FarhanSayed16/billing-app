@@ -45,19 +45,28 @@ let AuthController = class AuthController {
     refresh(refreshTokenDto) {
         return this.authService.refreshToken(refreshTokenDto);
     }
+    guestLogin(body) {
+        return this.authService.guestLogin(body?.role);
+    }
     getMe(req) {
         return this.authService.getMe(req.user.userId);
     }
     getPendingRegistrations() {
         return this.authService.getPendingRegistrations();
     }
-    approveUser(userId) {
+    approveUser(userId, req) {
+        if (req.user.isGuest)
+            throw new common_1.ForbiddenException('Guest users cannot approve registrations');
         return this.authService.approveUser(userId);
     }
-    rejectUser(userId) {
+    rejectUser(userId, req) {
+        if (req.user.isGuest)
+            throw new common_1.ForbiddenException('Guest users cannot reject registrations');
         return this.authService.rejectUser(userId);
     }
-    suspendUser(userId) {
+    suspendUser(userId, req) {
+        if (req.user.isGuest)
+            throw new common_1.ForbiddenException('Guest users cannot suspend users');
         return this.authService.suspendUser(userId);
     }
 };
@@ -103,6 +112,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "refresh", null);
 __decorate([
+    (0, common_1.Post)('guest-login'),
+    (0, swagger_1.ApiOperation)({ summary: 'Guest Login — explore the app without credentials' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "guestLogin", null);
+__decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('me'),
@@ -129,8 +146,9 @@ __decorate([
     (0, common_1.Patch)('approve/:userId'),
     (0, swagger_1.ApiOperation)({ summary: 'Approve Store Admin (Super Admin only)' }),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "approveUser", null);
 __decorate([
@@ -140,8 +158,9 @@ __decorate([
     (0, common_1.Patch)('reject/:userId'),
     (0, swagger_1.ApiOperation)({ summary: 'Reject Store Admin (Super Admin only)' }),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "rejectUser", null);
 __decorate([
@@ -151,8 +170,9 @@ __decorate([
     (0, common_1.Patch)('suspend/:userId'),
     (0, swagger_1.ApiOperation)({ summary: 'Suspend Store Admin (Super Admin only)' }),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "suspendUser", null);
 exports.AuthController = AuthController = __decorate([

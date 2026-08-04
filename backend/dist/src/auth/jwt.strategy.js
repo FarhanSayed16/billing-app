@@ -33,7 +33,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         if (!user || !user.is_active || user.approval_status === client_1.ApprovalStatus.SUSPENDED) {
             throw new common_1.UnauthorizedException('Session invalid or user suspended');
         }
-        return { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
+        return { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId, isGuest: payload.isGuest || false };
     }
 };
 exports.JwtStrategy = JwtStrategy;
