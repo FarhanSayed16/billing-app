@@ -81,6 +81,14 @@ let StoresService = class StoresService {
         const store = await this.prisma.store.findFirst({
             where: { id, brand_id: brandId },
             include: {
+                brand: {
+                    select: {
+                        id: true,
+                        name: true,
+                        loyalty_min_redemption: true,
+                        loyalty_points_per_100: true,
+                    },
+                },
                 _count: {
                     select: { users: true, invoices: true },
                 },
@@ -98,14 +106,20 @@ let StoresService = class StoresService {
         if (userStoreId && userStoreId !== id) {
             throw new common_1.ForbiddenException('You can only modify your own store.');
         }
+        const existing = await this.prisma.store.findFirst({ where: { id, brand_id: brandId } });
+        if (!existing)
+            throw new common_1.NotFoundException('Store not found');
         return this.prisma.store.update({
-            where: { id, brand_id: brandId },
+            where: { id },
             data: updateStoreDto,
         });
     }
     async setActivation(id, brandId, isActive) {
+        const existing = await this.prisma.store.findFirst({ where: { id, brand_id: brandId } });
+        if (!existing)
+            throw new common_1.NotFoundException('Store not found');
         return this.prisma.store.update({
-            where: { id, brand_id: brandId },
+            where: { id },
             data: { is_active: isActive },
         });
     }

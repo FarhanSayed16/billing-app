@@ -14,7 +14,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'secretKey'),
+      secretOrKey: (() => {
+        const secret = configService.get<string>('JWT_SECRET');
+        const isProd = configService.get<string>('NODE_ENV') === 'production';
+        if ((!secret || secret === 'secretKey' || secret === 'your-strong-secret-key') && isProd) {
+          throw new Error('JWT_SECRET must be set to a strong value in production');
+        }
+        return secret || 'secretKey';
+      })(),
     });
   }
 

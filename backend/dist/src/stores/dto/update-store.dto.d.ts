@@ -1,5 +1,10 @@
-import { CreateStoreDto } from './create-store.dto';
-declare const UpdateStoreDto_base: import("@nestjs/common").Type<Partial<CreateStoreDto>>;
-export declare class UpdateStoreDto extends UpdateStoreDto_base {
+export declare class UpdateStoreDto {
+    name?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    gst_number?: string | null;
+    phone?: string;
+    logo_url?: string;
+    brand_color?: string;
 }
-export {};

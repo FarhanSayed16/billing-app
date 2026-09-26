@@ -186,6 +186,7 @@ export class AuthService {
     const payload = { userId: user.id, role: user.role, brandId: user.brand_id, storeId: user.store_id };
     return {
       access_token: this.jwtService.sign(payload as Record<string, unknown>),
+      refresh_token: this.signRefreshToken(payload),
       user: {
         id: user.id,
         name: user.name,
@@ -254,6 +255,11 @@ export class AuthService {
     });
   }
   async guestLogin(requestedRole?: string) {
+    const enabled = this.configService.get<string>('ENABLE_GUEST_LOGIN', 'false') === 'true';
+    if (!enabled) {
+      throw new ForbiddenException('Guest login is disabled');
+    }
+
     const superAdmin = await this.prisma.user.findFirst({
       where: { role: Role.SUPER_ADMIN },
     });
@@ -325,5 +331,13 @@ export class AuthService {
 
     if (!user) throw new BadRequestException('User not found');
     return user;
+  }
+
+  async updateFcmToken(userId: string, fcmToken: string | null) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { fcm_token: fcmToken },
+      select: { id: true, fcm_token: true },
+    });
   }
 }

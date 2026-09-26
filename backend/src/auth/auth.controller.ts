@@ -10,6 +10,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -28,12 +29,14 @@ export class AuthController {
     return this.authService.registerStoreAdmin(registerStoreAdminDto);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('login')
   @ApiOperation({ summary: 'Admin Login (Super Admin & Store Admin)' })
   login(@Body() adminLoginDto: AdminLoginDto) {
     return this.authService.adminLogin(adminLoginDto);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('employee-login')
   @ApiOperation({ summary: 'Employee Login via PIN' })
   employeeLogin(@Body() employeeLoginDto: EmployeeLoginDto) {
@@ -46,8 +49,9 @@ export class AuthController {
     return this.authService.refreshToken(refreshTokenDto);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('guest-login')
-  @ApiOperation({ summary: 'Guest Login — explore the app without credentials' })
+  @ApiOperation({ summary: 'Guest Login — explore the app without credentials (disabled unless ENABLE_GUEST_LOGIN=true)' })
   guestLogin(@Body() body: { role?: string }) {
     return this.authService.guestLogin(body?.role);
   }
@@ -60,6 +64,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current authenticated user profile' })
   getMe(@Req() req: any) {
     return this.authService.getMe(req.user.userId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('fcm-token')
+  @ApiOperation({ summary: 'Register or clear device FCM push token' })
+  updateFcmToken(@Req() req: any, @Body() body: { fcm_token?: string | null }) {
+    return this.authService.updateFcmToken(req.user.userId, body?.fcm_token ?? null);
   }
 
   @ApiBearerAuth()

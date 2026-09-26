@@ -3,7 +3,7 @@ export declare class CreateStoreDto {
     address: string;
     city: string;
     state: string;
-    gst_number: string;
+    gst_number?: string;
     phone: string;
     logo_url?: string;
     brand_color?: string;

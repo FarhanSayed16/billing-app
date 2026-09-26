@@ -48,6 +48,12 @@ export declare class StoresController {
     findOne(id: string, req: any): Promise<{
         employee_count: number;
         total_invoices: number;
+        brand: {
+            id: string;
+            name: string;
+            loyalty_points_per_100: number;
+            loyalty_min_redemption: number;
+        };
         _count: {
             users: number;
             invoices: number;

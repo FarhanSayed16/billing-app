@@ -50,6 +50,12 @@ export declare class StoresService {
     findOne(id: string, brandId: string, userStoreId?: string): Promise<{
         employee_count: number;
         total_invoices: number;
+        brand: {
+            id: string;
+            name: string;
+            loyalty_points_per_100: number;
+            loyalty_min_redemption: number;
+        };
         _count: {
             users: number;
             invoices: number;
