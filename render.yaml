@@ -5,8 +5,9 @@ services:
     plan: free
     rootDir: backend
     # --include=dev is required: NODE_ENV=production would skip @nestjs/cli and break `nest build`
-    buildCommand: "npm install --include=dev && npx prisma generate && npx nest build"
-    # start-prod.mjs baselines an existing DB (P3005) then migrate deploy + start
+    # Baseline during build so a dashboard start command that still runs
+    # `prisma migrate deploy` succeeds against an existing Supabase schema (P3005).
+    buildCommand: "npm install --include=dev && npx prisma generate && npx nest build && node scripts/prisma-migrate-prod.mjs"
     startCommand: "npm run start:render"
     envVars:
       - key: DATABASE_URL
