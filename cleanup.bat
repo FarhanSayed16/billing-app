@@ -1,16 +1,14 @@
 @echo off
-cd /d d:\Billing-App
-
-echo Removing all files from git cache...
-git rm -r --cached .
-
-echo Adding .gitignore...
-git add .gitignore
-
-echo Committing changes...
-git commit -m "Remove all files from tracking except .gitignore"
-
-echo Checking git status...
-git status --short
-
-echo Done! Only .gitignore should be tracked now.
+REM ============================================================
+REM DANGEROUS: This script removes ALL files from the git index.
+REM It is intentionally disabled. Do not re-enable unless you
+REM fully understand the impact on your repository.
+REM ============================================================
+echo.
+echo cleanup.bat is DISABLED for safety.
+echo It previously ran: git rm -r --cached .
+echo.
+echo If you really need to refresh gitignore tracking, do it
+echo manually and carefully with explicit paths.
+echo.
+exit /b 1

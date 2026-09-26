@@ -1,7 +1,15 @@
 node_modules
 .env
+.env.local
 build/
+dist/
 .dart_tool/
 .flutter-plugins
+.flutter-plugins-dependencies
 .idea/
 .vscode/
+*.apk
+*.ipa
+backend/dist/
+mobile/build/
+**/firebase-service-account.json

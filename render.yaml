@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: "npm install && npx prisma generate && npm run build"
-    startCommand: "npm run start:prod"
+    startCommand: "npx prisma migrate deploy && npm run start:prod"
     envVars:
       - key: DATABASE_URL
         sync: false
@@ -26,4 +26,14 @@ services:
       - key: S3_ACCESS_KEY
         sync: false
       - key: S3_SECRET_KEY
+        sync: false
+      - key: S3_MOCK
+        value: "false"
+      - key: NODE_ENV
+        value: production
+      - key: ENABLE_GUEST_LOGIN
+        value: "false"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FIREBASE_CREDENTIALS
         sync: false

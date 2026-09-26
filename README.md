@@ -3,23 +3,23 @@
 
   # BillPush
   
-  **Omni-Channel Digital Invoice & Retail CRM Platform**
+  **Mobile POS, digital invoices, and retail CRM**
 
   <p>
     <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
     <img src="https://img.shields.io/badge/NestJS-ea2845?style=for-the-badge&logo=nestjs&logoColor=white" />
-    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
     <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" />
   </p>
 
   <p>
-    BillPush is a complete point-of-sale system for Android. Manage inventory, track staff, generate invoices, and view real-time analytics — all from a single app.
+    BillPush is an Android-first point-of-sale system: ring up sales, manage inventory and staff, share invoices via WhatsApp/device share, and look up bills on the customer web portal.
   </p>
 </div>
 
 ---
 
-## 📱 Application Screenshots
+## Application Screenshots
 
 <table align="center">
   <tr>
@@ -34,108 +34,106 @@
     <td><img src="docs/screenshots/7.jpg" width="220" alt="App Screenshot 7"></td>
     <td><img src="docs/screenshots/8.jpg" width="220" alt="App Screenshot 8"></td>
   </tr>
-  <tr>
-    <td colspan="2" align="center"><img src="docs/screenshots/9.jpg" width="220" alt="App Screenshot 9"></td>
-    <td colspan="2" align="center"><img src="docs/screenshots/10.jpg" width="220" alt="App Screenshot 10"></td>
-  </tr>
 </table>
 
 ---
 
-## 📖 About The Project
+## About
 
-Traditional retail billing systems are often tied to clunky desktop hardware, expensive licenses, and offline data. **BillPush** changes that. 
+BillPush helps small multi-store retailers run billing from Android phones. Staff create invoices, inventory decrements on catalog sales, returns flow through store admin approval, and customers can open a bill link on the web portal.
 
-It is a complete **Omni-Channel Point-of-Sale (POS) and CRM platform** designed for the modern, mobile-first small business owner. Whether you run a single retail store or manage multiple branches, BillPush allows your staff to ring up sales, manage inventory, and generate GST-compliant invoices directly from their Android smartphones. 
-
-All data is instantly synced to the cloud via Supabase, allowing owners to view real-time live analytics and stock alerts from anywhere in the world.
+Data lives in PostgreSQL (commonly hosted on Supabase) behind a NestJS API.
 
 ---
 
-## ✨ Key Features
+## Key features (shipped)
 
-- **⚡ Lightning Fast POS**: Ring up customers in seconds. Search products, apply discounts, and generate invoices effortlessly.
-- **☁️ Real-time Cloud Sync**: Every sale and stock update is instantly synced across all employee devices. 
-- **👥 Advanced Staff Roles**: Restrict access using secure role-based PINs (Admin, Cashier, Manager).
-- **📦 Smart Inventory**: Track stock levels in real-time, get automatic low-stock alerts, and manage product variations.
-- **📄 Digital Invoicing**: Generate professional invoices and share them instantly via WhatsApp, email, or print to Bluetooth thermal printers.
-- **📈 Live Analytics Dashboard**: Monitor revenue trends, identify top-selling products, and track staff performance.
+- **POS billing** — customer entry, cart, discounts, loyalty redeem, PDF + share sheet / WhatsApp
+- **Roles** — `SUPER_ADMIN`, `STORE_ADMIN`, `EMPLOYEE` (PIN login)
+- **Inventory** — per-store stock adjust; sales decrement when `product_id` is present
+- **Returns & loyalty** — pending approvals, points earn/redeem/expiry cron
+- **Analytics** — revenue charts and CSV export for admins
+- **Customer portal** (`/web`) — lookup by billing ID or phone
+- **Offline queue** — bills saved locally when offline and synced when back online
 
----
+### Not shipped yet (do not market as live)
 
-## 🏗️ Architecture & Tech Stack
+- Bluetooth thermal printing
+- Server-side email delivery
+- Meta WhatsApp Cloud API automation
+- Product variations matrix
+- Payment gateway (UPI/cards)
+- Customer OTP portal login
 
-BillPush is a full-stack monorepo consisting of three distinct applications:
-
-### 1. Mobile App (`/mobile`)
-The core POS interface used by cashiers and store owners.
-- **Framework**: Flutter (Dart)
-- **State Management**: Riverpod
-- **Local Storage**: Hive (for offline caching) & SharedPreferences
-- **Routing**: GoRouter
-
-### 2. Backend API (`/backend`)
-The high-performance central server handling business logic, authentication, and database interactions.
-- **Framework**: NestJS (TypeScript)
-- **Database**: PostgreSQL (Managed via Supabase)
-- **ORM**: Prisma
-- **Auth & Caching**: JWT tokens with Managed Redis
-- **Storage**: AWS S3 for product media uploads
-
-### 3. Landing Page (`/landing`)
-The marketing website to showcase the app and distribute the APK.
-- **Stack**: HTML5, CSS3, Vanilla JS (Zero heavy frameworks)
+See [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) and [docs/SOFT_LAUNCH_CHECKLIST.md](docs/SOFT_LAUNCH_CHECKLIST.md).
 
 ---
 
-## 🚀 Getting Started Locally
+## Architecture
 
-To run the full BillPush ecosystem locally, you will need **Node.js**, the **Flutter SDK**, and access to a **PostgreSQL** database.
+| App | Path | Stack |
+|-----|------|--------|
+| Mobile POS | `/mobile` | Flutter, Riverpod, GoRouter, Hive |
+| API | `/backend` | NestJS, Prisma, PostgreSQL, Redis, S3 |
+| Customer portal | `/web` | Next.js |
+| Marketing | `/landing` | Static HTML/CSS/JS |
 
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/FarhanSayed16/billing-app.git
-cd billing-app
-```
+---
 
-### Step 2: Run the Backend
-You will need a `.env` file in the `/backend` directory containing your `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, and `JWT_SECRET`.
+## Getting started
+
+### Backend
 ```bash
 cd backend
+cp .env.example .env   # set DATABASE_URL, DIRECT_URL, REDIS_URL, JWT_SECRET
 npm install
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 npm run start:dev
 ```
-*The backend will now be running on `http://localhost:3000`.*
+API: `http://localhost:3000/api` · Health: `GET /api/health` · Swagger: `/api/docs`
 
-### Step 3: Run the Mobile App
-Open a new terminal window. You need an Android emulator running or a physical device connected via USB.
+### Mobile
 ```bash
 cd mobile
 flutter pub get
-```
-*Note: Ensure you update `lib/config/constants.dart` to point to your local machine's IP address (e.g., `192.168.x.x:3000`) so the phone can communicate with the local NestJS backend.*
-```bash
+# Point lib/config/constants.dart baseUrl at your API (.../api)
 flutter run
 ```
 
-### Step 4: Run the Landing Page
-You can serve the landing page using any simple static server, or simply use the VS Code Live Server extension.
+### Customer portal
+```bash
+cd web
+cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:3000/api
+npm install
+npm run dev
+```
+
+### Landing
 ```bash
 npx serve landing
 ```
 
+---
 
+## Docs
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/SPRINT_IMPLEMENTATION_PLAN.md](docs/SPRINT_IMPLEMENTATION_PLAN.md) | Phase/sprint plan |
+| [docs/AUDIT_FIXES_AND_IMPROVEMENTS.md](docs/AUDIT_FIXES_AND_IMPROVEMENTS.md) | Full audit backlog |
+| [docs/MASTERPLAN.md](docs/MASTERPLAN.md) | Product plan (canonical-ish) |
+| [docs/KNOWN_LIMITATIONS.md](docs/KNOWN_LIMITATIONS.md) | Pilot limitations |
+| [docs/SOFT_LAUNCH_CHECKLIST.md](docs/SOFT_LAUNCH_CHECKLIST.md) | Soft-launch QA |
+| [docs/HISTORICAL.md](docs/HISTORICAL.md) | Stale / aspirational docs index |
 
 ---
 
 <div align="center">
   <h3>Built by Farhan Sayed</h3>
-  <p>AI & Full Stack Engineer specializing in modern scalable systems.</p>
   <p>
-    🌐 <a href="https://farhanbuilds.in">farhanbuilds.in</a> | 
-    ✉️ <a href="mailto:farhanbuilds16@gmail.com">farhanbuilds16@gmail.com</a> | 
+    🌐 <a href="https://farhanbuilds.in">farhanbuilds.in</a> |
+    ✉️ <a href="mailto:farhanbuilds16@gmail.com">farhanbuilds16@gmail.com</a> |
     🐙 <a href="https://github.com/FarhanSayed16">GitHub</a>
   </p>
 </div>
