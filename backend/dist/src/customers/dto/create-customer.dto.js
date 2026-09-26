@@ -19,11 +19,13 @@ exports.CreateCustomerDto = CreateCustomerDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Matches)(/^[0-9+\-\s]{8,20}$/, { message: 'Phone must be 8–20 digits (optional + - spaces)' }),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "phone", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.MaxLength)(120),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "name", void 0);
 //# sourceMappingURL=create-customer.dto.js.map

@@ -39,8 +39,10 @@ export declare class CustomersService {
             brand_id: string;
             created_at: Date;
             store_id: string;
+            employee_id: string;
             invoice_number: string;
             billing_id: string;
+            customer_id: string | null;
             subtotal: import("@prisma/client/runtime/library").Decimal;
             tax_amount: import("@prisma/client/runtime/library").Decimal;
             discount_amount: import("@prisma/client/runtime/library").Decimal;
@@ -52,8 +54,6 @@ export declare class CustomersService {
             share_triggered: boolean;
             invoice_pdf_url: string | null;
             qr_code_url: string | null;
-            customer_id: string | null;
-            employee_id: string;
         }[];
     } & {
         id: string;

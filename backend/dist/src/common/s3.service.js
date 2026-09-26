@@ -18,35 +18,62 @@ let S3Service = class S3Service {
     s3;
     bucketName;
     region;
+    mockEnabled;
     constructor(configService) {
         this.configService = configService;
         this.region = this.configService.get('S3_REGION', 'ap-south-1');
+        this.bucketName = this.configService.get('S3_BUCKET_NAME', 'billpush-assets');
+        const accessKey = this.configService.get('S3_ACCESS_KEY', '');
+        const secretKey = this.configService.get('S3_SECRET_KEY', '');
+        const explicitMock = this.configService.get('S3_MOCK', 'false') === 'true';
+        const isProd = this.configService.get('NODE_ENV') === 'production';
+        const looksPlaceholder = !accessKey ||
+            !secretKey ||
+            accessKey === 'xxx' ||
+            secretKey === 'xxx' ||
+            accessKey === 'your-access-key';
+        this.mockEnabled = explicitMock || (!isProd && looksPlaceholder);
         this.s3 = new client_s3_1.S3Client({
             region: this.region,
             credentials: {
-                accessKeyId: this.configService.get('S3_ACCESS_KEY', ''),
-                secretAccessKey: this.configService.get('S3_SECRET_KEY', ''),
+                accessKeyId: accessKey || 'xxx',
+                secretAccessKey: secretKey || 'xxx',
             },
         });
-        this.bucketName = this.configService.get('S3_BUCKET_NAME', 'billpush-assets');
     }
-    async uploadFile(file, key) {
+    assertConfigured() {
+        const accessKey = this.configService.get('S3_ACCESS_KEY', '');
+        const secretKey = this.configService.get('S3_SECRET_KEY', '');
+        const isProd = this.configService.get('NODE_ENV') === 'production';
+        const looksPlaceholder = !accessKey ||
+            !secretKey ||
+            accessKey === 'xxx' ||
+            secretKey === 'xxx';
+        if (isProd && looksPlaceholder && this.configService.get('S3_MOCK') !== 'true') {
+            throw new common_1.ServiceUnavailableException('File storage is not configured. Set S3_ACCESS_KEY, S3_SECRET_KEY, and S3_BUCKET_NAME.');
+        }
+    }
+    async uploadBuffer(buffer, key, contentType) {
+        if (this.mockEnabled) {
+            return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
+        }
+        this.assertConfigured();
         const command = new client_s3_1.PutObjectCommand({
             Bucket: this.bucketName,
             Key: key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
+            Body: buffer,
+            ContentType: contentType,
         });
         try {
-            if (this.configService.get('S3_ACCESS_KEY', 'xxx') === 'xxx') {
-                return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
-            }
             await this.s3.send(command);
             return `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${key}`;
         }
         catch (e) {
             throw new common_1.InternalServerErrorException('Failed to upload file to S3');
         }
+    }
+    async uploadFile(file, key) {
+        return this.uploadBuffer(file.buffer, key, file.mimetype);
     }
 };
 exports.S3Service = S3Service;

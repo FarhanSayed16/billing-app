@@ -21,20 +21,24 @@ exports.RegisterStoreAdminDto = RegisterStoreAdminDto;
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.MaxLength)(120),
     __metadata("design:type", String)
 ], RegisterStoreAdminDto.prototype, "name", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
+    (0, class_validator_1.MaxLength)(254),
     __metadata("design:type", String)
 ], RegisterStoreAdminDto.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8, { message: 'Password must be at least 8 characters long' }),
+    (0, class_validator_1.MaxLength)(128),
     __metadata("design:type", String)
 ], RegisterStoreAdminDto.prototype, "password", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Matches)(/^[0-9+\-\s]{8,20}$/, { message: 'Phone must be 8–20 digits (optional + - spaces)' }),
     __metadata("design:type", String)
 ], RegisterStoreAdminDto.prototype, "phone", void 0);
 //# sourceMappingURL=register-store-admin.dto.js.map

@@ -21,10 +21,13 @@ const roles_decorator_1 = require("../../auth/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
 const platform_express_1 = require("@nestjs/platform-express");
 const swagger_1 = require("@nestjs/swagger");
+const s3_service_1 = require("../../common/s3.service");
 let ProductsController = class ProductsController {
     productsService;
-    constructor(productsService) {
+    s3Service;
+    constructor(productsService, s3Service) {
         this.productsService = productsService;
+        this.s3Service = s3Service;
     }
     async create(createProductDto, req) {
         return this.productsService.create(req.user.brandId, createProductDto, req.user.userId);
@@ -44,9 +47,11 @@ let ProductsController = class ProductsController {
     async uploadImage(id, file, req) {
         if (!file)
             throw new common_1.BadRequestException('File is required');
-        const mockedUrl = `https://billpush-assets.s3.mock.com/products/${id}/${file.originalname}`;
-        await this.productsService.update(id, req.user.brandId, { image_url: mockedUrl }, req.user.userId);
-        return { url: mockedUrl };
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const key = `products/${req.user.brandId}/${id}/${Date.now()}_${safeName}`;
+        const url = await this.s3Service.uploadFile(file, key);
+        await this.productsService.update(id, req.user.brandId, { image_url: url }, req.user.userId);
+        return { url };
     }
     async bulkUpload(file, req) {
         if (!file || !file.originalname.endsWith('.csv')) {
@@ -113,7 +118,7 @@ __decorate([
     (0, common_1.Post)(':id/image'),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
     (0, swagger_1.ApiConsumes)('multipart/form-data'),
-    (0, swagger_1.ApiOperation)({ summary: 'Upload product image to S3 (Mocked implementation)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Upload product image to S3' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.UploadedFile)()),
     __param(2, (0, common_1.Request)()),
@@ -138,6 +143,7 @@ exports.ProductsController = ProductsController = __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('products'),
-    __metadata("design:paramtypes", [products_service_1.ProductsService])
+    __metadata("design:paramtypes", [products_service_1.ProductsService,
+        s3_service_1.S3Service])
 ], ProductsController);
 //# sourceMappingURL=products.controller.js.map

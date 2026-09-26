@@ -21,6 +21,7 @@ const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const client_1 = require("@prisma/client");
 const swagger_1 = require("@nestjs/swagger");
+const throttler_1 = require("@nestjs/throttler");
 let InvoicesController = class InvoicesController {
     invoicesService;
     constructor(invoicesService) {
@@ -32,6 +33,9 @@ let InvoicesController = class InvoicesController {
     findCustomerSummary(phone) {
         return this.invoicesService.findCustomerSummary(phone);
     }
+    findOneByBillingStaff(billingId, req) {
+        return this.invoicesService.findOneByBillingIdForStaff(billingId, req.user.role, req.user.brandId, req.user.storeId, req.user.userId);
+    }
     create(createInvoiceDto, req) {
         return this.invoicesService.create(createInvoiceDto, req.user.storeId, req.user.userId, req.user.brandId);
     }
@@ -39,28 +43,30 @@ let InvoicesController = class InvoicesController {
         return this.invoicesService.findAll(req.user.brandId, query, req.user.role, req.user.storeId, req.user.userId);
     }
     findOne(id, req) {
-        return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId);
+        return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId, req.user.brandId);
     }
     voidInvoice(id, req) {
         return this.invoicesService.voidInvoice(id, req.user.storeId, req.user.userId);
     }
-    markShared(id) {
-        return this.invoicesService.markShared(id);
+    markShared(id, req) {
+        return this.invoicesService.markShared(id, req.user.role, req.user.brandId, req.user.storeId, req.user.userId);
     }
     getGeneratePdf(id, req) {
-        return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId);
+        return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId, req.user.brandId);
     }
 };
 exports.InvoicesController = InvoicesController;
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 30, ttl: 60_000 } }),
     (0, common_1.Get)('billing/:billingId'),
-    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get full invoice detail by billing ID (no auth)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get redacted invoice detail by billing ID (no auth)' }),
     __param(0, (0, common_1.Param)('billingId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], InvoicesController.prototype, "findOnePublic", null);
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 20, ttl: 60_000 } }),
     (0, common_1.Get)('customer/:phone'),
     (0, swagger_1.ApiOperation)({ summary: 'PUBLIC: Get summary list of invoices by customer phone (no auth)' }),
     __param(0, (0, common_1.Param)('phone')),
@@ -68,6 +74,18 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], InvoicesController.prototype, "findCustomerSummary", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Get)('staff/billing/:billingId'),
+    (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN, client_1.Role.EMPLOYEE),
+    (0, swagger_1.ApiOperation)({ summary: 'Staff: full invoice by billing ID (includes item IDs for returns)' }),
+    __param(0, (0, common_1.Param)('billingId')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], InvoicesController.prototype, "findOneByBillingStaff", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, swagger_1.ApiBearerAuth)(),
@@ -123,8 +141,9 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.Role.SUPER_ADMIN, client_1.Role.STORE_ADMIN, client_1.Role.EMPLOYEE),
     (0, swagger_1.ApiOperation)({ summary: 'Mark invoice as shared' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], InvoicesController.prototype, "markShared", null);
 __decorate([
