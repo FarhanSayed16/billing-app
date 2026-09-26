@@ -12,6 +12,35 @@ export class InvoicesService {
   constructor(private prisma: PrismaService, private pdfService: PdfService) {}
 
   async create(createInvoiceDto: CreateInvoiceDto, storeId: string, employeeId: string, brandId: string) {
+    if (!storeId) {
+      throw new BadRequestException('Your account has no store assigned. Re-login after store setup.');
+    }
+    if (!brandId || !employeeId) {
+      throw new BadRequestException('Invalid auth session. Please log in again.');
+    }
+
+    try {
+      return await this.createInTransaction(createInvoiceDto, storeId, employeeId, brandId);
+    } catch (err) {
+      if (
+        err instanceof NotFoundException ||
+        err instanceof BadRequestException ||
+        err instanceof ForbiddenException
+      ) {
+        throw err;
+      }
+      const message = err instanceof Error ? err.message : String(err);
+      // Surface DB/driver errors instead of opaque 500 so mobile shows a useful toast
+      throw new BadRequestException(`Could not create invoice: ${message}`);
+    }
+  }
+
+  private async createInTransaction(
+    createInvoiceDto: CreateInvoiceDto,
+    storeId: string,
+    employeeId: string,
+    brandId: string,
+  ) {
     return this.prisma.$transaction(async (tx) => {
       // 1. Gather Store & Brand info
       const store = await tx.store.findUnique({ where: { id: storeId }, include: { brand: true } });
@@ -106,17 +135,16 @@ export class InvoicesService {
         }
       }
 
-      // 6. Generate Invoice Number (atomic: use raw SQL for sequence safety)
-      // Use a locking read on the store to prevent duplicate sequence numbers under concurrency
-      await tx.$queryRaw`SELECT id FROM stores WHERE id = ${storeId}::uuid FOR UPDATE`;
-
+      // 6. Generate Invoice Number (count within store+year; unique billing_id already guarded above)
       const currentYear = new Date().getFullYear();
-      const seqResult = await tx.$queryRaw<{ seq: bigint }[]>`
-        SELECT COUNT(*) + 1 as seq FROM invoices
-        WHERE store_id = ${storeId}::uuid
-        AND created_at >= ${new Date(currentYear, 0, 1)}
-      `;
-      const seqNumber = Number(seqResult[0]?.seq ?? 1);
+      const yearStart = new Date(currentYear, 0, 1);
+      const invoiceCount = await tx.invoice.count({
+        where: {
+          store_id: storeId,
+          created_at: { gte: yearStart },
+        },
+      });
+      const seqNumber = invoiceCount + 1;
       const invoiceNumber = generateInvoiceNumber(store.name, currentYear, seqNumber);
 
       // 7. Create Invoice

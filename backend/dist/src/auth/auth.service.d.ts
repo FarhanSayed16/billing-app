@@ -10,8 +10,12 @@ export declare class AuthService {
     private readonly prisma;
     private readonly jwtService;
     private readonly configService;
+    private readonly logger;
     private redis;
+    private readonly memoryBlacklist;
     constructor(prisma: PrismaService, jwtService: JwtService, configService: ConfigService);
+    private blacklistGet;
+    private blacklistSet;
     private signRefreshToken;
     setupSuperAdmin(dto: CreateSuperAdminDto): Promise<{
         access_token: string;

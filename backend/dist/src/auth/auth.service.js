@@ -41,6 +41,7 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var AuthService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -51,16 +52,75 @@ const bcrypt = __importStar(require("bcrypt"));
 const ioredis_1 = require("ioredis");
 const client_1 = require("@prisma/client");
 const REFRESH_EXPIRY_SECONDS = 7 * 24 * 60 * 60;
-let AuthService = class AuthService {
+let AuthService = AuthService_1 = class AuthService {
     prisma;
     jwtService;
     configService;
-    redis;
+    logger = new common_1.Logger(AuthService_1.name);
+    redis = null;
+    memoryBlacklist = new Map();
     constructor(prisma, jwtService, configService) {
         this.prisma = prisma;
         this.jwtService = jwtService;
         this.configService = configService;
-        this.redis = new ioredis_1.Redis(this.configService.get('REDIS_URL', 'redis://localhost:6379'));
+        const redisUrl = this.configService.get('REDIS_URL')?.trim();
+        if (!redisUrl || redisUrl === 'memory' || redisUrl.startsWith('memory://')) {
+            this.logger.warn('REDIS_URL unset — using in-memory refresh-token blacklist');
+            return;
+        }
+        try {
+            this.redis = new ioredis_1.Redis(redisUrl, {
+                maxRetriesPerRequest: 1,
+                enableOfflineQueue: false,
+                lazyConnect: true,
+                retryStrategy: () => null,
+            });
+            this.redis.on('error', (err) => {
+                if (this.redis) {
+                    this.logger.warn(`Redis unavailable (${err.message}) — using in-memory blacklist`);
+                    void this.redis.quit().catch(() => undefined);
+                    this.redis = null;
+                }
+            });
+            void this.redis.connect().catch((err) => {
+                this.logger.warn(`Redis connect failed (${err.message}) — using in-memory blacklist`);
+                this.redis = null;
+            });
+        }
+        catch (err) {
+            this.logger.warn(`Redis init failed (${err instanceof Error ? err.message : err}) — using in-memory blacklist`);
+            this.redis = null;
+        }
+    }
+    async blacklistGet(key) {
+        if (this.redis) {
+            try {
+                return await this.redis.get(key);
+            }
+            catch {
+                this.redis = null;
+            }
+        }
+        const expiresAt = this.memoryBlacklist.get(key);
+        if (expiresAt == null)
+            return null;
+        if (Date.now() > expiresAt) {
+            this.memoryBlacklist.delete(key);
+            return null;
+        }
+        return '1';
+    }
+    async blacklistSet(key, ttlSeconds) {
+        if (this.redis) {
+            try {
+                await this.redis.set(key, '1', 'EX', ttlSeconds);
+                return;
+            }
+            catch {
+                this.redis = null;
+            }
+        }
+        this.memoryBlacklist.set(key, Date.now() + ttlSeconds * 1000);
     }
     signRefreshToken(payload) {
         return this.jwtService.sign(payload, { expiresIn: '7d' });
@@ -206,12 +266,12 @@ let AuthService = class AuthService {
         };
     }
     async refreshToken(dto) {
-        const isBlacklisted = await this.redis.get(`bl_rt_${dto.refresh_token}`);
+        const isBlacklisted = await this.blacklistGet(`bl_rt_${dto.refresh_token}`);
         if (isBlacklisted)
             throw new common_1.UnauthorizedException('Token has been invalidated');
         try {
             const payload = this.jwtService.verify(dto.refresh_token);
-            await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', REFRESH_EXPIRY_SECONDS);
+            await this.blacklistSet(`bl_rt_${dto.refresh_token}`, REFRESH_EXPIRY_SECONDS);
             const newPayload = { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
             return {
                 access_token: this.jwtService.sign(newPayload),
@@ -341,7 +401,7 @@ let AuthService = class AuthService {
     }
 };
 exports.AuthService = AuthService;
-exports.AuthService = AuthService = __decorate([
+exports.AuthService = AuthService = AuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         jwt_1.JwtService,

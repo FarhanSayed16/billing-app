@@ -49,8 +49,8 @@ export class InvoicesController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Post()
-  @Roles(Role.EMPLOYEE)
-  @ApiOperation({ summary: 'Create a new invoice (Employee only)' })
+  @Roles(Role.EMPLOYEE, Role.STORE_ADMIN)
+  @ApiOperation({ summary: 'Create a new invoice (Employee or Store Admin)' })
   create(@Body() createInvoiceDto: CreateInvoiceDto, @Req() req: any) {
     return this.invoicesService.create(createInvoiceDto, req.user.storeId, req.user.userId, req.user.brandId);
   }
