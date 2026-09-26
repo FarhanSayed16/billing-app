@@ -6,7 +6,8 @@ services:
     rootDir: backend
     # --include=dev is required: NODE_ENV=production would skip @nestjs/cli and break `nest build`
     buildCommand: "npm install --include=dev && npx prisma generate && npx nest build"
-    startCommand: "npx prisma migrate deploy && npm run start:prod"
+    # start-prod.mjs baselines an existing DB (P3005) then migrate deploy + start
+    startCommand: "npm run start:render"
     envVars:
       - key: DATABASE_URL
         sync: false
