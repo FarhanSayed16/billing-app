@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
+import '../../../config/constants.dart';
 import '../../../providers/api_provider.dart';
 import '../../../core/utils/pdf_generator.dart';
 
@@ -99,9 +100,10 @@ class _RecentBillsScreenState extends ConsumerState<RecentBillsScreen> {
                                     final storeData = invoiceData['store'] ?? {};
                                     // Generate PDF
                                     final pdfFile = await InvoicePdfGenerator.generateInvoicePdf(invoiceData, storeData);
+                                    final billingId = inv['billing_id'] ?? invoiceData['billing_id'] ?? '';
                                     final text = "Thank you for shopping at ${storeData['name'] ?? 'our store'}!\n"
                                         "Your bill: \u20b9${inv['grand_total']}\n"
-                                        "View invoice: bills.billpush.com/v/${inv['billing_id'] ?? invoiceData['billing_id']}";
+                                        "View invoice: ${AppConstants.invoicePortalUrl(billingId)}";
                                     await SharePlus.instance.share(ShareParams(files: [XFile(pdfFile.path)], text: text));
                                   } catch (e) {
                                     if (context.mounted) {

@@ -1,30 +1,48 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:billpush/main.dart';
+import 'package:billpush/config/constants.dart';
+import 'package:billpush/providers/cart_provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('AppConstants', () {
+    test('invoice portal URL uses /invoice path', () {
+      final url = AppConstants.invoicePortalUrl('ABC123');
+      expect(url.endsWith('/invoice/ABC123'), isTrue);
+      expect(url.contains('/v/'), isFalse);
+    });
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  group('CartItem', () {
+    test('catalog items carry productId for stock decrement', () {
+      final item = CartItem(
+        id: 'local-1',
+        productId: 'prod-uuid',
+        name: 'Tea',
+        unitPrice: 50,
+        quantity: 2,
+        taxRate: 5,
+      );
+      expect(item.productId, 'prod-uuid');
+      expect(item.lineTotal, 100);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('manual items omit productId', () {
+      final item = CartItem(
+        id: 'manual-1',
+        name: 'Custom',
+        unitPrice: 10,
+      );
+      expect(item.productId, isNull);
+    });
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  group('CartState loyalty/discount', () {
+    test('grand total never goes negative', () {
+      final state = CartState(
+        items: [CartItem(id: '1', name: 'A', unitPrice: 10, quantity: 1)],
+        discountAmount: 100,
+        loyaltyDiscount: 50,
+      );
+      expect(state.grandTotal, 0);
+    });
   });
 }

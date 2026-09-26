@@ -62,7 +62,8 @@ class _BarcodeScanScreenState extends ConsumerState<BarcodeScanScreen> {
       }
 
       final item = CartItem(
-        id: productData['id'], // product ID
+        id: productData['id'],
+        productId: productData['id']?.toString(),
         name: productData['name'],
         unitPrice: num.parse(productData['base_price'].toString()),
         quantity: 1,

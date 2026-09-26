@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { apiFetch } from '@/lib/api';
 
 export default function InvoiceDetail() {
   const params = useParams();
@@ -14,8 +15,7 @@ export default function InvoiceDetail() {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/invoices/billing/${billingId}`;
-        const res = await fetch(url);
+        const res = await apiFetch(`/invoices/billing/${billingId}`);
         if (!res.ok) {
           setNotFound(true);
           return;

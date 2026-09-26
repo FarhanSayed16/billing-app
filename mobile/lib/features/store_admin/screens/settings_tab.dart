@@ -4,7 +4,9 @@ import '../../../widgets/custom_widgets.dart';
 import '../../../providers/api_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../config/theme.dart';
+import '../../../core/utils/error_message.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 
 class SettingsTab extends ConsumerStatefulWidget {
   const SettingsTab({super.key});
@@ -73,19 +75,33 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     setState(() => _isSaving = true);
     try {
       final dio = ref.read(dioProvider);
+      final gst = _gstCtrl.text.trim();
       await dio.patch('/stores/${_storeData!['id']}', data: {
         'name': _nameCtrl.text.trim(),
         'address': _addrCtrl.text.trim(),
         'city': _cityCtrl.text.trim(),
         'phone': _phoneCtrl.text.trim(),
-        'gst_number': _gstCtrl.text.trim(),
+        'gst_number': gst.isEmpty ? null : gst,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Store profile updated successfully!'), backgroundColor: AppTheme.successColor));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Store profile updated successfully!'),
+          backgroundColor: AppTheme.successColor,
+        ));
       }
-    } catch(e) {
+    } on DioException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update store profile'), backgroundColor: AppTheme.errorColor));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiErrorMessage(e, 'Failed to update store profile')),
+          backgroundColor: AppTheme.errorColor,
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiErrorMessage(e, 'Failed to update store profile')),
+          backgroundColor: AppTheme.errorColor,
+        ));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -144,6 +160,14 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
             
             const SizedBox(height: 32),
             const Text('Operations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.assignment_return_outlined),
+              title: const Text('Pending Returns'),
+              subtitle: const Text('Approve or reject staff return requests'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/store-admin/pending-returns'),
+            ),
             const Divider(),
             SwitchListTile(
               title: const Text('Allow Employee Discounts'),

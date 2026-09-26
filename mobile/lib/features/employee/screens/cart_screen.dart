@@ -33,6 +33,11 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         title: 'Cart - ${cartState.customer?.name ?? ''}',
         actions: [
           IconButton(
+            icon: const Icon(Icons.qr_code_scanner),
+            tooltip: 'Scan barcode',
+            onPressed: () => context.push('/employee/pos/barcode'),
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
               ref.read(cartProvider.notifier).clearCart();

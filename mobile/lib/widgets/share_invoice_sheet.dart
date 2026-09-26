@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import '../config/constants.dart';
 import '../config/theme.dart';
 import '../core/utils/whatsapp_service.dart';
 
@@ -23,6 +24,8 @@ class ShareInvoiceSheet extends StatelessWidget {
     required this.pdfFile,
   });
 
+  String get _portalLink => AppConstants.invoicePortalUrl(billingId);
+
   @override
   Widget build(BuildContext context) {
     final hasPhone = customerPhone != null && customerPhone!.isNotEmpty;
@@ -37,7 +40,6 @@ class ShareInvoiceSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Handle bar
           Center(
             child: Container(
               width: 40,
@@ -49,8 +51,6 @@ class ShareInvoiceSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Title
           const Text(
             'Share Invoice',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -63,8 +63,6 @@ class ShareInvoiceSheet extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-
-          // WhatsApp Direct Send button
           if (hasPhone) ...[
             ElevatedButton.icon(
               icon: const Icon(Icons.send, color: Colors.white, size: 20),
@@ -73,7 +71,7 @@ class ShareInvoiceSheet extends StatelessWidget {
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF25D366), // WhatsApp green
+                backgroundColor: const Color(0xFF25D366),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
@@ -95,8 +93,6 @@ class ShareInvoiceSheet extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
-
-          // Generic Share (with PDF)
           OutlinedButton.icon(
             icon: const Icon(Icons.share, size: 20),
             label: const Text(
@@ -112,7 +108,7 @@ class ShareInvoiceSheet extends StatelessWidget {
               Navigator.pop(context, 'share');
               final text = "Thank you for shopping at $storeName!\n"
                   "Your bill: ₹${grandTotal.toStringAsFixed(2)}\n"
-                  "View invoice: bills.billpush.com/v/$billingId";
+                  "View invoice: $_portalLink";
               await SharePlus.instance.share(
                 ShareParams(
                   files: [XFile(pdfFile.path)],
@@ -122,8 +118,6 @@ class ShareInvoiceSheet extends StatelessWidget {
             },
           ),
           const SizedBox(height: 12),
-
-          // Copy link
           TextButton.icon(
             icon: Icon(Icons.copy, size: 18, color: Colors.grey.shade600),
             label: Text(
@@ -131,8 +125,7 @@ class ShareInvoiceSheet extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             onPressed: () {
-              final link = 'bills.billpush.com/v/$billingId';
-              Clipboard.setData(ClipboardData(text: link));
+              Clipboard.setData(ClipboardData(text: _portalLink));
               Navigator.pop(context, 'copy');
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

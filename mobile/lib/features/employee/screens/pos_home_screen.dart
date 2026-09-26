@@ -6,6 +6,7 @@ import '../../../providers/api_provider.dart';
 import '../../../widgets/custom_widgets.dart';
 import '../../../config/theme.dart';
 import '../../../providers/cart_provider.dart';
+import '../../../core/utils/error_message.dart';
 
 class PosHomeScreen extends ConsumerStatefulWidget {
   const PosHomeScreen({super.key});
@@ -34,7 +35,13 @@ class _PosHomeScreenState extends ConsumerState<PosHomeScreen> {
           _storeName = res.data['store']?['name'] ?? res.data['store_name'] ?? 'Your Store';
         });
       }
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(apiErrorMessage(e, 'Could not load profile'))),
+        );
+      }
+    }
   }
 
   @override
@@ -64,57 +71,94 @@ class _PosHomeScreenState extends ConsumerState<PosHomeScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Welcome, $_employeeName', 
+                      'Welcome, $_employeeName',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: AppTheme.successColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.circle, color: AppTheme.successColor, size: 10),
-                      SizedBox(width: 6),
-                      Text('ONLINE', style: TextStyle(color: AppTheme.successColor, fontWeight: FontWeight.bold, fontSize: 12)),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.successColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.circle, color: AppTheme.successColor, size: 10),
+                        SizedBox(width: 6),
+                        Text('ONLINE', style: TextStyle(color: AppTheme.successColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            SizedBox(
-              height: 120,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.add_shopping_cart, size: 40, color: Colors.white),
-                label: const Text('NEW BILL', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                onPressed: () {
-                  ref.read(cartProvider.notifier).clearCart();
-                  context.push('/employee/pos/customer');
-                },
+                ],
               ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 80,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.receipt_long, size: 30),
-                label: const Text('Recent Bills', style: TextStyle(fontSize: 20)),
-                style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+              const Spacer(),
+              SizedBox(
+                height: 120,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.add_shopping_cart, size: 40, color: Colors.white),
+                  label: const Text('NEW BILL', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                  onPressed: () {
+                    ref.read(cartProvider.notifier).clearCart();
+                    context.push('/employee/pos/customer');
+                  },
                 ),
-                onPressed: () => context.push('/employee/pos/recent'),
               ),
-            ),
-            const Spacer(flex: 2),
-          ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 72,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.qr_code_scanner, size: 28),
+                        label: const Text('Scan', style: TextStyle(fontSize: 16)),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                        ),
+                        onPressed: () => context.push('/employee/pos/barcode'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 72,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.assignment_return, size: 28),
+                        label: const Text('Returns', style: TextStyle(fontSize: 16)),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                        ),
+                        onPressed: () => context.push('/employee/pos/returns'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 80,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.receipt_long, size: 30),
+                  label: const Text('Recent Bills', style: TextStyle(fontSize: 20)),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    side: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                  ),
+                  onPressed: () => context.push('/employee/pos/recent'),
+                ),
+              ),
+              const Spacer(flex: 2),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

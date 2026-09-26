@@ -119,7 +119,7 @@ class _StoreDashboardTabState extends ConsumerState<StoreDashboardTab> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        widget.onSwitchTab?.call(2); // Switch to Staff tab
+                        widget.onSwitchTab?.call(3); // Switch to Staff tab
                       },
                       icon: const Icon(Icons.people),
                       label: const Text('View Staff'),

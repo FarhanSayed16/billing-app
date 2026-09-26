@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
 
 function HistoryContent() {
   const searchParams = useSearchParams();
@@ -21,8 +22,7 @@ function HistoryContent() {
 
     const fetchHistory = async () => {
       try {
-        const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/invoices/customer/${phone}`;
-        const res = await fetch(url);
+        const res = await apiFetch(`/invoices/customer/${phone}`);
         
         if (!res.ok) {
           throw new Error('Failed to fetch history');

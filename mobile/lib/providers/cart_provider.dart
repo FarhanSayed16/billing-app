@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CartItem {
   final String id;
+  /// Catalog product UUID when scanned/selected from inventory; null for custom/manual lines.
+  final String? productId;
   final String name;
   final num unitPrice;
   int quantity;
@@ -9,6 +11,7 @@ class CartItem {
 
   CartItem({
     required this.id,
+    this.productId,
     required this.name,
     required this.unitPrice,
     this.quantity = 1,

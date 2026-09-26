@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/api_provider.dart';
-import 'dashboard_home_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/api_provider.dart';
+import '../../../core/utils/error_message.dart';
+import 'dashboard_home_screen.dart';
 import '../super_admin/screens/approvals_screen.dart';
 import '../super_admin/screens/stores_list_screen.dart';
 import '../../../config/theme.dart';
@@ -18,10 +19,17 @@ class SuperAdminDashboard extends ConsumerStatefulWidget {
 class _SuperAdminDashboardState extends ConsumerState<SuperAdminDashboard> {
   int _currentIndex = 0;
   int _pendingCount = 0;
+  late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
+    _screens = [
+      const DashboardHomeScreen(),
+      const StoresListScreen(),
+      const ApprovalsScreen(),
+      _buildSettingsTab(),
+    ];
     _fetchPendingCount();
   }
 
@@ -29,20 +37,19 @@ class _SuperAdminDashboardState extends ConsumerState<SuperAdminDashboard> {
     try {
       final res = await ref.read(dioProvider).get('/auth/pending-registrations');
       if (mounted) setState(() => _pendingCount = (res.data as List).length);
-    } catch (_) {}
+    } catch (e) {
+      // Non-blocking badge refresh — show snackbar only when user opens Approvals tab
+      debugPrint('Pending approvals fetch failed: ${apiErrorMessage(e)}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screens = <Widget>[
-      const DashboardHomeScreen(),
-      const StoresListScreen(),
-      const ApprovalsScreen(),
-      _buildSettingsTab(),
-    ];
-
     return Scaffold(
-      body: screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -83,6 +90,38 @@ class _SuperAdminDashboardState extends ConsumerState<SuperAdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ListTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Products'),
+              subtitle: const Text('Catalog, barcodes, and bulk upload'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/super-admin/products'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.manage_accounts_outlined),
+              title: const Text('Customer Ledger'),
+              subtitle: const Text('Search customers and loyalty'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/super-admin/customer-ledger'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Audit Logs'),
+              subtitle: const Text('Review staff and system actions'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/super-admin/audit'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.download_outlined),
+              title: const Text('Data Exports'),
+              subtitle: const Text('Download CSV reports'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/super-admin/exports'),
+            ),
+            const Divider(),
             const ListTile(
               leading: Icon(Icons.person_outline),
               title: Text('Account'),

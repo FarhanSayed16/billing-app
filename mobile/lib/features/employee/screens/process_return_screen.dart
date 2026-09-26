@@ -36,7 +36,7 @@ class _ProcessReturnScreenState extends ConsumerState<ProcessReturnScreen> {
   Future<void> _fetchInvoice() async {
     try {
       final dio = ref.read(dioProvider);
-      final res = await dio.get('/invoices/billing/${widget.billingId}');
+      final res = await dio.get('/invoices/staff/billing/${widget.billingId}');
       setState(() {
         _invoice = res.data;
         _isLoading = false;

@@ -15,6 +15,20 @@ class StoreAdminDashboard extends ConsumerStatefulWidget {
 
 class _StoreAdminDashboardState extends ConsumerState<StoreAdminDashboard> {
   int _currentIndex = 0;
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    // Build once — IndexedStack keeps tab State (and text cursors) alive
+    _screens = [
+      StoreDashboardTab(onSwitchTab: _switchTab),
+      const InvoicesScreen(),
+      const InventoryScreen(),
+      const EmployeesScreen(),
+      const SettingsTab(),
+    ];
+  }
 
   void _switchTab(int index) {
     setState(() => _currentIndex = index);
@@ -22,16 +36,11 @@ class _StoreAdminDashboardState extends ConsumerState<StoreAdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final screens = <Widget>[
-      StoreDashboardTab(onSwitchTab: _switchTab),
-      const InvoicesScreen(),
-      const InventoryScreen(),
-      const EmployeesScreen(),
-      const SettingsTab(),
-    ];
-
     return Scaffold(
-      body: screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _switchTab,
