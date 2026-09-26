@@ -250,11 +250,12 @@ class _EmployeeLoginTabState extends ConsumerState<_EmployeeLoginTab> {
       });
 
       final accessToken = res.data['access_token'];
+      final refreshToken = res.data['refresh_token'];
       final user = res.data['user'];
 
       await ref.read(authProvider.notifier).loginSuccess(
         accessToken, 
-        null,
+        refreshToken,
         user['role'], 
         user['name']
       );

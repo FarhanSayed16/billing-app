@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import '../../config/constants.dart';
 
 class InvoicePdfGenerator {
   static Future<File> generateInvoicePdf(Map<String, dynamic> invoiceData, Map<String, dynamic> storeData) async {
@@ -111,7 +112,10 @@ class InvoicePdfGenerator {
               
               pw.Spacer(),
               pw.Center(
-                child: pw.Text('Powered by BillPush | bills.billpush.com/v/${invoiceData['billing_id']}', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+                child: pw.Text(
+                  'Powered by BillPush | ${AppConstants.invoicePortalUrl(invoiceData['billing_id']?.toString() ?? '')}',
+                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+                ),
               )
             ],
           );

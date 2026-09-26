@@ -2,9 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../config/constants.dart';
 
+typedef SessionExpiredCallback = Future<void> Function();
+
 class ApiClient {
   late final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  SessionExpiredCallback? onSessionExpired;
 
   ApiClient() {
     _dio = Dio(
@@ -30,11 +33,9 @@ class ApiClient {
         },
         onError: (DioException e, handler) async {
           if (e.response?.statusCode == 401) {
-            // Token expired, attempt refresh
             final refreshToken = await _storage.read(key: AppConstants.keyRefreshToken);
             if (refreshToken != null) {
               try {
-                // Use a separate dio instance to avoid interceptor loop
                 final refreshDio = Dio(BaseOptions(baseUrl: AppConstants.baseUrl));
                 final response = await refreshDio.post('/auth/refresh', data: {
                   'refresh_token': refreshToken,
@@ -43,14 +44,12 @@ class ApiClient {
                 if (response.statusCode == 200 || response.statusCode == 201) {
                   final newAccessToken = response.data['access_token'];
                   final newRefreshToken = response.data['refresh_token'];
-                  
+
                   await _storage.write(key: AppConstants.keyAccessToken, value: newAccessToken);
                   await _storage.write(key: AppConstants.keyRefreshToken, value: newRefreshToken);
 
-                  // Update header and retry original request
                   e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-                  
-                  // Clone original request
+
                   try {
                     final cloneReq = await _dio.request(
                       e.requestOptions.path,
@@ -66,17 +65,14 @@ class ApiClient {
                     return handler.reject(cloneErr as DioException);
                   }
                 }
-              } catch (refreshErr) {
-                // Refresh token invalid or expired, force logout
-                await _storage.deleteAll();
-                // We'll let the UI handle navigation via a generic provider listener later
+              } catch (_) {
+                await _forceLogout();
               }
             } else {
-               await _storage.deleteAll();
+              await _forceLogout();
             }
           }
 
-          // Format error message
           String errorMessage = 'An unexpected error occurred';
           if (e.response != null && e.response?.data != null) {
             if (e.response?.data is Map && e.response?.data['message'] != null) {
@@ -89,14 +85,23 @@ class ApiClient {
             }
           } else if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
             errorMessage = 'Connection timed out';
+          } else if (e.type == DioExceptionType.connectionError) {
+            errorMessage = 'No internet connection';
           }
 
-          // Attach custom message to error
           final modifiedError = e.copyWith(error: errorMessage);
           return handler.next(modifiedError);
         },
       ),
     );
+  }
+
+  Future<void> _forceLogout() async {
+    await _storage.deleteAll();
+    final cb = onSessionExpired;
+    if (cb != null) {
+      await cb();
+    }
   }
 
   Dio get dio => _dio;
