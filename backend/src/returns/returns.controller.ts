@@ -19,15 +19,7 @@ export class ReturnsController {
   @Get('pending')
   @Roles('SUPER_ADMIN', 'STORE_ADMIN')
   async getPendingReturns(@Request() req) {
-    // If Super Admin, they might want to see across brand.
-    // For now, limiting to the store if the user is a Store Admin,
-    // or passing the brand to fetch all if Super Admin? 
-    // The spec for Phase 3 just mentions pending returns for Store Admin.
-    // We will use req.user.store_id or just let the service handle it based on brand if no store.
-    const storeId = req.user.store_id; // Will be null for Super Admin possibly. 
-    // Wait, the masterplan says Store Admin approves it. 
-    // We'll pass both to the service. Let's assume Store Admin has store_id.
-    return this.returnsService.getPendingReturns(storeId, req.user.brand_id);
+    return this.returnsService.getPendingReturns(req.user.storeId, req.user.brandId);
   }
 
   @Patch(':id/approve')

@@ -5,6 +5,7 @@ import { generateBillingId } from './utils/billing-id.util';
 import { generateInvoiceNumber } from './utils/invoice-number.util';
 import { PdfService } from './pdf.service';
 import { Role, InvoiceStatus, LedgerType, Customer } from '@prisma/client';
+import { fromPaise, lineTaxPaise, lineTotalPaise, toPaise } from '../common/money.util';
 
 @Injectable()
 export class InvoicesService {
@@ -42,16 +43,16 @@ export class InvoicesService {
         }
       }
 
-      // 3. Calculate Totals
-      let subtotal = 0;
-      let taxAmount = 0;
+      // 3. Calculate Totals (paise-based to avoid float drift)
+      let subtotalPaise = 0;
+      let taxAmountPaise = 0;
       
       const invoiceItemsInput = createInvoiceDto.items.map(item => {
-        const itemTax = item.quantity * item.unit_price * (item.tax_rate / 100);
-        const itemTotal = (item.quantity * item.unit_price) + itemTax;
+        const itemTaxPaise = lineTaxPaise(item.quantity, item.unit_price, item.tax_rate);
+        const itemTotalPaise = lineTotalPaise(item.quantity, item.unit_price, item.tax_rate);
         
-        subtotal += (item.quantity * item.unit_price);
-        taxAmount += itemTax;
+        subtotalPaise += toPaise(item.quantity * item.unit_price);
+        taxAmountPaise += itemTaxPaise;
 
         return {
           product_id: item.product_id || null,
@@ -59,14 +60,14 @@ export class InvoicesService {
           quantity: item.quantity,
           unit_price: item.unit_price,
           tax_rate: item.tax_rate,
-          tax_amount: itemTax,
-          total: itemTotal,
+          tax_amount: fromPaise(itemTaxPaise),
+          total: fromPaise(itemTotalPaise),
         };
       });
 
       // 4. Loyalty points logic
       const redeemedPoints = createInvoiceDto.loyalty_points_redeemed || 0;
-      let loyaltyDiscount = 0;
+      let loyaltyDiscountPaise = 0;
       
       if (redeemedPoints > 0) {
         if (!existingCustomer || existingCustomer.loyalty_points < redeemedPoints) {
@@ -75,23 +76,34 @@ export class InvoicesService {
         if (redeemedPoints < store.brand.loyalty_min_redemption) {
           throw new BadRequestException(`Minimum points to redeem is ${store.brand.loyalty_min_redemption}`);
         }
-        loyaltyDiscount = redeemedPoints * 1; 
+        loyaltyDiscountPaise = toPaise(redeemedPoints); // 1 point = ₹1
       }
 
-      const discountAmount = createInvoiceDto.discount_amount || 0;
-      const grandTotal = subtotal + taxAmount - discountAmount - loyaltyDiscount;
+      const discountAmountPaise = toPaise(createInvoiceDto.discount_amount || 0);
+      const grandTotalPaise = subtotalPaise + taxAmountPaise - discountAmountPaise - loyaltyDiscountPaise;
 
-      if (grandTotal < 0) throw new BadRequestException('Grand total cannot be negative');
+      if (grandTotalPaise < 0) throw new BadRequestException('Grand total cannot be negative');
+
+      const subtotal = fromPaise(subtotalPaise);
+      const taxAmount = fromPaise(taxAmountPaise);
+      const discountAmount = fromPaise(discountAmountPaise);
+      const loyaltyDiscount = fromPaise(loyaltyDiscountPaise);
+      const grandTotal = fromPaise(grandTotalPaise);
 
       const earnedPoints = Math.floor(grandTotal / 100) * store.brand.loyalty_points_per_100;
 
-      // 5. Generate Unique Billing ID
-      let billingId = generateBillingId();
+      // 5. Generate Unique Billing ID (or accept offline client ID if unused)
+      let billingId = createInvoiceDto.billing_id?.trim() || generateBillingId();
       let unique = false;
       while (!unique) {
         const existing = await tx.invoice.findUnique({ where: { billing_id: billingId } });
         if (!existing) unique = true;
-        else billingId = generateBillingId();
+        else {
+          if (createInvoiceDto.billing_id) {
+            throw new BadRequestException('billing_id already exists');
+          }
+          billingId = generateBillingId();
+        }
       }
 
       // 6. Generate Invoice Number (atomic: use raw SQL for sequence safety)
@@ -180,28 +192,24 @@ export class InvoicesService {
         }
       });
 
-      // 10. Auto-decrement inventory
+      // 10. Auto-decrement inventory (reject insufficient stock)
       for (const item of invoiceItemsInput) {
         if (item.product_id) {
           const inv = await tx.storeInventory.findFirst({
             where: { store_id: storeId, product_id: item.product_id }
           });
-          
-          if (inv) {
-            await tx.storeInventory.update({
-              where: { id: inv.id },
-              data: { quantity: { decrement: item.quantity } }
-            });
-          } else {
-            // If inventory record doesn't exist, create it with negative quantity
-            await tx.storeInventory.create({
-              data: {
-                store_id: storeId,
-                product_id: item.product_id,
-                quantity: -item.quantity
-              }
-            });
+
+          const available = inv?.quantity ?? 0;
+          if (!inv || available < item.quantity) {
+            throw new BadRequestException(
+              `Insufficient stock for "${item.name}". Available: ${available}, requested: ${item.quantity}`,
+            );
           }
+
+          await tx.storeInventory.update({
+            where: { id: inv.id },
+            data: { quantity: { decrement: item.quantity } }
+          });
         }
       }
 
@@ -267,13 +275,17 @@ export class InvoicesService {
     };
   }
 
-  async findOne(id: string, role: string, userStoreId?: string, userId?: string) {
+  async findOne(id: string, role: string, userStoreId?: string, userId?: string, brandId?: string) {
     const invoice = await this.prisma.invoice.findUnique({
       where: { id },
       include: { items: true, customer: true, store: true }
     });
 
     if (!invoice) throw new NotFoundException('Invoice not found');
+
+    if (brandId && invoice.brand_id !== brandId) {
+      throw new ForbiddenException('Access denied');
+    }
 
     // Employee can only see their own invoices
     if (role === Role.EMPLOYEE && invoice.employee_id !== userId) {
@@ -282,6 +294,31 @@ export class InvoicesService {
     // Store Admin can only see invoices from their store
     if (role === Role.STORE_ADMIN && invoice.store_id !== userStoreId) {
       throw new ForbiddenException('Access denied');
+    }
+
+    return invoice;
+  }
+
+  /** Authenticated staff lookup by billing ID — includes item IDs for returns. */
+  async findOneByBillingIdForStaff(
+    billingId: string,
+    role: string,
+    brandId: string,
+    userStoreId?: string,
+    userId?: string,
+  ) {
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { billing_id: billingId },
+      include: { items: true, customer: true, store: true },
+    });
+
+    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (invoice.brand_id !== brandId) throw new ForbiddenException('Access denied');
+
+    if (role === Role.EMPLOYEE) {
+      if (invoice.store_id !== userStoreId) throw new ForbiddenException('Access denied');
+    } else if (role === Role.STORE_ADMIN) {
+      if (invoice.store_id !== userStoreId) throw new ForbiddenException('Access denied');
     }
 
     return invoice;
@@ -328,7 +365,24 @@ export class InvoicesService {
     });
 
     if (!invoice) throw new NotFoundException('Invoice not found');
-    return invoice;
+
+    // Redact PII for public portal consumers
+    const phone = invoice.customer?.phone;
+    return {
+      ...invoice,
+      customer: invoice.customer
+        ? {
+            name: invoice.customer.name,
+            phone: phone ? this.maskPhone(phone) : null,
+          }
+        : null,
+    };
+  }
+
+  private maskPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 4) return '****';
+    return `****${digits.slice(-4)}`;
   }
 
   async findCustomerSummary(phone: string) {
@@ -354,7 +408,10 @@ export class InvoicesService {
 
   async voidInvoice(id: string, storeId: string, userId: string) {
     return this.prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.findUnique({ where: { id } });
+      const invoice = await tx.invoice.findUnique({
+        where: { id },
+        include: { items: true },
+      });
       if (!invoice) throw new NotFoundException('Invoice not found');
       if (invoice.store_id !== storeId) throw new ForbiddenException('Access denied');
       if (invoice.status === InvoiceStatus.FULLY_REFUNDED) throw new BadRequestException('Invoice is already voided');
@@ -364,26 +421,73 @@ export class InvoicesService {
         data: { status: InvoiceStatus.FULLY_REFUNDED }
       });
 
+      // Restore remaining sold stock (qty not already returned)
+      for (const item of invoice.items) {
+        if (!item.product_id) continue;
+        const restoreQty = item.quantity - item.returned_quantity;
+        if (restoreQty <= 0) continue;
+
+        const inv = await tx.storeInventory.findFirst({
+          where: { store_id: storeId, product_id: item.product_id },
+        });
+        if (inv) {
+          await tx.storeInventory.update({
+            where: { id: inv.id },
+            data: { quantity: { increment: restoreQty } },
+          });
+        } else {
+          await tx.storeInventory.create({
+            data: {
+              store_id: storeId,
+              product_id: item.product_id,
+              quantity: restoreQty,
+            },
+          });
+        }
+
+        await tx.invoiceItem.update({
+          where: { id: item.id },
+          data: { returned_quantity: item.quantity },
+        });
+      }
+
       if (invoice.customer_id) {
-        const store = await tx.store.findUnique({ where: { id: storeId }, include: { brand: true } });
-        const pointsReversal = Math.floor(Number(invoice.grand_total) / 100) * (store?.brand.loyalty_points_per_100 || 1);
+        const earned = invoice.loyalty_points_earned || 0;
+        const redeemed = invoice.loyalty_points_redeemed || 0;
+        // Reverse earn (remove points) and restore redeem (give points back)
+        const loyaltyDelta = -earned + redeemed;
 
         await tx.customer.update({
           where: { id: invoice.customer_id },
           data: {
             total_spend: { decrement: invoice.grand_total },
-            loyalty_points: { decrement: pointsReversal }
+            total_visits: { decrement: 1 },
+            loyalty_points: { increment: loyaltyDelta },
           }
         });
 
-        await tx.loyaltyLedger.create({
-          data: {
-            customer_id: invoice.customer_id,
-            invoice_id: invoice.id,
-            points: -pointsReversal,
-            type: LedgerType.ADJUSTED,
-          }
-        });
+        if (earned > 0) {
+          await tx.loyaltyLedger.create({
+            data: {
+              customer_id: invoice.customer_id,
+              invoice_id: invoice.id,
+              points: -earned,
+              type: LedgerType.ADJUSTED,
+              description: `Void: reverse earned points on ${invoice.billing_id}`,
+            }
+          });
+        }
+        if (redeemed > 0) {
+          await tx.loyaltyLedger.create({
+            data: {
+              customer_id: invoice.customer_id,
+              invoice_id: invoice.id,
+              points: redeemed,
+              type: LedgerType.ADJUSTED,
+              description: `Void: restore redeemed points on ${invoice.billing_id}`,
+            }
+          });
+        }
       }
 
       await tx.auditLog.create({
@@ -400,8 +504,8 @@ export class InvoicesService {
     });
   }
 
-  async getGeneratePdf(id: string, role: string, userStoreId?: string, userId?: string) {
-    const invoice = await this.findOne(id, role, userStoreId, userId);
+  async getGeneratePdf(id: string, role: string, userStoreId?: string, userId?: string, brandId?: string) {
+    const invoice = await this.findOne(id, role, userStoreId, userId, brandId);
     
     if (invoice.invoice_pdf_url) {
       return { url: invoice.invoice_pdf_url };
@@ -417,9 +521,14 @@ export class InvoicesService {
     return { url: s3Url };
   }
 
-  async markShared(id: string) {
-    const invoice = await this.prisma.invoice.findUnique({ where: { id } });
-    if (!invoice) throw new NotFoundException('Invoice not found');
+  async markShared(
+    id: string,
+    role: string,
+    brandId: string,
+    userStoreId?: string,
+    userId?: string,
+  ) {
+    await this.findOne(id, role, userStoreId, userId, brandId);
 
     await this.prisma.invoice.update({
       where: { id },

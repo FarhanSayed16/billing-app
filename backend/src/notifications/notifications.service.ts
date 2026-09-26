@@ -15,16 +15,22 @@ export class NotificationsService {
   private initFirebase() {
     try {
       if (!admin.apps.length) {
-        // Look for the service account file in the environment or locally.
-        // It's ignored in VC. For local dev, we default to null if not found.
-        const serviceAccountPath = process.env.FIREBASE_CREDENTIALS || './firebase-service-account.json';
-        
-        let credential;
-        try {
-          const serviceAccount = require('../../' + serviceAccountPath);
-          credential = admin.credential.cert(serviceAccount);
-        } catch (e) {
-          this.logger.warn(`Firebase credentials missing at ${serviceAccountPath}. Push notifications simulation mode active.`);
+        let credential: admin.credential.Credential | undefined;
+
+        const jsonInline = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+        if (jsonInline) {
+          credential = admin.credential.cert(JSON.parse(jsonInline));
+        } else {
+          const serviceAccountPath = process.env.FIREBASE_CREDENTIALS || './firebase-service-account.json';
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const serviceAccount = require(serviceAccountPath.startsWith('.') || serviceAccountPath.startsWith('/')
+              ? require('path').resolve(process.cwd(), serviceAccountPath)
+              : serviceAccountPath);
+            credential = admin.credential.cert(serviceAccount);
+          } catch (e) {
+            this.logger.warn(`Firebase credentials missing. Push notifications simulation mode active.`);
+          }
         }
 
         if (credential) {

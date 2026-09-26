@@ -7,15 +7,18 @@ export class ReturnsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createReturn(user: any, dto: CreateReturnDto) {
-    const { brand_id, store_id, id: employee_id } = user;
+    const brandId = user.brandId as string;
+    const storeId = user.storeId as string | null | undefined;
+    const employeeId = user.userId as string;
 
     // 1. Fetch Brand config
     const brand = await this.prisma.brand.findUnique({
-      where: { id: brand_id },
+      where: { id: brandId },
       select: { return_auto_approve_threshold: true, loyalty_points_per_100: true },
     });
 
     if (!brand) throw new BadRequestException('Brand config not found');
+    if (!storeId) throw new BadRequestException('Store context required to create a return');
 
     // 2. Fetch Invoice
     const invoice = await this.prisma.invoice.findUnique({
@@ -23,7 +26,7 @@ export class ReturnsService {
       include: { items: true },
     });
 
-    if (!invoice || invoice.store_id !== store_id) {
+    if (!invoice || invoice.store_id !== storeId) {
       throw new NotFoundException('Invoice not found in this store');
     }
 
@@ -67,9 +70,9 @@ export class ReturnsService {
       const request = await tx.returnRequest.create({
         data: {
           invoice_id: invoice.id,
-          store_id,
-          brand_id,
-          employee_id,
+          store_id: storeId,
+          brand_id: brandId,
+          employee_id: employeeId,
           status: newStatus,
           refund_amount: refundAmount,
           loyalty_points_reversed: pointsReversed,
@@ -82,13 +85,13 @@ export class ReturnsService {
 
       if (autoApprove) {
         // Execute approval logic (which includes its own audit log)
-        await this._executeApprovalLogic(tx, request.id, invoice, returnItemsData, pointsReversed, employee_id, brand_id);
+        await this._executeApprovalLogic(tx, request.id, invoice, returnItemsData, pointsReversed, employeeId, brandId);
       } else {
         // Audit log for pending return submission
         await tx.auditLog.create({
           data: {
-            brand_id,
-            user_id: employee_id,
+            brand_id: brandId,
+            user_id: employeeId,
             action: 'RETURN_SUBMITTED',
             target_type: 'Invoice',
             target_id: invoice.id,
@@ -106,9 +109,15 @@ export class ReturnsService {
     };
   }
 
-  async getPendingReturns(storeId: string, brandId: string) {
+  async getPendingReturns(storeId: string | null | undefined, brandId: string) {
+    const where: { brand_id: string; status: string; store_id?: string } = {
+      brand_id: brandId,
+      status: 'PENDING',
+    };
+    if (storeId) where.store_id = storeId;
+
     return this.prisma.returnRequest.findMany({
-      where: { store_id: storeId, brand_id: brandId, status: 'PENDING' },
+      where,
       include: {
         items: { include: { invoice_item: true } },
         invoice: { select: { billing_id: true, customer: { select: { name: true, phone: true } } } },
@@ -119,12 +128,15 @@ export class ReturnsService {
   }
 
   async approveReturn(user: any, requestId: string) {
+    const brandId = user.brandId as string;
+    const adminId = user.userId as string;
+
     const request = await this.prisma.returnRequest.findUnique({
       where: { id: requestId },
       include: { items: true, invoice: { include: { items: true } } },
     });
 
-    if (!request || request.brand_id !== user.brand_id) throw new NotFoundException('Return request not found');
+    if (!request || request.brand_id !== brandId) throw new NotFoundException('Return request not found');
     if (request.status !== 'PENDING') throw new BadRequestException(`Request is already ${request.status}`);
 
     await this.prisma.$transaction(async (tx) => {
@@ -133,18 +145,21 @@ export class ReturnsService {
         data: { status: 'APPROVED' },
       });
 
-      await this._executeApprovalLogic(tx, requestId, request.invoice, request.items, request.loyalty_points_reversed, user.id, user.brand_id);
+      await this._executeApprovalLogic(tx, requestId, request.invoice, request.items, request.loyalty_points_reversed, adminId, brandId);
     });
 
     return { message: 'Return request approved successfully' };
   }
 
   async rejectReturn(user: any, requestId: string) {
+    const brandId = user.brandId as string;
+    const adminId = user.userId as string;
+
     const request = await this.prisma.returnRequest.findUnique({
       where: { id: requestId },
     });
 
-    if (!request || request.brand_id !== user.brand_id) throw new NotFoundException('Return request not found');
+    if (!request || request.brand_id !== brandId) throw new NotFoundException('Return request not found');
     if (request.status !== 'PENDING') throw new BadRequestException(`Request is already ${request.status}`);
 
     await this.prisma.$transaction(async (tx) => {
@@ -156,7 +171,7 @@ export class ReturnsService {
       await tx.auditLog.create({
         data: {
           brand_id: request.brand_id,
-          user_id: user.id,
+          user_id: adminId,
           action: 'RETURN_REJECTED',
           target_type: 'Invoice',
           target_id: request.invoice_id,

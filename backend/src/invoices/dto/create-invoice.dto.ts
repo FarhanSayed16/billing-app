@@ -14,6 +14,9 @@ export class CreateInvoiceDto {
   @IsString() @IsOptional() customer_phone?: string;
   @IsString() @IsOptional() customer_name?: string;
 
+  /** Optional client-generated billing ID for offline sync / QR continuity */
+  @IsString() @IsOptional() billing_id?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => InvoiceItemDto)

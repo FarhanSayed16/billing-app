@@ -6,6 +6,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('invoices')
 @Controller('invoices')
@@ -14,12 +15,14 @@ export class InvoicesController {
 
   // PUBLIC ENDPOINTS (must be declared BEFORE parameterized :id routes)
 
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
   @Get('billing/:billingId')
-  @ApiOperation({ summary: 'PUBLIC: Get full invoice detail by billing ID (no auth)' })
+  @ApiOperation({ summary: 'PUBLIC: Get redacted invoice detail by billing ID (no auth)' })
   findOnePublic(@Param('billingId') billingId: string) {
     return this.invoicesService.findOneByBillingId(billingId);
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   @Get('customer/:phone')
   @ApiOperation({ summary: 'PUBLIC: Get summary list of invoices by customer phone (no auth)' })
   findCustomerSummary(@Param('phone') phone: string) {
@@ -27,6 +30,21 @@ export class InvoicesController {
   }
 
   // PROTECTED ENDPOINTS
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Get('staff/billing/:billingId')
+  @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
+  @ApiOperation({ summary: 'Staff: full invoice by billing ID (includes item IDs for returns)' })
+  findOneByBillingStaff(@Param('billingId') billingId: string, @Req() req: any) {
+    return this.invoicesService.findOneByBillingIdForStaff(
+      billingId,
+      req.user.role,
+      req.user.brandId,
+      req.user.storeId,
+      req.user.userId,
+    );
+  }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
@@ -52,7 +70,7 @@ export class InvoicesController {
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get specific invoice details' })
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId);
+    return this.invoicesService.findOne(id, req.user.role, req.user.storeId, req.user.userId, req.user.brandId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -69,8 +87,14 @@ export class InvoicesController {
   @Patch(':id/share')
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Mark invoice as shared' })
-  markShared(@Param('id') id: string) {
-    return this.invoicesService.markShared(id);
+  markShared(@Param('id') id: string, @Req() req: any) {
+    return this.invoicesService.markShared(
+      id,
+      req.user.role,
+      req.user.brandId,
+      req.user.storeId,
+      req.user.userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -79,6 +103,12 @@ export class InvoicesController {
   @Roles(Role.SUPER_ADMIN, Role.STORE_ADMIN, Role.EMPLOYEE)
   @ApiOperation({ summary: 'Get or generate invoice PDF' })
   getGeneratePdf(@Param('id') id: string, @Req() req: any) {
-    return this.invoicesService.getGeneratePdf(id, req.user.role, req.user.storeId, req.user.userId);
+    return this.invoicesService.getGeneratePdf(
+      id,
+      req.user.role,
+      req.user.storeId,
+      req.user.userId,
+      req.user.brandId,
+    );
   }
 }

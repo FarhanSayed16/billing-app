@@ -1,4 +1,4 @@
-import { 
+﻿import { 
   Controller, Get, Post, Patch, Delete, Body, Param, Query, 
   UseGuards, Request, UseInterceptors, UploadedFile, BadRequestException 
 } from '@nestjs/common';
@@ -9,13 +9,17 @@ import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
+import { S3Service } from '../../common/s3.service';
 
 @ApiTags('products')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Roles(Role.SUPER_ADMIN)
   @Post()
@@ -60,13 +64,14 @@ export class ProductsController {
   @Post(':id/image')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Upload product image to S3 (Mocked implementation)' })
+  @ApiOperation({ summary: 'Upload product image to S3' })
   async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Request() req) {
     if (!file) throw new BadRequestException('File is required');
-    // Simulated S3/Cloud Storage implementation
-    const mockedUrl = `https://billpush-assets.s3.mock.com/products/${id}/${file.originalname}`;
-    await this.productsService.update(id, req.user.brandId, { image_url: mockedUrl }, req.user.userId);
-    return { url: mockedUrl };
+    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const key = `products/${req.user.brandId}/${id}/${Date.now()}_${safeName}`;
+    const url = await this.s3Service.uploadFile(file, key);
+    await this.productsService.update(id, req.user.brandId, { image_url: url }, req.user.userId);
+    return { url };
   }
 
   @Roles(Role.SUPER_ADMIN)
