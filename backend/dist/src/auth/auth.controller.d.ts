@@ -34,6 +34,7 @@ export declare class AuthController {
     }>;
     employeeLogin(employeeLoginDto: EmployeeLoginDto): Promise<{
         access_token: string;
+        refresh_token: string;
         user: {
             id: string;
             name: string;
@@ -76,6 +77,12 @@ export declare class AuthController {
         store_id: string | null;
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
+    }>;
+    updateFcmToken(req: any, body: {
+        fcm_token?: string | null;
+    }): Promise<{
+        id: string;
+        fcm_token: string | null;
     }>;
     getPendingRegistrations(): Promise<{
         id: string;

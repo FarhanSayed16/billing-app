@@ -23,7 +23,14 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('JWT_SECRET', 'secretKey'),
+            secretOrKey: (() => {
+                const secret = configService.get('JWT_SECRET');
+                const isProd = configService.get('NODE_ENV') === 'production';
+                if ((!secret || secret === 'secretKey' || secret === 'your-strong-secret-key') && isProd) {
+                    throw new Error('JWT_SECRET must be set to a strong value in production');
+                }
+                return secret || 'secretKey';
+            })(),
         });
         this.configService = configService;
         this.prisma = prisma;

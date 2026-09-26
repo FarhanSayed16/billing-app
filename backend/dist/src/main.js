@@ -12,7 +12,21 @@ const compression_1 = __importDefault(require("compression"));
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.setGlobalPrefix('api');
-    app.enableCors();
+    const corsOrigins = (process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+    app.enableCors({
+        origin: corsOrigins.length > 0
+            ? corsOrigins
+            : [
+                'http://localhost:3005',
+                'http://localhost:3000',
+                'http://127.0.0.1:3005',
+                'http://127.0.0.1:3000',
+            ],
+        credentials: true,
+    });
     app.use((0, helmet_1.default)());
     app.use((0, compression_1.default)());
     app.useGlobalPipes(new common_1.ValidationPipe({ whitelist: true, transform: true }));

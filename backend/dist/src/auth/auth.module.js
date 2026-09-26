@@ -14,6 +14,18 @@ const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const config_1 = require("@nestjs/config");
 const jwt_strategy_1 = require("./jwt.strategy");
+function resolveJwtSecret(configService) {
+    const secret = configService.get('JWT_SECRET');
+    const nodeEnv = configService.get('NODE_ENV');
+    const isProd = nodeEnv === 'production';
+    if (!secret || secret === 'secretKey' || secret === 'your-strong-secret-key') {
+        if (isProd) {
+            throw new Error('JWT_SECRET must be set to a strong value in production');
+        }
+        return secret || 'secretKey';
+    }
+    return secret;
+}
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -25,7 +37,7 @@ exports.AuthModule = AuthModule = __decorate([
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
                 useFactory: (configService) => ({
-                    secret: configService.get('JWT_SECRET', 'secretKey'),
+                    secret: resolveJwtSecret(configService),
                     signOptions: { expiresIn: '15m' },
                 }),
             }),

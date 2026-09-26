@@ -40,6 +40,7 @@ export declare class AuthService {
     }>;
     employeeLogin(dto: EmployeeLoginDto): Promise<{
         access_token: string;
+        refresh_token: string;
         user: {
             id: string;
             name: string;
@@ -107,5 +108,9 @@ export declare class AuthService {
         store_id: string | null;
         email: string | null;
         approval_status: import("@prisma/client").$Enums.ApprovalStatus;
+    }>;
+    updateFcmToken(userId: string, fcmToken: string | null): Promise<{
+        id: string;
+        fcm_token: string | null;
     }>;
 }

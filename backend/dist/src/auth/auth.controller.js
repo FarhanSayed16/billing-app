@@ -25,6 +25,7 @@ const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 const roles_guard_1 = require("./guards/roles.guard");
 const roles_decorator_1 = require("./decorators/roles.decorator");
 const client_1 = require("@prisma/client");
+const throttler_1 = require("@nestjs/throttler");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
@@ -50,6 +51,9 @@ let AuthController = class AuthController {
     }
     getMe(req) {
         return this.authService.getMe(req.user.userId);
+    }
+    updateFcmToken(req, body) {
+        return this.authService.updateFcmToken(req.user.userId, body?.fcm_token ?? null);
     }
     getPendingRegistrations() {
         return this.authService.getPendingRegistrations();
@@ -88,6 +92,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "register", null);
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60_000 } }),
     (0, common_1.Post)('login'),
     (0, swagger_1.ApiOperation)({ summary: 'Admin Login (Super Admin & Store Admin)' }),
     __param(0, (0, common_1.Body)()),
@@ -96,6 +101,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "login", null);
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 10, ttl: 60_000 } }),
     (0, common_1.Post)('employee-login'),
     (0, swagger_1.ApiOperation)({ summary: 'Employee Login via PIN' }),
     __param(0, (0, common_1.Body)()),
@@ -112,8 +118,9 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "refresh", null);
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 5, ttl: 60_000 } }),
     (0, common_1.Post)('guest-login'),
-    (0, swagger_1.ApiOperation)({ summary: 'Guest Login — explore the app without credentials' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Guest Login — explore the app without credentials (disabled unless ENABLE_GUEST_LOGIN=true)' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -129,6 +136,17 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getMe", null);
+__decorate([
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('fcm-token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register or clear device FCM push token' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "updateFcmToken", null);
 __decorate([
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
