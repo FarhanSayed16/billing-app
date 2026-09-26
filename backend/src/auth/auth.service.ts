@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, ForbiddenException, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
@@ -15,14 +15,75 @@ const REFRESH_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
 @Injectable()
 export class AuthService {
-  private redis: Redis;
+  private readonly logger = new Logger(AuthService.name);
+  private redis: Redis | null = null;
+  /** Fallback when Redis is unset or unreachable (single-instance soft launch). */
+  private readonly memoryBlacklist = new Map<string, number>();
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.redis = new Redis(this.configService.get<string>('REDIS_URL', 'redis://localhost:6379'));
+    const redisUrl = this.configService.get<string>('REDIS_URL')?.trim();
+    if (!redisUrl || redisUrl === 'memory' || redisUrl.startsWith('memory://')) {
+      this.logger.warn('REDIS_URL unset — using in-memory refresh-token blacklist');
+      return;
+    }
+
+    try {
+      this.redis = new Redis(redisUrl, {
+        maxRetriesPerRequest: 1,
+        enableOfflineQueue: false,
+        lazyConnect: true,
+        retryStrategy: () => null,
+      });
+      this.redis.on('error', (err) => {
+        if (this.redis) {
+          this.logger.warn(`Redis unavailable (${err.message}) — using in-memory blacklist`);
+          void this.redis.quit().catch(() => undefined);
+          this.redis = null;
+        }
+      });
+      void this.redis.connect().catch((err: Error) => {
+        this.logger.warn(`Redis connect failed (${err.message}) — using in-memory blacklist`);
+        this.redis = null;
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Redis init failed (${err instanceof Error ? err.message : err}) — using in-memory blacklist`,
+      );
+      this.redis = null;
+    }
+  }
+
+  private async blacklistGet(key: string): Promise<string | null> {
+    if (this.redis) {
+      try {
+        return await this.redis.get(key);
+      } catch {
+        this.redis = null;
+      }
+    }
+    const expiresAt = this.memoryBlacklist.get(key);
+    if (expiresAt == null) return null;
+    if (Date.now() > expiresAt) {
+      this.memoryBlacklist.delete(key);
+      return null;
+    }
+    return '1';
+  }
+
+  private async blacklistSet(key: string, ttlSeconds: number): Promise<void> {
+    if (this.redis) {
+      try {
+        await this.redis.set(key, '1', 'EX', ttlSeconds);
+        return;
+      } catch {
+        this.redis = null;
+      }
+    }
+    this.memoryBlacklist.set(key, Date.now() + ttlSeconds * 1000);
   }
 
   private signRefreshToken(payload: object): string {
@@ -197,13 +258,13 @@ export class AuthService {
   }
 
   async refreshToken(dto: RefreshTokenDto) {
-    const isBlacklisted = await this.redis.get(`bl_rt_${dto.refresh_token}`);
+    const isBlacklisted = await this.blacklistGet(`bl_rt_${dto.refresh_token}`);
     if (isBlacklisted) throw new UnauthorizedException('Token has been invalidated');
 
     try {
       const payload = this.jwtService.verify(dto.refresh_token);
       // Blacklist the old refresh token
-      await this.redis.set(`bl_rt_${dto.refresh_token}`, '1', 'EX', REFRESH_EXPIRY_SECONDS);
+      await this.blacklistSet(`bl_rt_${dto.refresh_token}`, REFRESH_EXPIRY_SECONDS);
 
       const newPayload = { userId: payload.userId, role: payload.role, brandId: payload.brandId, storeId: payload.storeId };
       return {
