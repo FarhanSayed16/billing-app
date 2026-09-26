@@ -4,7 +4,8 @@ services:
     env: node
     plan: free
     rootDir: backend
-    buildCommand: "npm install && npx prisma generate && npm run build"
+    # --include=dev is required: NODE_ENV=production would skip @nestjs/cli and break `nest build`
+    buildCommand: "npm install --include=dev && npx prisma generate && npx nest build"
     startCommand: "npx prisma migrate deploy && npm run start:prod"
     envVars:
       - key: DATABASE_URL
