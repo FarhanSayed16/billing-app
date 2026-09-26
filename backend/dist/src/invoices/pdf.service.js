@@ -41,28 +41,58 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var PdfService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PdfService = void 0;
 const common_1 = require("@nestjs/common");
-const puppeteer = __importStar(require("puppeteer"));
 const qrcode = __importStar(require("qrcode"));
 const s3_service_1 = require("../common/s3.service");
-let PdfService = class PdfService {
+let PdfService = PdfService_1 = class PdfService {
     s3Service;
+    logger = new common_1.Logger(PdfService_1.name);
     constructor(s3Service) {
         this.s3Service = s3Service;
     }
+    escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    async launchBrowser() {
+        const isProd = process.env.NODE_ENV === 'production';
+        if (isProd) {
+            const chromium = require('@sparticuz/chromium');
+            const puppeteer = require('puppeteer-core');
+            return puppeteer.launch({
+                args: chromium.args,
+                defaultViewport: chromium.defaultViewport,
+                executablePath: await chromium.executablePath(),
+                headless: chromium.headless,
+            });
+        }
+        const puppeteer = require('puppeteer');
+        return puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+    }
     async generateInvoicePdf(invoice) {
         const qrDataUrl = await qrcode.toDataURL(invoice.billing_id);
-        const itemsHtml = invoice.items.map(item => `
+        const brandColor = this.escapeHtml(invoice.store.brand_color || '#333');
+        const itemsHtml = invoice.items
+            .map((item) => `
       <tr>
-        <td>${item.name}</td>
-        <td>${item.quantity}</td>
+        <td>${this.escapeHtml(item.name)}</td>
+        <td>${this.escapeHtml(item.quantity)}</td>
         <td>₹${Number(item.unit_price).toFixed(2)}</td>
         <td>${Number(item.tax_rate).toFixed(1)}%</td>
         <td>₹${Number(item.total).toFixed(2)}</td>
       </tr>
-    `).join('');
+    `)
+            .join('');
         const html = `
       <!DOCTYPE html>
       <html>
@@ -72,7 +102,7 @@ let PdfService = class PdfService {
           body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #333; }
           .header { text-align: center; margin-bottom: 30px; }
           .header img { max-height: 80px; margin-bottom: 10px; }
-          .header h1 { margin: 0; font-size: 24px; color: ${invoice.store.brand_color || '#333'}; }
+          .header h1 { margin: 0; font-size: 24px; color: ${brandColor}; }
           .info-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
           .info-box { width: 48%; }
           table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
@@ -88,23 +118,23 @@ let PdfService = class PdfService {
       </head>
       <body>
         <div class="header">
-          ${invoice.store.logo_url ? `<img src="${invoice.store.logo_url}" />` : ''}
-          <h1>${invoice.store.name}</h1>
-          <p>${invoice.store.address}, ${invoice.store.city}</p>
-          <p>Ph: ${invoice.store.phone} | GST: ${invoice.store.gst_number || 'N/A'}</p>
+          ${invoice.store.logo_url ? `<img src="${this.escapeHtml(invoice.store.logo_url)}" />` : ''}
+          <h1>${this.escapeHtml(invoice.store.name)}</h1>
+          <p>${this.escapeHtml(invoice.store.address)}, ${this.escapeHtml(invoice.store.city)}</p>
+          <p>Ph: ${this.escapeHtml(invoice.store.phone)} | GST: ${this.escapeHtml(invoice.store.gst_number || 'N/A')}</p>
         </div>
 
         <div class="info-section">
           <div class="info-box">
             <h3>Invoice to:</h3>
-            <p>${invoice.customer?.name || 'Guest User'}</p>
-            ${invoice.customer?.phone ? `<p>Ph: ${invoice.customer.phone}</p>` : ''}
+            <p>${this.escapeHtml(invoice.customer?.name || 'Guest User')}</p>
+            ${invoice.customer?.phone ? `<p>Ph: ${this.escapeHtml(invoice.customer.phone)}</p>` : ''}
           </div>
           <div class="info-box" style="text-align: right;">
             <h3>Invoice Details:</h3>
-            <p><strong>No:</strong> ${invoice.invoice_number}</p>
-            <p><strong>Date:</strong> ${new Date(invoice.created_at).toLocaleDateString()}</p>
-            <p><strong>Billing ID:</strong> ${invoice.billing_id}</p>
+            <p><strong>No:</strong> ${this.escapeHtml(invoice.invoice_number)}</p>
+            <p><strong>Date:</strong> ${this.escapeHtml(new Date(invoice.created_at).toLocaleDateString())}</p>
+            <p><strong>Billing ID:</strong> ${this.escapeHtml(invoice.billing_id)}</p>
           </div>
         </div>
 
@@ -138,35 +168,35 @@ let PdfService = class PdfService {
 
         <div class="footer">
           <p>Powered by <strong>BillPush</strong></p>
-          <a href="https://billpush.com">billpush.com</a>
         </div>
       </body>
       </html>
     `;
-        const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-        const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-        await browser.close();
-        const mockFile = {
-            fieldname: 'file',
-            originalname: `${invoice.billing_id}.pdf`,
-            encoding: '7bit',
-            mimetype: 'application/pdf',
-            size: pdfBuffer.length,
-            buffer: Buffer.from(pdfBuffer),
-            stream: null,
-            destination: '',
-            filename: '',
-            path: ''
-        };
-        const key = `invoices/${invoice.store_id}/${invoice.billing_id}.pdf`;
-        const s3Url = await this.s3Service.uploadFile(mockFile, key);
-        return s3Url;
+        let browser;
+        try {
+            browser = await this.launchBrowser();
+            const page = await browser.newPage();
+            await page.setContent(html, { waitUntil: 'networkidle0' });
+            const pdfBuffer = Buffer.from(await page.pdf({ format: 'A4', printBackground: true }));
+            const key = `invoices/${invoice.store_id}/${invoice.billing_id}.pdf`;
+            return await this.s3Service.uploadBuffer(pdfBuffer, key, 'application/pdf');
+        }
+        catch (err) {
+            this.logger.error('PDF generation failed', err);
+            throw err;
+        }
+        finally {
+            if (browser) {
+                try {
+                    await browser.close();
+                }
+                catch (_) { }
+            }
+        }
     }
 };
 exports.PdfService = PdfService;
-exports.PdfService = PdfService = __decorate([
+exports.PdfService = PdfService = PdfService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [s3_service_1.S3Service])
 ], PdfService);

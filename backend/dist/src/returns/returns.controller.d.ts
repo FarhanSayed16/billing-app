@@ -11,8 +11,8 @@ export declare class ReturnsController {
             created_at: Date;
             updated_at: Date;
             store_id: string;
-            status: string;
             employee_id: string;
+            status: string;
             invoice_id: string;
             reason: string | null;
             refund_amount: import("@prisma/client/runtime/library").Decimal;
@@ -20,19 +20,23 @@ export declare class ReturnsController {
         };
     }>;
     getPendingReturns(req: any): Promise<({
-        employee: {
-            name: string;
+        invoice: {
+            customer: {
+                name: string;
+                phone: string;
+            } | null;
+            billing_id: string;
         };
         items: ({
             invoice_item: {
                 id: string;
                 name: string;
-                tax_rate: import("@prisma/client/runtime/library").Decimal;
-                quantity: number;
-                product_id: string | null;
                 tax_amount: import("@prisma/client/runtime/library").Decimal;
-                unit_price: import("@prisma/client/runtime/library").Decimal;
                 total: import("@prisma/client/runtime/library").Decimal;
+                product_id: string | null;
+                quantity: number;
+                unit_price: import("@prisma/client/runtime/library").Decimal;
+                tax_rate: import("@prisma/client/runtime/library").Decimal;
                 returned_quantity: number;
                 invoice_id: string;
             };
@@ -42,12 +46,8 @@ export declare class ReturnsController {
             invoice_item_id: string;
             return_request_id: string;
         })[];
-        invoice: {
-            customer: {
-                name: string;
-                phone: string;
-            } | null;
-            billing_id: string;
+        employee: {
+            name: string;
         };
     } & {
         id: string;
@@ -55,8 +55,8 @@ export declare class ReturnsController {
         created_at: Date;
         updated_at: Date;
         store_id: string;
-        status: string;
         employee_id: string;
+        status: string;
         invoice_id: string;
         reason: string | null;
         refund_amount: import("@prisma/client/runtime/library").Decimal;

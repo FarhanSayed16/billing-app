@@ -16,6 +16,7 @@ const billing_id_util_1 = require("./utils/billing-id.util");
 const invoice_number_util_1 = require("./utils/invoice-number.util");
 const pdf_service_1 = require("./pdf.service");
 const client_1 = require("@prisma/client");
+const money_util_1 = require("../common/money.util");
 let InvoicesService = class InvoicesService {
     prisma;
     pdfService;
@@ -51,25 +52,25 @@ let InvoicesService = class InvoicesService {
                     throw new common_1.BadRequestException('Invalid customer ID');
                 }
             }
-            let subtotal = 0;
-            let taxAmount = 0;
+            let subtotalPaise = 0;
+            let taxAmountPaise = 0;
             const invoiceItemsInput = createInvoiceDto.items.map(item => {
-                const itemTax = item.quantity * item.unit_price * (item.tax_rate / 100);
-                const itemTotal = (item.quantity * item.unit_price) + itemTax;
-                subtotal += (item.quantity * item.unit_price);
-                taxAmount += itemTax;
+                const itemTaxPaise = (0, money_util_1.lineTaxPaise)(item.quantity, item.unit_price, item.tax_rate);
+                const itemTotalPaise = (0, money_util_1.lineTotalPaise)(item.quantity, item.unit_price, item.tax_rate);
+                subtotalPaise += (0, money_util_1.toPaise)(item.quantity * item.unit_price);
+                taxAmountPaise += itemTaxPaise;
                 return {
                     product_id: item.product_id || null,
                     name: item.name,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
                     tax_rate: item.tax_rate,
-                    tax_amount: itemTax,
-                    total: itemTotal,
+                    tax_amount: (0, money_util_1.fromPaise)(itemTaxPaise),
+                    total: (0, money_util_1.fromPaise)(itemTotalPaise),
                 };
             });
             const redeemedPoints = createInvoiceDto.loyalty_points_redeemed || 0;
-            let loyaltyDiscount = 0;
+            let loyaltyDiscountPaise = 0;
             if (redeemedPoints > 0) {
                 if (!existingCustomer || existingCustomer.loyalty_points < redeemedPoints) {
                     throw new common_1.BadRequestException('Insufficient loyalty points');
@@ -77,21 +78,30 @@ let InvoicesService = class InvoicesService {
                 if (redeemedPoints < store.brand.loyalty_min_redemption) {
                     throw new common_1.BadRequestException(`Minimum points to redeem is ${store.brand.loyalty_min_redemption}`);
                 }
-                loyaltyDiscount = redeemedPoints * 1;
+                loyaltyDiscountPaise = (0, money_util_1.toPaise)(redeemedPoints);
             }
-            const discountAmount = createInvoiceDto.discount_amount || 0;
-            const grandTotal = subtotal + taxAmount - discountAmount - loyaltyDiscount;
-            if (grandTotal < 0)
+            const discountAmountPaise = (0, money_util_1.toPaise)(createInvoiceDto.discount_amount || 0);
+            const grandTotalPaise = subtotalPaise + taxAmountPaise - discountAmountPaise - loyaltyDiscountPaise;
+            if (grandTotalPaise < 0)
                 throw new common_1.BadRequestException('Grand total cannot be negative');
+            const subtotal = (0, money_util_1.fromPaise)(subtotalPaise);
+            const taxAmount = (0, money_util_1.fromPaise)(taxAmountPaise);
+            const discountAmount = (0, money_util_1.fromPaise)(discountAmountPaise);
+            const loyaltyDiscount = (0, money_util_1.fromPaise)(loyaltyDiscountPaise);
+            const grandTotal = (0, money_util_1.fromPaise)(grandTotalPaise);
             const earnedPoints = Math.floor(grandTotal / 100) * store.brand.loyalty_points_per_100;
-            let billingId = (0, billing_id_util_1.generateBillingId)();
+            let billingId = createInvoiceDto.billing_id?.trim() || (0, billing_id_util_1.generateBillingId)();
             let unique = false;
             while (!unique) {
                 const existing = await tx.invoice.findUnique({ where: { billing_id: billingId } });
                 if (!existing)
                     unique = true;
-                else
+                else {
+                    if (createInvoiceDto.billing_id) {
+                        throw new common_1.BadRequestException('billing_id already exists');
+                    }
                     billingId = (0, billing_id_util_1.generateBillingId)();
+                }
             }
             await tx.$queryRaw `SELECT id FROM stores WHERE id = ${storeId}::uuid FOR UPDATE`;
             const currentYear = new Date().getFullYear();
@@ -172,21 +182,14 @@ let InvoicesService = class InvoicesService {
                     const inv = await tx.storeInventory.findFirst({
                         where: { store_id: storeId, product_id: item.product_id }
                     });
-                    if (inv) {
-                        await tx.storeInventory.update({
-                            where: { id: inv.id },
-                            data: { quantity: { decrement: item.quantity } }
-                        });
+                    const available = inv?.quantity ?? 0;
+                    if (!inv || available < item.quantity) {
+                        throw new common_1.BadRequestException(`Insufficient stock for "${item.name}". Available: ${available}, requested: ${item.quantity}`);
                     }
-                    else {
-                        await tx.storeInventory.create({
-                            data: {
-                                store_id: storeId,
-                                product_id: item.product_id,
-                                quantity: -item.quantity
-                            }
-                        });
-                    }
+                    await tx.storeInventory.update({
+                        where: { id: inv.id },
+                        data: { quantity: { decrement: item.quantity } }
+                    });
                 }
             }
             return invoice;
@@ -252,18 +255,40 @@ let InvoicesService = class InvoicesService {
             meta: { total, page: Number(page), limit: Number(limit) }
         };
     }
-    async findOne(id, role, userStoreId, userId) {
+    async findOne(id, role, userStoreId, userId, brandId) {
         const invoice = await this.prisma.invoice.findUnique({
             where: { id },
             include: { items: true, customer: true, store: true }
         });
         if (!invoice)
             throw new common_1.NotFoundException('Invoice not found');
+        if (brandId && invoice.brand_id !== brandId) {
+            throw new common_1.ForbiddenException('Access denied');
+        }
         if (role === client_1.Role.EMPLOYEE && invoice.employee_id !== userId) {
             throw new common_1.ForbiddenException('Access denied');
         }
         if (role === client_1.Role.STORE_ADMIN && invoice.store_id !== userStoreId) {
             throw new common_1.ForbiddenException('Access denied');
+        }
+        return invoice;
+    }
+    async findOneByBillingIdForStaff(billingId, role, brandId, userStoreId, userId) {
+        const invoice = await this.prisma.invoice.findUnique({
+            where: { billing_id: billingId },
+            include: { items: true, customer: true, store: true },
+        });
+        if (!invoice)
+            throw new common_1.NotFoundException('Invoice not found');
+        if (invoice.brand_id !== brandId)
+            throw new common_1.ForbiddenException('Access denied');
+        if (role === client_1.Role.EMPLOYEE) {
+            if (invoice.store_id !== userStoreId)
+                throw new common_1.ForbiddenException('Access denied');
+        }
+        else if (role === client_1.Role.STORE_ADMIN) {
+            if (invoice.store_id !== userStoreId)
+                throw new common_1.ForbiddenException('Access denied');
         }
         return invoice;
     }
@@ -308,7 +333,22 @@ let InvoicesService = class InvoicesService {
         });
         if (!invoice)
             throw new common_1.NotFoundException('Invoice not found');
-        return invoice;
+        const phone = invoice.customer?.phone;
+        return {
+            ...invoice,
+            customer: invoice.customer
+                ? {
+                    name: invoice.customer.name,
+                    phone: phone ? this.maskPhone(phone) : null,
+                }
+                : null,
+        };
+    }
+    maskPhone(phone) {
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length < 4)
+            return '****';
+        return `****${digits.slice(-4)}`;
     }
     async findCustomerSummary(phone) {
         const invoices = await this.prisma.invoice.findMany({
@@ -331,7 +371,10 @@ let InvoicesService = class InvoicesService {
     }
     async voidInvoice(id, storeId, userId) {
         return this.prisma.$transaction(async (tx) => {
-            const invoice = await tx.invoice.findUnique({ where: { id } });
+            const invoice = await tx.invoice.findUnique({
+                where: { id },
+                include: { items: true },
+            });
             if (!invoice)
                 throw new common_1.NotFoundException('Invoice not found');
             if (invoice.store_id !== storeId)
@@ -342,24 +385,69 @@ let InvoicesService = class InvoicesService {
                 where: { id },
                 data: { status: client_1.InvoiceStatus.FULLY_REFUNDED }
             });
+            for (const item of invoice.items) {
+                if (!item.product_id)
+                    continue;
+                const restoreQty = item.quantity - item.returned_quantity;
+                if (restoreQty <= 0)
+                    continue;
+                const inv = await tx.storeInventory.findFirst({
+                    where: { store_id: storeId, product_id: item.product_id },
+                });
+                if (inv) {
+                    await tx.storeInventory.update({
+                        where: { id: inv.id },
+                        data: { quantity: { increment: restoreQty } },
+                    });
+                }
+                else {
+                    await tx.storeInventory.create({
+                        data: {
+                            store_id: storeId,
+                            product_id: item.product_id,
+                            quantity: restoreQty,
+                        },
+                    });
+                }
+                await tx.invoiceItem.update({
+                    where: { id: item.id },
+                    data: { returned_quantity: item.quantity },
+                });
+            }
             if (invoice.customer_id) {
-                const store = await tx.store.findUnique({ where: { id: storeId }, include: { brand: true } });
-                const pointsReversal = Math.floor(Number(invoice.grand_total) / 100) * (store?.brand.loyalty_points_per_100 || 1);
+                const earned = invoice.loyalty_points_earned || 0;
+                const redeemed = invoice.loyalty_points_redeemed || 0;
+                const loyaltyDelta = -earned + redeemed;
                 await tx.customer.update({
                     where: { id: invoice.customer_id },
                     data: {
                         total_spend: { decrement: invoice.grand_total },
-                        loyalty_points: { decrement: pointsReversal }
+                        total_visits: { decrement: 1 },
+                        loyalty_points: { increment: loyaltyDelta },
                     }
                 });
-                await tx.loyaltyLedger.create({
-                    data: {
-                        customer_id: invoice.customer_id,
-                        invoice_id: invoice.id,
-                        points: -pointsReversal,
-                        type: client_1.LedgerType.ADJUSTED,
-                    }
-                });
+                if (earned > 0) {
+                    await tx.loyaltyLedger.create({
+                        data: {
+                            customer_id: invoice.customer_id,
+                            invoice_id: invoice.id,
+                            points: -earned,
+                            type: client_1.LedgerType.ADJUSTED,
+                            description: `Void: reverse earned points on ${invoice.billing_id}`,
+                        }
+                    });
+                }
+                if (redeemed > 0) {
+                    await tx.loyaltyLedger.create({
+                        data: {
+                            customer_id: invoice.customer_id,
+                            invoice_id: invoice.id,
+                            points: redeemed,
+                            type: client_1.LedgerType.ADJUSTED,
+                            description: `Void: restore redeemed points on ${invoice.billing_id}`,
+                        }
+                    });
+                }
             }
             await tx.auditLog.create({
                 data: {
@@ -373,8 +461,8 @@ let InvoicesService = class InvoicesService {
             return { message: 'Invoice voided successfully' };
         });
     }
-    async getGeneratePdf(id, role, userStoreId, userId) {
-        const invoice = await this.findOne(id, role, userStoreId, userId);
+    async getGeneratePdf(id, role, userStoreId, userId, brandId) {
+        const invoice = await this.findOne(id, role, userStoreId, userId, brandId);
         if (invoice.invoice_pdf_url) {
             return { url: invoice.invoice_pdf_url };
         }
@@ -385,10 +473,8 @@ let InvoicesService = class InvoicesService {
         });
         return { url: s3Url };
     }
-    async markShared(id) {
-        const invoice = await this.prisma.invoice.findUnique({ where: { id } });
-        if (!invoice)
-            throw new common_1.NotFoundException('Invoice not found');
+    async markShared(id, role, brandId, userStoreId, userId) {
+        await this.findOne(id, role, userStoreId, userId, brandId);
         await this.prisma.invoice.update({
             where: { id },
             data: { share_triggered: true },

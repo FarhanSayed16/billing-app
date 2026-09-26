@@ -28,8 +28,7 @@ let ReturnsController = class ReturnsController {
         return this.returnsService.createReturn(req.user, createReturnDto);
     }
     async getPendingReturns(req) {
-        const storeId = req.user.store_id;
-        return this.returnsService.getPendingReturns(storeId, req.user.brand_id);
+        return this.returnsService.getPendingReturns(req.user.storeId, req.user.brandId);
     }
     async approveReturn(req, id) {
         return this.returnsService.approveReturn(req.user, id);

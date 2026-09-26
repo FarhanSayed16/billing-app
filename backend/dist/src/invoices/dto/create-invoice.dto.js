@@ -49,6 +49,7 @@ class CreateInvoiceDto {
     customer_id;
     customer_phone;
     customer_name;
+    billing_id;
     items;
     discount_amount = 0;
     loyalty_points_redeemed = 0;
@@ -69,6 +70,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateInvoiceDto.prototype, "customer_name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateInvoiceDto.prototype, "billing_id", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.ValidateNested)({ each: true }),

@@ -9,6 +9,7 @@ export declare class CreateInvoiceDto {
     customer_id?: string;
     customer_phone?: string;
     customer_name?: string;
+    billing_id?: string;
     items: InvoiceItemDto[];
     discount_amount?: number;
     loyalty_points_redeemed?: number;

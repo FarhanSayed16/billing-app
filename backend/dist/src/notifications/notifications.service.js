@@ -59,14 +59,22 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
     initFirebase() {
         try {
             if (!admin.apps.length) {
-                const serviceAccountPath = process.env.FIREBASE_CREDENTIALS || './firebase-service-account.json';
                 let credential;
-                try {
-                    const serviceAccount = require('../../' + serviceAccountPath);
-                    credential = admin.credential.cert(serviceAccount);
+                const jsonInline = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+                if (jsonInline) {
+                    credential = admin.credential.cert(JSON.parse(jsonInline));
                 }
-                catch (e) {
-                    this.logger.warn(`Firebase credentials missing at ${serviceAccountPath}. Push notifications simulation mode active.`);
+                else {
+                    const serviceAccountPath = process.env.FIREBASE_CREDENTIALS || './firebase-service-account.json';
+                    try {
+                        const serviceAccount = require(serviceAccountPath.startsWith('.') || serviceAccountPath.startsWith('/')
+                            ? require('path').resolve(process.cwd(), serviceAccountPath)
+                            : serviceAccountPath);
+                        credential = admin.credential.cert(serviceAccount);
+                    }
+                    catch (e) {
+                        this.logger.warn(`Firebase credentials missing. Push notifications simulation mode active.`);
+                    }
                 }
                 if (credential) {
                     this.firebaseApp = admin.initializeApp({ credential });

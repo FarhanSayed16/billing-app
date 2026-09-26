@@ -18,6 +18,7 @@ const loyalty_service_1 = require("./loyalty.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const throttler_1 = require("@nestjs/throttler");
 let LoyaltyController = class LoyaltyController {
     loyaltyService;
     constructor(loyaltyService) {
@@ -27,14 +28,15 @@ let LoyaltyController = class LoyaltyController {
         return this.loyaltyService.getPublicLoyaltyByPhone(phone);
     }
     async getCustomerLoyalty(req, customerId) {
-        return this.loyaltyService.getCustomerLoyalty(req.user.brand_id, customerId);
+        return this.loyaltyService.getCustomerLoyalty(req.user.brandId, customerId);
     }
     async getLoyaltyByPhone(req, phone) {
-        return this.loyaltyService.getCustomerLoyaltyByPhone(req.user.brand_id, phone);
+        return this.loyaltyService.getCustomerLoyaltyByPhone(req.user.brandId, phone);
     }
 };
 exports.LoyaltyController = LoyaltyController;
 __decorate([
+    (0, throttler_1.Throttle)({ default: { limit: 20, ttl: 60_000 } }),
     (0, common_1.Get)('public/:phone/balance'),
     __param(0, (0, common_1.Param)('phone')),
     __metadata("design:type", Function),
